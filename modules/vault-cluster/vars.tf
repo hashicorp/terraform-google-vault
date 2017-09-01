@@ -3,42 +3,46 @@
 # You must provide a value for each of these parameters.
 # ---------------------------------------------------------------------------------------------------------------------
 
+variable "gcp_zone" {
+  description = "All GCP resources will be launched in this Zone."
+}
+
 variable "cluster_name" {
   description = "The name of the Vault cluster (e.g. vault-stage). This variable is used to namespace all resources created by this module."
 }
 
-variable "ami_id" {
-  description = "The ID of the AMI to run in this cluster. Should be an AMI that had Vault installed and configured by the install-vault module."
+# TODO: Do I need this?
+variable "cluster_tag_name" {
+  description = "The tag name the Compute Instances will look for to automatically discover each other and form a cluster. TIP: If running more than one VAult cluster, each cluster should have its own unique tag name."
 }
 
-variable "instance_type" {
-  description = "The type of EC2 Instances to run for each node in the cluster (e.g. t2.micro)."
-}
-
-variable "vpc_id" {
-  description = "The ID of the VPC in which to deploy the cluster"
-}
-
-variable "allowed_inbound_cidr_blocks" {
-  description = "A list of CIDR-formatted IP address ranges from which the EC2 Instances will allow connections to Vault"
-  type        = "list"
-}
-
-variable "allowed_inbound_security_group_ids" {
-  description = "A list of security group IDs that will be allowed to connect to Vault"
-  type        = "list"
-}
-
-variable "user_data" {
-  description = "A User Data script to execute while the server is booting. We remmend passing in a bash script that executes the run-vault script, which should have been installed in the AMI by the install-vault module."
+variable "machine_type" {
+  description = "The machine type of the Compute Instance to run for each node in the cluster (e.g. n1-standard-1)."
 }
 
 variable "cluster_size" {
-  description = "The number of nodes to have in the cluster. We strongly recommend setting this to 3 or 5."
+  description = "The number of nodes to have in the Vault cluster. We strongly recommended that you use either 3 or 5."
 }
 
-variable "s3_bucket_name" {
-  description = "The name of the S3 bucket to create and use as a storage backend."
+variable "source_image" {
+  description = "The source image used to create the boot disk for a Vault node. Only images based on Ubuntu 16.04 LTS are supported at this time."
+}
+
+# TODO: Mention something about Consul and Vault being co-located?
+variable "startup_script" {
+  description = "A Startup Script to execute when the server first boots. We remmend passing in a bash script that executes the run-vault script, which should have been installed in the Vault Google Image by the install-vault module."
+}
+
+variable "storage_bucket_name" {
+  description = "The name of the Google Storage Bucket where Vault secrets will be stored."
+}
+
+variable "storage_bucket_location" {
+  description = "The location of the Google Storage Bucket where Vault secrets will be stored. For details, see https://goo.gl/hk63jH."
+}
+
+variable "storage_bucket_storage_class" {
+  description = "The Storage Class of the Google Storage Bucket where Vault secrets will be stored. Must be one of MULTI_REGIONAL, REGIONAL, NEARLINE, or COLDLINE. For details, see https://goo.gl/hk63jH."
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -46,123 +50,90 @@ variable "s3_bucket_name" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "subnet_ids" {
-  description = "The subnet IDs into which the EC2 Instances should be deployed. You should typically pass in one subnet ID per node in the cluster_size variable. We strongly recommend that you run Vault in private subnets. At least one of var.subnet_ids or var.availability_zones must be non-empty."
-  type        = "list"
-  default     = []
+variable "instance_group_target_pools" {
+  description = "To use a Load Balancer with the Consul cluster, you must populate this value. Specifically, this is the list of Target Pool URLs to which new Compute Instances in the Instance Group created by this module will be added. Note that updating the Target Pools attribute does not affect existing Compute Instances."
+  type = "list"
+  default = []
 }
 
-variable "availability_zones" {
-  description = "The availability zones into which the EC2 Instances should be deployed. You should typically pass in one availability zone per node in the cluster_size variable. We strongly recommend against passing in only a list of availability zones, as that will run Vault in the default (and most likely public) subnets in your VPC. At least one of var.subnet_ids or var.availability_zones must be non-empty."
-  type        = "list"
-  default     = []
+variable "cluster_description" {
+  description = "A description of the Vault cluster; it will be added to the Compute Instance Template."
+  default = ""
 }
 
-variable "ssh_key_name" {
-  description = "The name of an EC2 Key Pair that can be used to SSH to the EC2 Instances in this cluster. Set to an empty string to not associate a Key Pair."
-  default     = ""
+variable "assign_public_ip_addresses" {
+  description = "If true, each of the Compute Instances will receive a public IP address and be reachable from the Public Internet (if Firewall rules permit). If false, the Compute Instances will have private IP addresses only. In production, this should be set to false."
+  default = false
 }
 
-variable "allowed_ssh_cidr_blocks" {
-  description = "A list of CIDR-formatted IP address ranges from which the EC2 Instances will allow SSH connections"
-  type        = "list"
-  default     = []
+variable "network_name" {
+  description = "The name of the VPC Network where all resources should be created."
+  default = "default"
 }
 
-variable "allowed_ssh_security_group_ids" {
-  description = "A list of security group IDs from which the EC2 Instances will allow SSH connections"
-  type        = "list"
-  default     = []
+variable "custom_tags" {
+  description = "A list of tags that will be added to the Compute Instance Template in addition to the tags automatically added by this module."
+  type = "list"
+  default = []
 }
 
-variable "cluster_tag_key" {
-  description = "Add a tag with this key and the value var.cluster_name to each Instance in the ASG."
-  default     = "Name"
+variable "instance_group_update_strategy" {
+  description = "The update strategy to be used by the Instance Group. IMPORTANT! When you update almost any cluster setting, under the hood, this module creates a new Instance Group Template. Once that Instance Group Template is created, the value of this variable determines how the new Template will be rolled out across the Instance Group. Unfortunately, as of August 2017, Google only supports the options 'RESTART' (instantly restart all Compute Instances and launch new ones from the new Template) or 'NONE' (do nothing; updates should be handled manually). Google does offer a rolling updates feature that perfectly meets our needs, but this is in Alpha (https://goo.gl/MC3mfc). Therefore, until this module supports a built-in rolling update strategy, we recommend using `NONE` and either using the alpha rolling updates strategy to roll out new Vault versions, or to script this using GCE API calls. If using the alpha feature, be sure you are comfortable with the level of risk you are taking on. For additional detail, see https://goo.gl/hGH6dd."
+  default = "NONE"
 }
 
-variable "termination_policies" {
-  description = "A list of policies to decide how the instances in the auto scale group should be terminated. The allowed values are OldestInstance, NewestInstance, OldestLaunchConfiguration, ClosestToNextInstanceHour, Default."
-  default     = "Default"
+# Metadata
+
+variable "metadata_key_name_for_cluster_size" {
+  description = "The key name to be used for the custom metadata attribute that represents the size of the Vault cluster."
+  default = "cluster-size"
 }
 
-variable "associate_public_ip_address" {
-  description = "If set to true, associate a public IP address with each EC2 Instance in the cluster. We strongly recommend against making Vault nodes publicly accessible, except through an ELB (see the vault-elb module)."
-  default     = false
+variable "custom_metadata" {
+  description = "A map of metadata key value pairs to assign to the Compute Instance metadata."
+  type = "map"
+  default = {}
 }
 
-variable "tenancy" {
-  description = "The tenancy of the instance. Must be one of: default or dedicated."
-  default     = "default"
-}
-
-variable "root_volume_ebs_optimized" {
-  description = "If true, the launched EC2 instance will be EBS-optimized."
-  default     = false
-}
-
-variable "root_volume_type" {
-  description = "The type of volume. Must be one of: standard, gp2, or io1."
-  default     = "standard"
-}
-
-variable "root_volume_size" {
-  description = "The size, in GB, of the root EBS volume."
-  default     = 50
-}
-
-variable "root_volume_delete_on_termination" {
-  description = "Whether the volume should be destroyed on instance termination."
-  default     = true
-}
-
-variable "target_group_arns" {
-  description = "A list of target group ARNs of Application Load Balanacer (ALB) targets to associate with this ASG. If you're using a Elastic Load Balancer (AKA ELB Classic), use the load_balancers variable instead."
-  type        = "list"
-  default     = []
-}
-
-variable "load_balancers" {
-  description = "A list of Elastic Load Balancer (ELB) names to associate with this ASG. If you're using an Application Load Balancer (ALB), use the target_group_arns variable instead."
-  type        = "list"
-  default     = []
-}
-
-variable "wait_for_capacity_timeout" {
-  description = "A maximum duration that Terraform should wait for ASG instances to be healthy before timing out. Setting this to '0' causes Terraform to skip all Capacity Waiting behavior."
-  default     = "10m"
-}
-
-variable "health_check_type" {
-  description = "Controls how health checking is done. Must be one of EC2 or ELB."
-  default     = "EC2"
-}
-
-variable "health_check_grace_period" {
-  description = "Time, in seconds, after instance comes into service before checking health."
-  default     = 300
-}
-
-variable "instance_profile_path" {
-  description = "Path in which to create the IAM instance profile."
-  default     = "/"
-}
+# Firewall Ports
 
 variable "api_port" {
-  description = "The port to use for Vault API calls"
-  default     = 8200
+  description = "The port used by Vault to handle incoming API requests."
+  default = 8200
 }
 
 variable "cluster_port" {
-  description = "The port to use for Vault server-to-server communication"
-  default     = 8201
+  description = "The port used by Vault for server-to-server communication."
+  default = 8201
 }
 
-variable "ssh_port" {
-  description = "The port used for SSH connections"
-  default     = 22
+variable "allowed_inbound_cidr_blocks_api" {
+  description = "A list of CIDR-formatted IP address ranges from which the Compute Instances will allow connections to Vault on the configured TCP Listener (see https://goo.gl/Equ4xP)"
+  type = "list"
+  default = ["0.0.0.0/0"]
 }
 
-variable "force_destroy_s3_bucket" {
-  description = "If you set this to true, when you run terraform destroy, this tells Terraform to delete all the objects in the S3 bucket used for backend storage. You should NOT set this to true in production or you risk losing all your data! This property is only here so automated tests of this blueprint can clean up after themselves."
-  default     = false
+variable "allowed_inbound_tags_api" {
+  description = "A list of tags from which the Compute Instances will allow connections to Vault on the configured TCP Listener (see https://goo.gl/Equ4xP)"
+  type = "list"
+  default = []
+}
+
+# Disk Settings
+
+variable "root_volume_disk_size_gb" {
+  description = "The size, in GB, of the root disk volume on each Consul node."
+  default = 30
+}
+
+variable "root_volume_disk_type" {
+  description = "The GCE disk type. Can be either pd-ssd, local-ssd, or pd-standard"
+  default = "pd-standard"
+}
+
+# Google Storage Bucket Settings
+
+variable "storage_bucket_force_destroy" {
+  description = "If true, Terraform will delete the Bucket even if it's non-empty. WARNING! Never set this to true in a production setting. We only have this option here to facilitate testing."
+  default = false
 }

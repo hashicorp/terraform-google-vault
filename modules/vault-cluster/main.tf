@@ -1,210 +1,221 @@
 # ---------------------------------------------------------------------------------------------------------------------
-# THESE TEMPLATES REQUIRE TERRAFORM VERSION 0.8 AND ABOVE
+# THESE TEMPLATES REQUIRE TERRAFORM VERSION 0.10.3 AND ABOVE
+# Why? Because we want the latest GCP updates available in https://github.com/terraform-providers/terraform-provider-google
 # ---------------------------------------------------------------------------------------------------------------------
 
 terraform {
-  required_version = ">= 0.9.3"
+  required_version = ">= 0.10.3"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# CREATE AN AUTO SCALING GROUP (ASG) TO RUN VAULT
+# CREATE A GCE MANAGED INSTANCE GROUP TO RUN VAULT
+# Ideally, we would run a "regional" Managed Instance Group that spans many Zones, but the Terraform GCP provider has
+# not yet implemented https://github.com/terraform-providers/terraform-provider-google/issues/45, so we settle for a
+# single-zone Managed Instance Group.
 # ---------------------------------------------------------------------------------------------------------------------
 
-resource "aws_autoscaling_group" "autoscaling_group" {
-  launch_configuration = "${aws_launch_configuration.launch_configuration.name}"
+# Create the single-zone Managed Instance Group where Vault will run.
+resource "google_compute_instance_group_manager" "vault" {
+  name = "${var.cluster_name}-ig"
 
-  availability_zones  = ["${var.availability_zones}"]
-  vpc_zone_identifier = ["${var.subnet_ids}"]
+  base_instance_name = "${var.cluster_name}"
+  instance_template  = "${data.template_file.compute_instance_template_self_link.rendered}"
+  zone               = "${var.gcp_zone}"
 
-  # Use a fixed-size cluster
-  min_size             = "${var.cluster_size}"
-  max_size             = "${var.cluster_size}"
-  desired_capacity     = "${var.cluster_size}"
-  termination_policies = ["${var.termination_policies}"]
+  # Restarting a Vault server has an important consequence: The Vault server has to be manually unsealed again. Therefore,
+  # the update strategy used to roll out a new GCE Instance Template must be a rolling update. But since Terraform does
+  # not yet support ROLLING_UPDATE, such updates must be manually rolled out for now.
+  update_strategy = "${var.instance_group_update_strategy}"
 
-  target_group_arns         = ["${var.target_group_arns}"]
-  load_balancers            = ["${var.load_balancers}"]
-  health_check_type         = "${var.health_check_type}"
-  health_check_grace_period = "${var.health_check_grace_period}"
-  wait_for_capacity_timeout = "${var.wait_for_capacity_timeout}"
+  target_pools = ["${var.instance_group_target_pools}"]
+  target_size  = "${var.cluster_size}"
 
-  tag {
-    key                 = "${var.cluster_tag_key}"
-    value               = "${var.cluster_name}"
-    propagate_at_launch = true
-  }
+  depends_on = ["google_compute_instance_template.vault_public", "google_compute_instance_template.vault_private"]
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# CREATE LAUNCH CONFIGURATION TO DEFINE WHAT RUNS ON EACH INSTANCE IN THE ASG
-# ---------------------------------------------------------------------------------------------------------------------
+# Create the Instance Template that will be used to populate the Managed Instance Group.
+# NOTE: This Compute Instance Template is only created if var.assign_public_ip_addresses is true.
+resource "google_compute_instance_template" "vault_public" {
+  count = "${var.assign_public_ip_addresses}"
 
-resource "aws_launch_configuration" "launch_configuration" {
-  name_prefix   = "${var.cluster_name}-"
-  image_id      = "${var.ami_id}"
-  instance_type = "${var.instance_type}"
-  user_data     = "${var.user_data}"
-
-  iam_instance_profile        = "${aws_iam_instance_profile.instance_profile.name}"
-  key_name                    = "${var.ssh_key_name}"
-  security_groups             = ["${aws_security_group.lc_security_group.id}"]
-  placement_tenancy           = "${var.tenancy}"
-  associate_public_ip_address = "${var.associate_public_ip_address}"
-
-  ebs_optimized = "${var.root_volume_ebs_optimized}"
-
-  root_block_device {
-    volume_type           = "${var.root_volume_type}"
-    volume_size           = "${var.root_volume_size}"
-    delete_on_termination = "${var.root_volume_delete_on_termination}"
-  }
-
-  # Important note: whenever using a launch configuration with an auto scaling group, you must set
-  # create_before_destroy = true. However, as soon as you set create_before_destroy = true in one resource, you must
-  # also set it in every resource that it depends on, or you'll get an error about cyclic dependencies (especially when
-  # removing resources). For more info, see:
-  #
-  # https://www.terraform.io/docs/providers/aws/r/launch_configuration.html
-  # https://terraform.io/docs/configuration/resources.html
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# CREATE A SECURITY GROUP TO CONTROL WHAT REQUESTS CAN GO IN AND OUT OF EACH EC2 INSTANCE
-# ---------------------------------------------------------------------------------------------------------------------
-
-resource "aws_security_group" "lc_security_group" {
   name_prefix = "${var.cluster_name}"
-  description = "Security group for the ${var.cluster_name} launch configuration"
-  vpc_id      = "${var.vpc_id}"
+  description = "${var.cluster_description}"
 
-  # aws_launch_configuration.launch_configuration in this module sets create_before_destroy to true, which means
-  # everything it depends on, including this resource, must set it as well, or you'll get cyclic dependency errors
-  # when you try to do a terraform destroy.
-  lifecycle {
-    create_before_destroy = true
+  instance_description = "${var.cluster_description}"
+  machine_type         = "${var.machine_type}"
+
+  tags = "${concat(list(var.cluster_tag_name), var.custom_tags)}"
+  metadata_startup_script = "${var.startup_script}"
+  metadata = "${merge(map(var.metadata_key_name_for_cluster_size, var.cluster_size), var.custom_metadata)}"
+
+  scheduling {
+    automatic_restart   = true
+    on_host_maintenance = "MIGRATE"
+    preemptible = false
   }
-}
 
-resource "aws_security_group_rule" "allow_ssh_inbound_from_cidr_blocks" {
-  type        = "ingress"
-  from_port   = "${var.ssh_port}"
-  to_port     = "${var.ssh_port}"
-  protocol    = "tcp"
-  cidr_blocks = ["${var.allowed_ssh_cidr_blocks}"]
-
-  security_group_id = "${aws_security_group.lc_security_group.id}"
-}
-
-resource "aws_security_group_rule" "allow_ssh_inbound_from_security_group_ids" {
-  count                    = "${length(var.allowed_inbound_security_group_ids)}"
-  type                     = "ingress"
-  from_port                = "${var.ssh_port}"
-  to_port                  = "${var.ssh_port}"
-  protocol                 = "tcp"
-  source_security_group_id = "${element(var.allowed_inbound_security_group_ids, count.index)}"
-
-  security_group_id = "${aws_security_group.lc_security_group.id}"
-}
-
-resource "aws_security_group_rule" "allow_all_outbound" {
-  type        = "egress"
-  from_port   = 0
-  to_port     = 0
-  protocol    = "-1"
-  cidr_blocks = ["0.0.0.0/0"]
-
-  security_group_id = "${aws_security_group.lc_security_group.id}"
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# THE INBOUND/OUTBOUND RULES FOR THE SECURITY GROUP COME FROM THE VAULT-SECURITY-GROUP-RULES MODULE
-# ---------------------------------------------------------------------------------------------------------------------
-
-module "security_group_rules" {
-  source = "../vault-security-group-rules"
-
-  security_group_id                  = "${aws_security_group.lc_security_group.id}"
-  allowed_inbound_cidr_blocks        = ["${var.allowed_inbound_cidr_blocks}"]
-  allowed_inbound_security_group_ids = ["${var.allowed_inbound_security_group_ids}"]
-
-  api_port     = "${var.api_port}"
-  cluster_port = "${var.cluster_port}"
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# ATTACH AN IAM ROLE TO EACH EC2 INSTANCE
-# We can use the IAM role to grant the instance IAM permissions so we can use the AWS APIs without having to figure out
-# how to get our secret AWS access keys onto the box.
-# ---------------------------------------------------------------------------------------------------------------------
-
-resource "aws_iam_instance_profile" "instance_profile" {
-  name_prefix = "${var.cluster_name}"
-  path        = "${var.instance_profile_path}"
-  role        = "${aws_iam_role.instance_role.name}"
-
-  # aws_launch_configuration.launch_configuration in this module sets create_before_destroy to true, which means
-  # everything it depends on, including this resource, must set it as well, or you'll get cyclic dependency errors
-  # when you try to do a terraform destroy.
-  lifecycle {
-    create_before_destroy = true
+  disk {
+    boot         = true
+    auto_delete  = true
+    source_image = "${var.source_image}"
+    disk_size_gb = "${var.root_volume_disk_size_gb}"
+    disk_type    = "${var.root_volume_disk_type}"
   }
-}
 
-resource "aws_iam_role" "instance_role" {
-  name_prefix        = "${var.cluster_name}"
-  assume_role_policy = "${data.aws_iam_policy_document.instance_role.json}"
-
-  # aws_iam_instance_profile.instance_profile in this module sets create_before_destroy to true, which means
-  # everything it depends on, including this resource, must set it as well, or you'll get cyclic dependency errors
-  # when you try to do a terraform destroy.
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-data "aws_iam_policy_document" "instance_role" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
+  network_interface {
+    network = "${var.network_name}"
+    access_config {
+      # The presence of this property assigns a public IP address to each Compute Instance. We intentionally leave it
+      # blank so that an external IP address is selected automatically.
+      nat_ip = ""
     }
   }
-}
 
-# ---------------------------------------------------------------------------------------------------------------------
-# CREATE AN S3 BUCKET TO USE AS A STORAGE BACKEND
-# Also, add an IAM role policy that gives the Vault servers access to this S3 bucket
-# ---------------------------------------------------------------------------------------------------------------------
-
-resource "aws_s3_bucket" "vault_storage" {
-  bucket        = "${var.s3_bucket_name}"
-  force_destroy = "${var.force_destroy_s3_bucket}"
-
-  tags {
-    Description = "Used for secret storage with Vault. DO NOT DELETE this Bucket unless you know what you are doing."
-  }
-}
-
-resource "aws_iam_role_policy" "vault_s3" {
-  name   = "vault_s3"
-  role   = "${aws_iam_role.instance_role.id}"
-  policy = "${data.aws_iam_policy_document.vault_s3.json}"
-}
-
-data "aws_iam_policy_document" "vault_s3" {
-  statement {
-    effect  = "Allow"
-    actions = ["s3:*"]
-
-    resources = [
-      "${aws_s3_bucket.vault_storage.arn}",
-      "${aws_s3_bucket.vault_storage.arn}/*",
+  # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
+  service_account {
+    scopes = [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/compute.readonly",
+      "https://www.googleapis.com/auth/devstorage.read_write"
     ]
   }
+
+  # Per Terraform Docs (https://www.terraform.io/docs/providers/google/r/compute_instance_template.html#using-with-instance-group-manager),
+  # we need to create a new instance template before we can destroy the old one. Note that any Terraform resource on
+  # which this Terraform resource depends will also need this lifecycle statement.
+  lifecycle {
+    create_before_destroy = true
+  }
 }
+
+# Create the Instance Template that will be used to populate the Managed Instance Group.
+# NOTE: This Compute Instance Template is only created if var.assign_public_ip_addresses is false.
+resource "google_compute_instance_template" "vault_private" {
+  count = "${1 - var.assign_public_ip_addresses}"
+
+  name_prefix = "${var.cluster_name}"
+  description = "${var.cluster_description}"
+
+  instance_description = "${var.cluster_description}"
+  machine_type = "${var.machine_type}"
+
+  tags = "${concat(list(var.cluster_tag_name), var.custom_tags)}"
+  metadata_startup_script = "${var.startup_script}"
+  metadata = "${merge(map(var.metadata_key_name_for_cluster_size, var.cluster_size), var.custom_metadata)}"
+
+  scheduling {
+    automatic_restart   = true
+    on_host_maintenance = "MIGRATE"
+    preemptible = false
+  }
+
+  disk {
+    boot         = true
+    auto_delete  = true
+    source_image = "${var.source_image}"
+  }
+
+  network_interface {
+    network = "${var.network_name}"
+  }
+
+  # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
+  service_account {
+    scopes = [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/compute.readonly",
+      "https://www.googleapis.com/auth/devstorage.read_write"
+    ]
+  }
+
+  # Per Terraform Docs (https://www.terraform.io/docs/providers/google/r/compute_instance_template.html#using-with-instance-group-manager),
+  # we need to create a new instance template before we can destroy the old one. Note that any Terraform resource on
+  # which this Terraform resource depends will also need this lifecycle statement.
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATE FIREWALL RULES
+# ---------------------------------------------------------------------------------------------------------------------
+
+# Allow Vault-specific traffic within the cluster
+# - This Firewall Rule may be redundant depnding on the settings of your VPC Network, but if your Network is locked down,
+#   this Rule will open up the appropriate ports.
+resource "google_compute_firewall" "allow_intracluster_vault" {
+  name    = "${var.cluster_name}-rule-cluster"
+  network = "${var.network_name}"
+
+  allow {
+    protocol = "tcp"
+    ports    = [
+      "${var.cluster_port}",
+    ]
+  }
+
+  source_tags = ["${var.cluster_tag_name}"]
+  target_tags = ["${var.cluster_tag_name}"]
+}
+
+# Specify which traffic is allowed into the Vault cluster solely for API requests
+# - This Firewall Rule may be redundant depnding on the settings of your VPC Network, but if your Network is locked down,
+#   this Rule will open up the appropriate ports.
+# - Note that public access to your Vault cluster will only be permitted if var.assign_public_ip_addresses is true.
+# - This Firewall Rule is only created if at least one source tag or source CIDR block is specified.
+resource "google_compute_firewall" "allow_inboud_api" {
+  count = "${length(var.allowed_inbound_cidr_blocks_api) + length(var.allowed_inbound_tags_api) > 0 ? 1 : 0}"
+
+  name    = "${var.cluster_name}-rule-external-api-access"
+  network = "${var.network_name}"
+
+  allow {
+    protocol = "tcp"
+    ports    = [
+      "${var.api_port}",
+    ]
+  }
+
+  source_ranges = "${var.allowed_inbound_cidr_blocks_api}"
+  source_tags = "${var.allowed_inbound_tags_api}"
+  target_tags = ["${var.cluster_tag_name}"]
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATE A GOOGLE STORAGE BUCKET TO USE AS A VAULT STORAGE BACKEND
+# ---------------------------------------------------------------------------------------------------------------------
+
+resource "google_storage_bucket" "vault_storage_backend" {
+  name = "${var.cluster_name}"
+  location = "${var.storage_bucket_location}"
+  storage_class = "${var.storage_bucket_storage_class}"
+
+  # In prod, the Storage Bucket should NEVER be emptied and deleted via Terraform unless you know exactly what you're doing.
+  # However, for testing purposes, it's often convenient to destroy a non-empty Storage Bucket.
+  force_destroy = "${var.storage_bucket_force_destroy}"
+}
+
+# Lock down the bucket entirely, except for the read-write permission we assign to the Service Account on the Compute Instance Template.
+resource "google_storage_bucket_acl" "vault_storage_backend" {
+  bucket = "${google_storage_bucket.vault_storage_backend.name}"
+  predefined_acl = "private"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# CONVENIENCE VARIABLES
+# Because we've got some conditional logic in this template, some values will depend on our properties. This section
+# wraps such values in a nicer construct.
+# ---------------------------------------------------------------------------------------------------------------------
+
+# The Google Compute Instance Group needs the self_link of the Compute Instance Template that's actually created.
+data "template_file" "compute_instance_template_self_link" {
+  # This will return the self_link of the Compute Instance Template that is actually created. It works as follows:
+  # - Make a list of 1 value or 0 values for each of google_compute_instance_template.consul_servers_public and
+  #   google_compute_instance_template.consul_servers_private by adding the glob (*) notation. Terraform will complain
+  #   if we directly reference a resource property that doesn't exist, but it will permit us to turn a single resource
+  #   into a list of 1 resource and "no resource" into an empty list.
+  # - Concat these lists. concat(list-of-1-value, empty-list) == list-of-1-value
+  # - Take the first element of list-of-1-value
+  template = "${element(concat(google_compute_instance_template.vault_public.*.self_link, google_compute_instance_template.vault_private.*.self_link), 0)}"
+}
+
