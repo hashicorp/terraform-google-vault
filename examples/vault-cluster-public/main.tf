@@ -111,7 +111,41 @@ data "template_file" "startup_script_vault" {
 //  count = "${var.create_dns_entry}"
 //  name  = "${var.hosted_zone_domain_name}."
 //}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# DEPLOY THE CONSUL SERVER CLUSTER
+# ---------------------------------------------------------------------------------------------------------------------
+
+module "consul_cluster" {
+  source = "git::git@github.com:gruntwork-io/terraform-google-consul.git//modules/consul-cluster?ref=v0.0.2"
+
+  gcp_zone = "${var.gcp_zone}"
+  cluster_name = "${var.consul_server_cluster_name}"
+  cluster_tag_name = "${var.consul_server_cluster_name}"
+  cluster_size = "${var.consul_server_cluster_size}"
+
+  source_image = "${var.consul_server_source_image}"
+  machine_type = "${var.consul_server_machine_type}"
+
+  startup_script = "${data.template_file.startup_script_consul.rendered}"
+
+//  # To make testing easier, we allow Consul and SSH requests from any IP address here but in a production
+//  # deployment, we strongly recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
 //
+//  allowed_ssh_cidr_blocks     = ["0.0.0.0/0"]
+//  allowed_inbound_cidr_blocks = ["0.0.0.0/0"]
+//  ssh_key_name                = "${var.ssh_key_name}"
+}
+
+# This Startup Script will run at boot configure and start Consul on the Consul Server cluster nodes
+data "template_file" "startup_script_consul" {
+  template = "${file("${path.module}/startup-script-consul.sh")}"
+
+  vars {
+    cluster_tag_name   = "${var.consul_server_cluster_name}"
+  }
+}
+
 //# ---------------------------------------------------------------------------------------------------------------------
 //# DEPLOY THE CONSUL SERVER CLUSTER
 //# ---------------------------------------------------------------------------------------------------------------------

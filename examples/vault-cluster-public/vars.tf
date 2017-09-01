@@ -24,7 +24,7 @@ variable "vault_source_image" {
 }
 
 variable "vault_cluster_machine_type" {
-  description = "The machine type of the Compute Instance to run for each node in the cluster (e.g. n1-standard-1)."
+  description = "The machine type of the Compute Instance to run for each node in the Vault cluster (e.g. n1-standard-1)."
 }
 
 variable "consul_server_cluster_name" {
@@ -33,6 +33,10 @@ variable "consul_server_cluster_name" {
 
 variable "consul_server_source_image" {
   description = "The Google Image used to launch each node in the Consul Server cluster."
+}
+
+variable "consul_server_machine_type" {
+  description = "The machine type of the Compute Instance to run for each node in the Consul Server cluster (e.g. n1-standard-1)."
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
