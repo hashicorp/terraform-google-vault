@@ -187,12 +187,12 @@ resource "google_compute_firewall" "allow_inboud_api" {
 
 resource "google_storage_bucket" "vault_storage_backend" {
   name = "${var.cluster_name}"
-  location = "${var.storage_bucket_location}"
-  storage_class = "${var.storage_bucket_storage_class}"
+  location = "${var.gcs_bucket_location}"
+  storage_class = "${var.gcs_bucket_storage_class}"
 
   # In prod, the Storage Bucket should NEVER be emptied and deleted via Terraform unless you know exactly what you're doing.
   # However, for testing purposes, it's often convenient to destroy a non-empty Storage Bucket.
-  force_destroy = "${var.storage_bucket_force_destroy}"
+  force_destroy = "${var.gcs_bucket_force_destroy}"
 }
 
 # Lock down the bucket entirely, except for the read-write permission we assign to the Service Account on the Compute Instance Template.

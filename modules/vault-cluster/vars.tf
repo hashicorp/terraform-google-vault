@@ -33,15 +33,15 @@ variable "startup_script" {
   description = "A Startup Script to execute when the server first boots. We remmend passing in a bash script that executes the run-vault script, which should have been installed in the Vault Google Image by the install-vault module."
 }
 
-variable "storage_bucket_name" {
+variable "gcs_bucket_name" {
   description = "The name of the Google Storage Bucket where Vault secrets will be stored."
 }
 
-variable "storage_bucket_location" {
+variable "gcs_bucket_location" {
   description = "The location of the Google Storage Bucket where Vault secrets will be stored. For details, see https://goo.gl/hk63jH."
 }
 
-variable "storage_bucket_storage_class" {
+variable "gcs_bucket_storage_class" {
   description = "The Storage Class of the Google Storage Bucket where Vault secrets will be stored. Must be one of MULTI_REGIONAL, REGIONAL, NEARLINE, or COLDLINE. For details, see https://goo.gl/hk63jH."
 }
 
@@ -133,7 +133,7 @@ variable "root_volume_disk_type" {
 
 # Google Storage Bucket Settings
 
-variable "storage_bucket_force_destroy" {
-  description = "If true, Terraform will delete the Bucket even if it's non-empty. WARNING! Never set this to true in a production setting. We only have this option here to facilitate testing."
+variable "gcs_bucket_force_destroy" {
+  description = "If true, Terraform will delete the Google Cloud Storage Bucket even if it's non-empty. WARNING! Never set this to true in a production setting. We only have this option here to facilitate testing."
   default = false
 }

@@ -33,10 +33,12 @@ module "vault_cluster" {
   source_image = "${var.vault_source_image}"
   startup_script = "${data.template_file.startup_script_vault.rendered}"
 
-  storage_bucket_name = "${var.vault_cluster_name}"
-  storage_bucket_location = "${var.storage_bucket_location}"
-  storage_bucket_storage_class = "${var.storage_bucket_class}"
-  storage_bucket_force_destroy = "${var.storage_bucket_force_destroy}"
+  gcs_bucket_name = "${var.vault_cluster_name}"
+  gcs_bucket_location = "${var.gcs_bucket_location}"
+  gcs_bucket_storage_class = "${var.gcs_bucket_class}"
+  gcs_bucket_force_destroy = "${var.gcs_bucket_force_destroy}"
+
+  assign_public_ip_addresses = true
 
 //  # Tell each Vault server to register in the ELB.
 //  load_balancers = ["${module.vault_elb.load_balancer_name}"]
