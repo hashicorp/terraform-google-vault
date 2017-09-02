@@ -9,6 +9,10 @@ set -e
 # Inspired by https://alestic.com/2010/12/ec2-user-data-output/
 exec > >(tee /var/log/startup-script.log|logger -t startup-script -s 2>/dev/console) 2>&1
 
+# The Packer template puts the TLS certs in these file paths
+readonly VAULT_TLS_CERT_FILE="/opt/vault/tls/vault.crt.pem"
+readonly VAULT_TLS_KEY_FILE="/opt/vault/tls/vault.key.pem"
+
 # These variables are passed in via Terraform template interplation
-/opt/consul/bin/run-consul --client --cluster-tag-name "${cluster_tag_name}"
-/opt/vault/bin/run-vault --s3-bucket "${s3_bucket_name}" --s3-bucket-region "${aws_region}" --tls-cert-file "$VAULT_TLS_CERT_FILE"  --tls-key-file "$VAULT_TLS_KEY_FILE"
+/opt/consul/bin/run-consul --client --cluster-tag-name "${consul_cluster_tag_name}"
+/opt/vault/bin/run-vault --gcs-bucket ${vault_cluster_tag_name} --tls-cert-file "$VAULT_TLS_CERT_FILE"  --tls-key-file "$VAULT_TLS_KEY_FILE"

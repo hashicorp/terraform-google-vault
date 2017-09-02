@@ -195,11 +195,8 @@ resource "google_storage_bucket" "vault_storage_backend" {
   force_destroy = "${var.gcs_bucket_force_destroy}"
 }
 
-# Lock down the bucket entirely, except for the read-write permission we assign to the Service Account on the Compute Instance Template.
-resource "google_storage_bucket_acl" "vault_storage_backend" {
-  bucket = "${google_storage_bucket.vault_storage_backend.name}"
-  predefined_acl = "private"
-}
+# We deliberately avoid creating a Bucket ACL (Terraform's google_storage_bucket_acl resource) because it appears that ACLs
+# are now deprecated as a way to assign permissions to a Bucket in favor of using an IAM Policy instead.
 
 # ---------------------------------------------------------------------------------------------------------------------
 # CONVENIENCE VARIABLES

@@ -40,27 +40,20 @@ module "vault_cluster" {
 
   assign_public_ip_addresses = true
 
-//  # Tell each Vault server to register in the ELB.
-//  load_balancers = ["${module.vault_elb.load_balancer_name}"]
-//
-//  # To make testing easier, we allow requests from any IP address here but in a production deployment, we *strongly*
-//  # recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
-//
-//  allowed_ssh_cidr_blocks            = ["0.0.0.0/0"]
-//  allowed_inbound_cidr_blocks        = ["0.0.0.0/0"]
-//  allowed_inbound_security_group_ids = []
-//  ssh_key_name                       = "${var.ssh_key_name}"
+  # To enable external access to the Vault Cluster, enter the approved CIDR Blocks or tags below.
+  allowed_inbound_cidr_blocks_api = []
+  allowed_inbound_tags_api = []
 }
 
 # Render the Startup Script that will run on each Vault Instance on boot.
 # This script will configure and start Vault.
 data "template_file" "startup_script_vault" {
-  template = ""
-  #template = "${file("${path.module}/startup-script-vault.sh")}"
+  template = "${file("${path.module}/startup-script-vault.sh")}"
 
-//  vars {
-//    cluster_tag_name = "${var.consul_server_cluster_tag_name}"
-//  }
+  vars {
+    consul_cluster_tag_name = "${var.consul_server_cluster_name}"
+    vault_cluster_tag_name = "${var.vault_cluster_name}"
+  }
 }
 
 //# ---------------------------------------------------------------------------------------------------------------------
@@ -129,12 +122,10 @@ module "consul_cluster" {
 
   startup_script = "${data.template_file.startup_script_consul.rendered}"
 
-//  # To make testing easier, we allow Consul and SSH requests from any IP address here but in a production
-//  # deployment, we strongly recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
-//
-//  allowed_ssh_cidr_blocks     = ["0.0.0.0/0"]
-//  allowed_inbound_cidr_blocks = ["0.0.0.0/0"]
-//  ssh_key_name                = "${var.ssh_key_name}"
+  assign_public_ip_addresses = true
+
+  allowed_inbound_tags_dns = ["${var.vault_cluster_name}"]
+  allowed_inbound_tags_http_api = ["${var.vault_cluster_name}"]
 }
 
 # This Startup Script will run at boot configure and start Consul on the Consul Server cluster nodes

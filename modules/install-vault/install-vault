@@ -70,6 +70,8 @@ function assert_not_empty {
 
 # Install steps are based on: http://unix.stackexchange.com/a/291098/215969
 function install_supervisord_debian {
+  log_info "Installing supervisord on Debian/Ubuntu"
+
   sudo apt-get install -y supervisor
   sudo update-rc.d supervisor defaults
 
@@ -77,28 +79,8 @@ function install_supervisord_debian {
   sudo systemctl enable supervisor
 }
 
-# Install steps are based on: http://stackoverflow.com/a/31576473/483528
-function install_supervisord_amazon_linux {
-  sudo pip install supervisor
-
-  # On Amazon Linux, /usr/local/bin is not in PATH for the root user, so we add symlinks to /usr/bin, which is in PATH
-  if [[ ! -f "/usr/bin/supervisorctl" ]]; then
-    sudo ln -s /usr/local/bin/supervisorctl /usr/bin/supervisorctl
-  fi
-  if [[ ! -f "/usr/bin/supervisord" ]]; then
-    sudo ln -s /usr/local/bin/supervisord /usr/bin/supervisord
-  fi
-
-  sudo cp "$SCRIPT_DIR/supervisor-initd-script.sh" "/etc/init.d/supervisor"
-  sudo chmod a+x /etc/init.d/supervisor
-  sudo mkdir -p /var/log/supervisor
-
-  create_supervisor_config
-  sudo chkconfig --add supervisor
-  sudo chkconfig supervisor on
-}
-
 function create_supervisor_config {
+  log_info "Creating supervisord configuration file"
   sudo mkdir -p "$SUPERVISOR_CONF_DIR"
   sudo cp "$SCRIPT_DIR/supervisord.conf" "$SUPERVISOR_DIR/supervisord.conf"
 }
@@ -130,6 +112,8 @@ function install_dependencies {
 
 function user_exists {
   local readonly username="$1"
+
+  log_info "Checking if user $username exists"
   id "$username" >/dev/null 2>&1
 }
 
@@ -137,7 +121,7 @@ function create_vault_user {
   local readonly username="$1"
 
   if $(user_exists "$username"); then
-    echo "User $username already exists. Will not create again."
+    log_info "User $username already exists. Will not create again."
   else
     log_info "Creating user named $username"
     sudo useradd "$username"
@@ -196,7 +180,7 @@ function install_binaries {
 
 # For more info, see: https://www.vaultproject.io/docs/configuration/#disable_mlock
 function configure_mlock {
-  echo "Giving Vault permission to use the mlock syscall"
+  log_info "Giving Vault permission to use the mlock syscall"
   sudo setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
 }
 
