@@ -1,0 +1,62 @@
+{
+  "min_packer_version": "1.0.4",
+  "variables": {
+    "project_id": null,
+    "zone": null,
+    "vault_version": "0.8.1",
+    "consul_module_version": "v0.0.2",
+    "consul_version": "0.9.2",
+    "ca_public_key_path": null,
+    "tls_public_key_path": null,
+    "tls_private_key_path": null
+  },
+  "builders": [{
+    "type": "googlecompute",
+    "image_name": "vault-consul-{{isotime \"2006-01-02-030405\"}}",
+    "image_family": "vault-consul",
+    "project_id": "{{user `project_id`}}",
+    "source_image_family": "ubuntu-1604-lts",
+    "zone": "{{user `zone`}}",
+    "ssh_username": "ubuntu"
+  }],
+  "provisioners": [{
+    "type": "file",
+    "source": "{{template_dir}}/../../../terraform-google-vault",
+    "destination": "/tmp",
+    "pause_before": "30s"
+  },{
+    "type": "shell",
+    "inline": [
+      "/tmp/terraform-google-vault/modules/install-vault/install-vault --version {{user `vault_version`}}"
+    ]
+  },{
+    "type": "file",
+    "source": "{{user `ca_public_key_path`}}",
+    "destination": "/tmp/ca.crt.pem"
+  },{
+    "type": "file",
+    "source": "{{user `tls_public_key_path`}}",
+    "destination": "/tmp/vault.crt.pem"
+  },{
+    "type": "file",
+    "source": "{{user `tls_private_key_path`}}",
+    "destination": "/tmp/vault.key.pem"
+  },{
+    "type": "shell",
+    "inline": [
+      "sudo mv /tmp/ca.crt.pem /opt/vault/tls/",
+      "sudo mv /tmp/vault.crt.pem /opt/vault/tls/",
+      "sudo mv /tmp/vault.key.pem /opt/vault/tls/",
+      "sudo chown vault:vault /opt/vault/tls/*",
+      "sudo chmod 600 /opt/vault/tls/*",
+      "sudo /tmp/terraform-google-vault/modules/update-certificate-store/update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"
+    ]
+  },{
+    "type": "shell",
+    "inline": [
+      "git clone --branch {{user `consul_module_version`}} https://github.com/gruntwork-io/terraform-google-consul.git /tmp/terraform-google-consul",
+      "/tmp/terraform-google-consul/modules/install-consul/install-consul --version {{user `consul_version`}}",
+      "/tmp/terraform-google-consul/modules/install-dnsmasq/install-dnsmasq"
+    ]
+  }]
+}
