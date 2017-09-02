@@ -195,8 +195,13 @@ resource "google_storage_bucket" "vault_storage_backend" {
   force_destroy = "${var.gcs_bucket_force_destroy}"
 }
 
-# We deliberately avoid creating a Bucket ACL (Terraform's google_storage_bucket_acl resource) because it appears that ACLs
-# are now deprecated as a way to assign permissions to a Bucket in favor of using an IAM Policy instead.
+# ACLs are now deprecated as a way to secure a GCS Bucket (https://goo.gl/PgDCYb0), the Terraform Google Provider does
+# not yet expose a way to attach an IAM Policy to a Google Bucket so we resort to using the Bucket ACL in case users
+# of this module wish to limit Bucket permissions via Terraform.
+resource "google_storage_bucket_acl" "vault_storage_backend" {
+  bucket = "${google_storage_bucket.vault_storage_backend.name}"
+  predefined_acl = "${var.gcs_bucket_predefined_acl}"
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # CONVENIENCE VARIABLES

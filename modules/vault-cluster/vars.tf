@@ -137,3 +137,8 @@ variable "gcs_bucket_force_destroy" {
   description = "If true, Terraform will delete the Google Cloud Storage Bucket even if it's non-empty. WARNING! Never set this to true in a production setting. We only have this option here to facilitate testing."
   default = false
 }
+
+variable "gcs_bucket_predefined_acl" {
+  description = "The canned GCS Access Control List (ACL) to apply to the GCS Bucket. For a full list of Predefined ACLs, see https://cloud.google.com/storage/docs/access-control/lists."
+  default = "projectPrivate"
+}
