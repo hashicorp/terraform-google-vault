@@ -23,24 +23,31 @@ function print_usage {
   echo
   echo "This script is used to configure and run Vault on an AWS server."
   echo
-  echo "Options:"
+  echo "Required Arguments:"
   echo
-  echo -e "  --gcs-bucket\t\tThe name of the Google Cloud Storage Bucket where Vault data should be stored. Required."
-  echo -e "  --tls-cert-file\tSpecifies the path to the certificate for TLS. Required. To use a CA certificate, "
-  echo -e "                 \tconcatenate the primary certificate and the CA certificate together."
-  echo -e "  --tls-key-file\tSpecifies the path to the private key for the certificate. Required."
-  echo -e "  --port\t\tThe port for Vault to listen on. Optional. Default is $DEFAULT_PORT."
-  echo -e "  --cluster-port\tThe port for Vault to listen on for server-to-server requests. Optional. Default is --port + 1."
-  echo -e "  --config-dir\t\tThe path to the Vault config folder. Optional. Default is the absolute path of '../config', relative to this script."
-  echo -e "  --bin-dir\t\tThe path to the folder with Vault binary. Optional. Default is the absolute path of the parent folder of this script."
-  echo -e "  --log-dir\t\tThe path to the Vault log folder. Optional. Default is the absolute path of '../log', relative to this script."
-  echo -e "  --log-level\t\tThe log verbosity to use with Vault. Optional. Default is $DEFAULT_LOG_LEVEL."
-  echo -e "  --user\t\tThe user to run Vault as. Optional. Default is to use the owner of --config-dir."
-  echo -e "  --skip-vault-config\tIf this flag is set, don't generate a Vault configuration file. Optional. Default is false."
+  echo -e "  --gcs-bucket\t\tThe name of the Google Cloud Storage Bucket where Vault data should be stored."
+  echo -e "  --tls-cert-file\tSpecifies the path to the certificate for TLS. To use a CA certificate, concatenate"
+  echo -e "                 \tthe primary certificate and the CA certificate together."
+  echo -e "  --tls-key-file\tSpecifies the path to the private key for the certificate."
+  echo
+  echo "Optional Arguments:"
+  echo
+  echo -e "  --gcp-creds-file\tThe file path on the Compute Instance of a JSON file that stores credentials for a"
+  echo -e "                  \tGCP Service Account that has read-write access to the configured GCS Bucket."
+  echo -e "  --port\t\tThe port for Vault to listen on. Default is $DEFAULT_PORT."
+  echo -e "  --cluster-port\tThe port for Vault to listen on for server-to-server requests. Default is --port + 1."
+  echo -e "  --config-dir\t\tThe path to the Vault config folder. Default is the absolute path of '../config', relative to this script."
+  echo -e "  --bin-dir\t\tThe path to the folder with Vault binary. Default is the absolute path of the parent folder of this script."
+  echo -e "  --log-dir\t\tThe path to the Vault log folder. Default is the absolute path of '../log', relative to this script."
+  echo -e "  --log-level\t\tThe log verbosity to use with Vault. Default is $DEFAULT_LOG_LEVEL."
+  echo -e "  --user\t\tThe user to run Vault as. Default is to use the owner of --config-dir."
+  echo -e "  --skip-vault-config\tIf this flag is set, don't generate a Vault configuration file. Default is false."
+
   echo
   echo "Example:"
   echo
   echo "  run-vault --gcs-bucket my-vault-bucket --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem"
+  echo
 }
 
 function log {
@@ -121,7 +128,7 @@ function generate_vault_config {
   local readonly config_dir="$5"
   local readonly user="$6"
   local readonly gcs_bucket="$7"
-  #local readonly $gce_credentials_file="$8"
+  local readonly gcp_creds_file="$8"
   local readonly config_path="$config_dir/$VAULT_CONFIG_FILE"
 
   local instance_ip_address
@@ -131,7 +138,7 @@ function generate_vault_config {
   cat > "$config_path" <<EOF
 storage "gcs" {
   bucket = "$gcs_bucket"
-  #credentials_file = "$gce_credentials_file"
+  credentials_file = "$gcp_creds_file"
 }
 
 ha_storage "consul" {
@@ -190,11 +197,12 @@ function get_owner_of_path {
 }
 
 function run {
+  local gcs_bucket=""
   local tls_cert_file=""
   local tls_key_file=""
+  local gcp_creds_file=""
   local port="$DEFAULT_PORT"
   local cluster_port=""
-  local gcs_bucket=""
   local config_dir=""
   local bin_dir=""
   local log_dir=""
@@ -217,6 +225,10 @@ function run {
         ;;
       --gcs-bucket)
         gcs_bucket="$2"
+        shift
+        ;;
+      --gcp-creds-file)
+        gcp_creds_file="$2"
         shift
         ;;
       --port)
@@ -276,7 +288,6 @@ function run {
   assert_not_empty "--gcs-bucket" "$gcs_bucket"
 
   assert_is_installed "supervisorctl"
-  assert_is_installed "aws"
   assert_is_installed "curl"
   assert_is_installed "jq"
 
@@ -303,7 +314,7 @@ function run {
   if [[ "$skip_vault_config" == "true" ]]; then
     log_info "The --skip-vault-config flag is set, so will not generate a default Vault config file."
   else
-    generate_vault_config "$tls_cert_file" "$tls_key_file" "$port" "$cluster_port" "$config_dir" "$user" "$gcs_bucket"
+    generate_vault_config "$tls_cert_file" "$tls_key_file" "$port" "$cluster_port" "$config_dir" "$user" "$gcs_bucket" "$gcp_creds_file"
   fi
 
   generate_supervisor_config "$SUPERVISOR_CONFIG_PATH" "$config_dir" "$bin_dir" "$log_dir" "$log_level" "$user"
