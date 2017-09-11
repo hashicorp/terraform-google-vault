@@ -57,30 +57,14 @@ data "template_file" "startup_script_vault" {
 }
 
 //# ---------------------------------------------------------------------------------------------------------------------
-//# THE USER DATA SCRIPT THAT WILL RUN ON EACH VAULT SERVER WHEN IT'S BOOTING
-//# This script will configure and start Vault
+//# DEPLOY THE LOAD BALANCER
 //# ---------------------------------------------------------------------------------------------------------------------
 //
-//data "template_file" "user_data_vault_cluster" {
-//  template = "${file("${path.module}/user-data-vault.sh")}"
-//
-//  vars {
-//    aws_region               = "${var.aws_region}"
-//    s3_bucket_name           = "${var.s3_bucket_name}"
-//    consul_cluster_tag_key   = "${var.consul_cluster_tag_key}"
-//    consul_cluster_tag_value = "${var.consul_cluster_name}"
-//  }
-//}
-//
-//# ---------------------------------------------------------------------------------------------------------------------
-//# DEPLOY THE ELB
-//# ---------------------------------------------------------------------------------------------------------------------
-//
-//module "vault_elb" {
+//module "vault_load_balancer" {
 //  # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
 //  # to a specific version of the modules, such as the following example:
-//  # source = "git::git@github.com:gruntwork-io/vault-aws-blueprint.git//modules/vault-elb?ref=v0.0.1"
-//  source = "../../modules/vault-elb"
+//  # source = "git::git@github.com:gruntwork-io/terraform-google-vault.git//modules/vault-lb-regional-ext?ref=v0.0.1"
+//  source = "../../modules/vault-lb-regional-ext"
 //
 //  name = "${var.vault_cluster_name}"
 //
@@ -136,61 +120,3 @@ data "template_file" "startup_script_consul" {
     cluster_tag_name   = "${var.consul_server_cluster_name}"
   }
 }
-
-//# ---------------------------------------------------------------------------------------------------------------------
-//# DEPLOY THE CONSUL SERVER CLUSTER
-//# ---------------------------------------------------------------------------------------------------------------------
-//
-//module "consul_cluster" {
-//  source = "git::git@github.com:gruntwork-io/consul-aws-blueprint.git//modules/consul-cluster?ref=v0.0.5"
-//
-//  cluster_name  = "${var.consul_cluster_name}"
-//  cluster_size  = "${var.consul_cluster_size}"
-//  instance_type = "${var.consul_instance_type}"
-//
-//  # The EC2 Instances will use these tags to automatically discover each other and form a cluster
-//  cluster_tag_key   = "${var.consul_cluster_tag_key}"
-//  cluster_tag_value = "${var.consul_cluster_name}"
-//
-//  ami_id    = "${var.ami_id == "" ? data.aws_ami.vault_consul.image_id : var.ami_id}"
-//  user_data = "${data.template_file.user_data_consul.rendered}"
-//
-//  vpc_id     = "${data.aws_vpc.default.id}"
-//  subnet_ids = "${data.aws_subnet_ids.default.ids}"
-//
-//  # To make testing easier, we allow Consul and SSH requests from any IP address here but in a production
-//  # deployment, we strongly recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
-//
-//  allowed_ssh_cidr_blocks     = ["0.0.0.0/0"]
-//  allowed_inbound_cidr_blocks = ["0.0.0.0/0"]
-//  ssh_key_name                = "${var.ssh_key_name}"
-//}
-//
-//# ---------------------------------------------------------------------------------------------------------------------
-//# THE USER DATA SCRIPT THAT WILL RUN ON EACH CONSUL SERVER WHEN IT'S BOOTING
-//# This script will configure and start Consul
-//# ---------------------------------------------------------------------------------------------------------------------
-//
-//data "template_file" "user_data_consul" {
-//  template = "${file("${path.module}/user-data-consul.sh")}"
-//
-//  vars {
-//    consul_cluster_tag_key   = "${var.consul_cluster_tag_key}"
-//    consul_cluster_tag_value = "${var.consul_cluster_name}"
-//  }
-//}
-//
-//# ---------------------------------------------------------------------------------------------------------------------
-//# DEPLOY THE CLUSTERS IN THE DEFAULT VPC AND AVAILABILITY ZONES
-//# Using the default VPC and subnets makes this example easy to run and test, but it means Consul and Vault are
-//# accessible from the public Internet. In a production deployment, we strongly recommend deploying into a custom VPC
-//# and private subnets. Only the ELB should run in the public subnets.
-//# ---------------------------------------------------------------------------------------------------------------------
-//
-//data "aws_vpc" "default" {
-//  default = true
-//}
-//
-//data "aws_subnet_ids" "default" {
-//  vpc_id = "${data.aws_vpc.default.id}"
-//}
