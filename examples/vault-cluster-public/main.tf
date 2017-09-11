@@ -38,11 +38,14 @@ module "vault_cluster" {
   gcs_bucket_storage_class = "${var.gcs_bucket_class}"
   gcs_bucket_force_destroy = "${var.gcs_bucket_force_destroy}"
 
-  assign_public_ip_addresses = true
+  # Even when the Vault cluster is pubicly accessible, we should still make the Vault nodes themselves private to improve
+  # the overall security posture.
+  assign_public_ip_addresses = false
 
   # To enable external access to the Vault Cluster, enter the approved CIDR Blocks or tags below.
+  # We enable health checks from the Consul Server cluster to Vault.
   allowed_inbound_cidr_blocks_api = []
-  allowed_inbound_tags_api = []
+  allowed_inbound_tags_api = ["${var.consul_server_cluster_name}"]
 }
 
 # Render the Startup Script that will run on each Vault Instance on boot.
@@ -106,6 +109,7 @@ module "consul_cluster" {
 
   startup_script = "${data.template_file.startup_script_consul.rendered}"
 
+  # In a production setting, we strongly recommend only launching a Consul Server cluster as private nodes.
   assign_public_ip_addresses = true
 
   allowed_inbound_tags_dns = ["${var.vault_cluster_name}"]

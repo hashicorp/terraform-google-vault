@@ -41,8 +41,9 @@ module "vault_cluster" {
   assign_public_ip_addresses = false
 
   # To enable external access to the Vault Cluster, enter the approved CIDR Blocks or tags below.
+  # We enable health checks from the Consul Server cluster to Vault.
   allowed_inbound_cidr_blocks_api = []
-  allowed_inbound_tags_api = []
+  allowed_inbound_tags_api = ["${var.consul_server_cluster_name}"]
 }
 
 # Render the Startup Script that will run on each Vault Instance on boot.
@@ -73,7 +74,7 @@ module "consul_cluster" {
 
   startup_script = "${data.template_file.startup_script_consul.rendered}"
 
-  assign_public_ip_addresses = true
+  assign_public_ip_addresses = false
 
   allowed_inbound_tags_dns = ["${var.vault_cluster_name}"]
   allowed_inbound_tags_http_api = ["${var.vault_cluster_name}"]
