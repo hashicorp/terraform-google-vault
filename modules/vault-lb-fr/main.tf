@@ -8,9 +8,10 @@ terraform {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# CREATE THE LOAD BALANCER (FORWARDING RULE)
-# The Google Cloud API for creating a Load Balancer is somehwat confusing. By creating a Forwarding Rule, we will
-# automatically create an external (public-facing) Load Balancer specific to a Region.
+# CREATE THE LOAD BALANCER FORWARDING RULE
+# In GCP, Google has already created the load balancer itself so there is no new load balancer resource to create. However,
+# to leverage this load balancer, we must create a Forwarding Rule specially for our Compute Instances. By creating a
+# Forwarding Rule, we automatically create an external (public-facing) Load Balancer in the GCP console.
 # ---------------------------------------------------------------------------------------------------------------------
 
 # A Forwarding Rule receives inbound requests and forwards them to the specified Target Pool
@@ -21,13 +22,13 @@ resource "google_compute_forwarding_rule" "vault" {
   ip_protocol = "TCP"
   load_balancing_scheme = "EXTERNAL"
   network = "${var.network_name}"
-  port_range = "${var.http_api_port}"
+  port_range = "${var.api_port}"
   target = "${google_compute_target_pool.vault.self_link}"
 }
 
 # The Load Balancer (Forwarding rule) will only forward requests to Compute Instances in the associated Target Pool.
-# Note that this Target Pool is populated by modifying the Instance Group (var.compute_instance_group_name) to add its
-# member Instances to this Target Pool.
+# Note that this Target Pool is populated by modifying the Instance Group containing the Vault nodes to add its member
+# Instances to this Target Pool.
 resource "google_compute_target_pool" "vault" {
   name = "${var.cluster_name}-tp"
   description = "${var.target_pool_description}"
@@ -46,8 +47,8 @@ resource "google_compute_http_health_check" "vault" {
   healthy_threshold = "${var.health_check_healthy_threshold}"
   unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
 
-  port = "${var.http_api_port}"
-  request_path = "${var.health_check_request_path}"
+  port = "${var.api_port}"
+  request_path = "${var.health_check_path}"
 }
 
 # The Load Balancer may need explicit permission to forward traffic to our Vault Cluster.
@@ -58,11 +59,12 @@ resource "google_compute_firewall" "load_balancer" {
 
   allow {
     protocol = "tcp"
-    ports    = ["${var.http_api_port}"]
+    ports    = ["${var.api_port}"]
   }
 
-  # These hardcoded IP addresses represent the Load Balancer and Health Checker, per Google Cloud Docs (https://goo.gl/xULu8U)
-  # TODO: Remove 0.0.0.0/0 once I understand why the Load Balancer fails without this rule.
+  # "130.211.0.0/22" - Enable inbound traffic from the Google Cloud Load Balancer (https://goo.gl/xULu8U)
+  # "35.191.0.0/16" - Enable inbound traffic from the Google Cloud Health Checkers (https://goo.gl/xULu8U)
+  # "0.0.0.0/0" - Enable any IP address to reach our nodes
   source_ranges = ["130.211.0.0/22", "35.191.0.0/16", "0.0.0.0/0"]
   target_tags = ["${var.cluster_tag_name}"]
 }

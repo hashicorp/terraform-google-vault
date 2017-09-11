@@ -1,0 +1,21 @@
+#!/bin/bash
+# This is a wrapper script to run the HTTP redirect server.
+
+set -e
+
+function assert_is_installed {
+  local readonly name="$1"
+
+  if [[ ! $(command -v ${name}) ]]; then
+    log_error "The binary '$name' is required by this script but is not installed or in the system's PATH."
+    exit 1
+  fi
+}
+
+function run {
+  assert_is_installed "python"
+
+  python http-server.py
+}
+
+run "$@"

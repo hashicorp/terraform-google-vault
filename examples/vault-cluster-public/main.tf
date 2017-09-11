@@ -38,14 +38,17 @@ module "vault_cluster" {
   gcs_bucket_storage_class = "${var.gcs_bucket_class}"
   gcs_bucket_force_destroy = "${var.gcs_bucket_force_destroy}"
 
-  # Even when the Vault cluster is pubicly accessible, we should still make the Vault nodes themselves private to improve
-  # the overall security posture.
+  # Even when the Vault cluster is pubicly accessible via a Load Balancer, we still make the Vault nodes themselves
+  # private to improve the overall security posture. Note that the only way to reach private nodes via SSH is to first
+  # SSH into another node that is not private.
   assign_public_ip_addresses = false
 
   # To enable external access to the Vault Cluster, enter the approved CIDR Blocks or tags below.
   # We enable health checks from the Consul Server cluster to Vault.
   allowed_inbound_cidr_blocks_api = []
   allowed_inbound_tags_api = ["${var.consul_server_cluster_name}"]
+
+  instance_group_target_pools = ["${module.vault_load_balancer.target_pool_url}"]
 }
 
 # Render the Startup Script that will run on each Vault Instance on boot.
@@ -59,16 +62,19 @@ data "template_file" "startup_script_vault" {
   }
 }
 
-//# ---------------------------------------------------------------------------------------------------------------------
-//# DEPLOY THE LOAD BALANCER
-//# ---------------------------------------------------------------------------------------------------------------------
-//
-//module "vault_load_balancer" {
-//  # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
-//  # to a specific version of the modules, such as the following example:
-//  # source = "git::git@github.com:gruntwork-io/terraform-google-vault.git//modules/vault-lb-regional-ext?ref=v0.0.1"
-//  source = "../../modules/vault-lb-regional-ext"
-//
+# ---------------------------------------------------------------------------------------------------------------------
+# DEPLOY THE LOAD BALANCER
+# ---------------------------------------------------------------------------------------------------------------------
+
+module "vault_load_balancer" {
+  # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
+  # to a specific version of the modules, such as the following example:
+  # source = "git::git@github.com:gruntwork-io/terraform-google-vault.git//modules/vault-lb-regional-ext?ref=v0.0.1"
+  source = "../../modules/vault-lb-fr"
+
+  cluster_name = "${var.vault_cluster_name}"
+  cluster_tag_name = "${var.vault_cluster_name}"
+
 //  name = "${var.vault_cluster_name}"
 //
 //  vpc_id     = "${data.aws_vpc.default.id}"
@@ -84,8 +90,8 @@ data "template_file" "startup_script_vault" {
 //  # aws_route53_zone data source isn't actually set: https://github.com/hashicorp/hil/issues/50
 //  hosted_zone_id   = "${var.create_dns_entry ? join("", data.aws_route53_zone.selected.*.zone_id) : ""}"
 //  domain_name      = "${var.vault_domain_name}"
-//}
-//
+}
+
 //# Look up the Route 53 Hosted Zone by domain name
 //data "aws_route53_zone" "selected" {
 //  count = "${var.create_dns_entry}"
@@ -110,6 +116,7 @@ module "consul_cluster" {
   startup_script = "${data.template_file.startup_script_consul.rendered}"
 
   # In a production setting, we strongly recommend only launching a Consul Server cluster as private nodes.
+  # Note that the only way to reach private nodes via SSH is to first SSH into another node that is not private.
   assign_public_ip_addresses = true
 
   allowed_inbound_tags_dns = ["${var.vault_cluster_name}"]

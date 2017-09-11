@@ -4,15 +4,11 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 variable "cluster_name" {
-  description = "The name of the Consul cluster (e.g. consul-stage). This variable is used to namespace all resources created by this module."
-}
-
-variable "compute_instance_group_name" {
-  description = "The name of the Compute Instance Group that contains the Consul Server nodes."
+  description = "The name of the Vault cluster (e.g. vault-stage). This variable is used to namespace all resources created by this module."
 }
 
 variable "cluster_tag_name" {
-  description = "The tag name that the Consul Server Compute Instances use to automatically discover each other and form a cluster."
+  description = "The tag name that the Vault Compute Instances use to automatically discover each other and form a cluster."
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -20,9 +16,9 @@ variable "cluster_tag_name" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "http_api_port" {
-  description = "The port used by clients to talk to the Consul Server HTTP API"
-  default = 8500
+variable "api_port" {
+  description = "The port used by clients to talk to the Vault Server API"
+  default = 8200
 }
 
 variable "network_name" {
@@ -37,19 +33,19 @@ variable "health_check_description" {
   default = ""
 }
 
-variable "health_check_request_path" {
-  description = "The URL path the Health Check will query. The default value is somewhat arbitrary; our real goal is to make any HTTP API call to the Consul node that returns an HTTP 200 response if that one node is healthy."
-  default = "/v1/agent/self"
+variable "health_check_path" {
+  description = "The URL path the Health Check will query. Must return a 200 OK when the service is ready to receive requests from the Load Balancer."
+  default     = "/v1/sys/health?standbyok=true"
 }
 
 variable "health_check_interval_sec" {
   description = "The number of seconds between each Health Check attempt."
-  default = 5
+  default = 15
 }
 
 variable "health_check_timeout_sec" {
   description = "The number of seconds to wait before the Health Check declares failure."
-  default = 3
+  default = 5
 }
 
 variable "health_check_healthy_threshold" {
@@ -59,7 +55,7 @@ variable "health_check_healthy_threshold" {
 
 variable "health_check_unhealthy_threshold" {
   description = "The number of consecutive failures required to consider the Compute Instance unhealthy."
-  default = 1
+  default = 2
 }
 
 # Forwarding Rule Options

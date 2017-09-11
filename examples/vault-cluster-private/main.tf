@@ -38,6 +38,7 @@ module "vault_cluster" {
   gcs_bucket_storage_class = "${var.gcs_bucket_class}"
   gcs_bucket_force_destroy = "${var.gcs_bucket_force_destroy}"
 
+  # Note that the only way to reach private nodes via SSH is to first SSH into another node that is not private.
   assign_public_ip_addresses = false
 
   # To enable external access to the Vault Cluster, enter the approved CIDR Blocks or tags below.
@@ -74,6 +75,7 @@ module "consul_cluster" {
 
   startup_script = "${data.template_file.startup_script_consul.rendered}"
 
+  # Note that the only way to reach private nodes via SSH is to first SSH into another node that is not private.
   assign_public_ip_addresses = false
 
   allowed_inbound_tags_dns = ["${var.vault_cluster_name}"]
