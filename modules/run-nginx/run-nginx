@@ -5,6 +5,7 @@ set -e
 
 readonly NGINX_CONFIG_FILE="nginx.conf"
 readonly SUPERVISOR_CONFIG_PATH="/etc/supervisor/conf.d/run-nginx.conf"
+readonly DEFAULT_NGINX_PID_FOLDER="/var/run/nginx"
 
 readonly DEFAULT_PORT=8000
 readonly DEFAULT_PROXY_PASS_URL="https://127.0.0.1:8200/v1/sys/health?standbyok=true"
@@ -23,6 +24,7 @@ function print_usage {
   echo
   echo -e "  --port\t\tThe port on which the HTTP server accepts inbound connections. Default: $DEFAULT_PORT"
   echo -e "  --proxy-pass-url\tThe URL to which all inbound requests will be forwarded. Default: $DEFAULT_PROXY_PASS_URL"
+  echo -e "  --pid-folder\t\tThe local folder that should contain the PID file to be used by nginx. Default: $DEFAULT_NGINX_PID_FOLDER."
   echo -e "  --config-dir\t\tThe path to the nginx config folder. Default is the absolute path of '../config', relative to this script."
   echo -e "  --bin-dir\t\tThe path to the folder with the nginx binary. Default is the absolute path of the parent folder of this script."
   echo -e "  --log-dir\t\tThe path to the Vault log folder. Default is the absolute path of '../log', relative to this script."
@@ -80,8 +82,9 @@ function assert_is_installed {
 function generate_ngnix_config {
   local readonly port="$1"
   local readonly config_dir="$2"
-  local readonly user="$3"
-  local readonly proxy_pass_url="$4"
+  local readonly pid_folder="$3"
+  local readonly user="$4"
+  local readonly proxy_pass_url="$5"
   local readonly config_path="$config_dir/$NGINX_CONFIG_FILE"
 
   log_info "Creating default nginx config file in $config_path"
@@ -96,7 +99,7 @@ worker_processes  1;
 # Defines a file that will store the process ID of the main process.
 # Note that we pass the location of this file directly to supervisord
 # http://nginx.org/en/docs/ngx_core_module.html#pid
-pid  /var/run/nginx.pid;
+pid  $pid_folder/nginx.pid;
 
 # Configure error logs
 # http://nginx.org/en/docs/ngx_core_module.html#error_log
@@ -208,6 +211,7 @@ function get_owner_of_path {
 function run {
   local port="$DEFAULT_PORT"
   local proxy_pass_url="$DEFAULT_PROXY_PASS_URL"
+  local pid_folder="$DEFAULT_NGINX_PID_FOLDER"
   local config_dir=""
   local bin_dir=""
   local log_dir=""
@@ -228,6 +232,10 @@ function run {
         ;;
       --config-dir)
         config_dir="$2"
+        shift
+        ;;
+      --pid-folder)
+        pid_folder="$2"
         shift
         ;;
       --user)
@@ -265,6 +273,7 @@ function run {
 
   assert_not_empty "--port" "$port"
   assert_not_empty "--proxy-pass-url" "$proxy_pass_url"
+  assert_not_empty "--pid-folder" "$pid_folder"
 
   assert_is_installed "supervisorctl"
 
@@ -284,7 +293,7 @@ function run {
     user=$(get_owner_of_path "$config_dir")
   fi
 
-  generate_ngnix_config "$port" "$config_dir" "$user" "$proxy_pass_url"
+  generate_ngnix_config "$port" "$config_dir" "$pid_folder" "$user" "$proxy_pass_url"
   generate_supervisor_config "$SUPERVISOR_CONFIG_PATH" "$config_dir" "$bin_dir" "$log_dir" "$log_level" "$user"
   start_nginx
 }

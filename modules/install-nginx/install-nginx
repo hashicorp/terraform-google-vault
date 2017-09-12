@@ -7,7 +7,7 @@ set -e
 
 readonly DEFAULT_INSTALL_PATH="/opt/nginx"
 readonly DEFAULT_NGINX_USER="nginx"
-readonly DEFAULT_NGINX_PID_FILE="/var/run/nginx.pid"
+readonly DEFAULT_NGINX_PID_FOLDER="/var/run/nginx"
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly SYSTEM_BIN_DIR="/usr/local/bin"
@@ -32,7 +32,7 @@ function print_usage {
   echo
   echo -e "  --path\tThe path where nginx should be installed. Default: $DEFAULT_INSTALL_PATH."
   echo -e "  --user\tThe user who will own the nginx install directories. Default: $DEFAULT_NGINX_USER."
-  echo -e "  --pid-file\tThe path to the PID file to be used by nginx. Default: $DEFAULT_NGINX_PID_FILE."
+  echo -e "  --pid-folder\tThe local folder that should contain the PID file to be used by nginx. Default: $DEFAULT_NGINX_PID_FOLDER."
   echo
   echo "Example:"
   echo
@@ -138,14 +138,14 @@ function create_nginx_install_paths {
 }
 
 # We create this PID file upfront because we intend to run nginx is as a non-root user
-function create_nginx_pid_file {
-  local readonly pid_file="$1"
+function create_nginx_pid_folder {
+  local readonly pid_folder="$1"
   local readonly username="$2"
 
-  log_info "Creating Nginx PID file at $pid_file"
+  log_info "Creating Nginx PID folder at $pid_folder"
 
-  touch $pid_file
-  chown "$username:$username" $pid_file
+  mkdir -p $pid_folder
+  chown "$username:$username" $pid_folder
 }
 
 function download_nginx_binary {
@@ -192,7 +192,7 @@ function install {
   local signing_key=""
   local path="$DEFAULT_INSTALL_PATH"
   local user="$DEFAULT_NGINX_USER"
-  local pid_file="$DEFAULT_NGINX_PID_FILE"
+  local pid_folder="$DEFAULT_NGINX_PID_FOLDER"
 
   while [[ $# > 0 ]]; do
     local key="$1"
@@ -210,8 +210,8 @@ function install {
         user="$2"
         shift
         ;;
-      --pid-file)
-        pid_file="$2"
+      --pid-folder)
+        pid_folder="$2"
         shift
         ;;
       --help)
@@ -233,7 +233,7 @@ function install {
   assert_not_empty "--signing-key" "$signing_key"
   assert_not_empty "--path" "$path"
   assert_not_empty "--user" "$user"
-  assert_not_empty "--pid-file" "$pid_file"
+  assert_not_empty "--pid-folder" "$pid_folder"
 
   assert_is_installed "dpkg-deb"
 
@@ -241,7 +241,7 @@ function install {
 
   create_linux_user "$user"
   create_nginx_install_paths "$path" "$user"
-  create_nginx_pid_file "$pid_file" "$user"
+  create_nginx_pid_folder "$pid_folder" "$user"
   download_nginx_binary "$signing_key" "$path" "/tmp/nginx/bin/nginx"
   install_nginx "/tmp/nginx/bin/nginx" "$path" "$user"
 
