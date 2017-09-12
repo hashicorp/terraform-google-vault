@@ -1,12 +1,5 @@
 #!/bin/bash
-# This script is used to configure and run Vault on a Google Compute Instance.
-#
-# - update description and help
-# - generate supervisor config
-# - generate nginx conf file
-#   - param: port listener
-#   - param: vault health check URL
-# - start nginx
+# This script is used to configure and run nginx as a simple HTTP proxy server.
 
 set -e
 
@@ -91,29 +84,23 @@ function generate_ngnix_config {
   local readonly proxy_pass_url="$4"
   local readonly config_path="$config_dir/$NGINX_CONFIG_FILE"
 
-  local instance_ip_address
-  instance_ip_address=$(get_instance_ip_address)
-
   log_info "Creating default nginx config file in $config_path"
   cat > "$config_path" <<EOF
 # Running any extra software on our Vault servers makes me anxious, so at least this Nginx config file carefully thinks
 # through every option. Feedback is welcome on any security improvements here.
-
-# Run nginx as the linux user "$user"
-# http://nginx.org/en/docs/ngx_core_module.html#user
-user  $user;
 
 # Use just a single core since we expect low traffic
 # http://nginx.org/en/docs/ngx_core_module.html#worker_processes
 worker_processes  1;
 
 # Defines a file that will store the process ID of the main process.
+# Note that we pass the location of this file directly to supervisord
 # http://nginx.org/en/docs/ngx_core_module.html#pid
 pid  /var/run/nginx.pid;
 
 # Configure error logs
 # http://nginx.org/en/docs/ngx_core_module.html#error_log
-#error_log  /var/log/nginx/error.log  warn;
+error_log  /var/log/nginx/error.log  warn;
 
 # Run nginx as a foreground process (vs. background service) because supervisord will be acting as the process supervisor
 # http://nginx.org/en/docs/ngx_core_module.html#daemon
@@ -146,7 +133,7 @@ http {
   '"\$http_user_agent" "\$http_x_forwarded_for"';
 
   # Declare the location of non-error logs using the "main" formatting type
-  #access_log  /var/log/nginx/access.log  main;
+  access_log  /var/log/nginx/access.log  main;
 
   # We're using Nginx as a reverse proxy and don't need to read any local files, so disable this
   # https://t37.net/nginx-optimization-understanding-sendfile-tcp_nodelay-and-tcp_nopush.html
@@ -193,7 +180,8 @@ function generate_supervisor_config {
   log_info "Creating Supervisor config file to run Vault in $supervisor_config_path"
   cat > "$supervisor_config_path" <<EOF
 [program:nginx]
-command=$nginx_bin_dir/nginx -c $nginx_config_dir/nginx -log-level=$nginx_log_level
+#command=$nginx_bin_dir/nginx -c $nginx_config_dir/nginx.conf
+command=/usr/bin/pidproxy /var/run/nginx.pid $nginx_bin_dir/nginx -c $nginx_config_dir/nginx.conf
 stdout_logfile=$nginx_log_dir/nginx-stdout.log
 stderr_logfile=$nginx_log_dir/nginx-error.log
 numprocs=1
@@ -276,7 +264,6 @@ function run {
 
   assert_not_empty "--port" "$port"
   assert_not_empty "--proxy-pass-url" "$proxy_pass_url"
-  assert_not_empty "--config-dir" "$config_dir"
 
   assert_is_installed "supervisorctl"
 
