@@ -181,6 +181,28 @@ resource "google_compute_firewall" "allow_inboud_api" {
   target_tags = ["${var.cluster_tag_name}"]
 }
 
+# If we require a Load Balancer in front of the Vault cluster, we must specify a Health Check so that the Load Balancer
+# knows which nodes to route to. But GCP only permits HTTP Health Checks, not HTTPS Health Checks (https://github.com/terraform-providers/terraform-provider-google/issues/18)
+# so we must run a separate Web Proxy that forwards HTTP requests to the HTTPS Vault health check endpoint. This Firewall
+# Rule permits only the Google Cloud Health Checker to make such requests.
+resource "google_compute_firewall" "allow_inboud_health_check" {
+  count = "${var.enable_web_proxy}"
+
+  name    = "${var.cluster_name}-rule-health-check"
+  network = "${var.network_name}"
+
+  allow {
+    protocol = "tcp"
+    ports    = [
+      "${var.web_proxy_port}",
+    ]
+  }
+
+  # Per https://goo.gl/xULu8U, all Google Cloud Health Check requests will be sent from 35.191.0.0/16
+  source_ranges = ["35.191.0.0/16"]
+  target_tags = ["${var.cluster_tag_name}"]
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE A GOOGLE STORAGE BUCKET TO USE AS A VAULT STORAGE BACKEND
 # ---------------------------------------------------------------------------------------------------------------------

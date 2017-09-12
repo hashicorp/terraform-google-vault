@@ -82,6 +82,11 @@ variable "instance_group_update_strategy" {
   default = "NONE"
 }
 
+variable "enable_web_proxy" {
+  description = "If true, a Firewall Rule will be created that allows inbound Health Check traffic on var.web_proxy_port."
+  default = false
+}
+
 # Metadata
 
 variable "metadata_key_name_for_cluster_size" {
@@ -108,7 +113,7 @@ variable "cluster_port" {
 }
 
 variable "web_proxy_port" {
-  description = "The port at which the HTTP proxy server will listen for incoming HTTP requests that will be forwarded to the Vault Health Check URL. We must have an HTTP proxy server to work around the limitation that GCP only permits Health Checks via HTTP, not HTTPS."
+  description = "The port at which the HTTP proxy server will listen for incoming HTTP requests that will be forwarded to the Vault Health Check URL. We must have an HTTP proxy server to work around the limitation that GCP only permits Health Checks via HTTP, not HTTPS. This value is originally set in the Startup Script that runs Nginx and passes the port value there."
   default = 8000
 }
 

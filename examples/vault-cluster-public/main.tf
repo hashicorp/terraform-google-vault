@@ -38,10 +38,16 @@ module "vault_cluster" {
   gcs_bucket_storage_class = "${var.gcs_bucket_class}"
   gcs_bucket_force_destroy = "${var.gcs_bucket_force_destroy}"
 
+  # Regrettably, GCE only supports HTTP health checks, not HTTPS Health Checks (https://github.com/terraform-providers/terraform-provider-google/issues/18)
+  # Therefore, per GCE recommendations, we run a simple HTTP proxy server that forwards all requests to the Vault Health
+  # Check URL specified in the startup-script-vault.sh
+  enable_web_proxy = true
+  web_proxy_port = "${var.web_proxy_port}"
+
   # Even when the Vault cluster is pubicly accessible via a Load Balancer, we still make the Vault nodes themselves
   # private to improve the overall security posture. Note that the only way to reach private nodes via SSH is to first
   # SSH into another node that is not private.
-  assign_public_ip_addresses = false
+  assign_public_ip_addresses = true
 
   # To enable external access to the Vault Cluster, enter the approved CIDR Blocks or tags below.
   # We enable health checks from the Consul Server cluster to Vault.
@@ -59,6 +65,7 @@ data "template_file" "startup_script_vault" {
   vars {
     consul_cluster_tag_name = "${var.consul_server_cluster_name}"
     vault_cluster_tag_name = "${var.vault_cluster_name}"
+    web_proxy_port = "${var.web_proxy_port}"
   }
 }
 
