@@ -22,12 +22,15 @@ function print_usage {
   echo
   echo "This script can be used to install nginx. This script has been tested with Ubuntu 16.04."
   echo
-  echo "Options:"
+  echo "Required Arguments:"
+  echo
+  echo -e "  --signing-key\t\tThe local path to the PGP key used to sign nginx debian packages. This enables us to verify"
+  echo -e "               \t\tpackage integrity. Originally downloaded from http://nginx.org/keys/nginx_signing.key."
+  echo
+  echo "Optional Arguments:"
   echo
   echo -e "  --path\t\tThe path where nginx should be installed. Optional. Default: $DEFAULT_INSTALL_PATH."
   echo -e "  --user\t\tThe user who will own the nginx install directories. Optional. Default: $DEFAULT_NGINX_USER."
-  echo -e "  --signing-key\tThe local path to the PGP key used to sign nginx debian packages. This enables us to verify"
-  echo -e "               \tpackage integrity. Originally downloaded from http://nginx.org/keys/nginx_signing.key."
   echo
   echo "Example:"
   echo
@@ -128,15 +131,16 @@ function download_nginx_binary {
   log_info "Extracting nginx binary from package"
   sudo mkdir -p /tmp/nginx-deb
   sudo dpkg-deb -R *.deb /tmp/nginx-deb
-  sudo mv /tmp/nginx/usr/sbin/nginx "$dest_path"
+  sudo mkdir -p "$dest_path"
+  sudo mv /tmp/nginx-deb/usr/sbin/nginx "$dest_path"
 }
 
 function install_nginx {
   local readonly nginx_bin_src_path="$1"
-  local readonly path="$2"
+  local readonly dest_path="$2"
   local readonly username="$3"
 
-  local readonly bin_dir="$path/bin"
+  local readonly bin_dir="$dest_path/bin"
   local readonly nginx_bin_dest_path="$bin_dir/nginx"
   local readonly run_nginx_dest_path="$bin_dir/run-nginx"
 

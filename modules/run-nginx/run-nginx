@@ -10,50 +10,35 @@
 
 set -e
 
-readonly VAULT_CONFIG_FILE="default.hcl"
-readonly SUPERVISOR_CONFIG_PATH="/etc/supervisor/conf.d/run-vault.conf"
+readonly NGINX_CONFIG_FILE="nginx.conf"
+readonly SUPERVISOR_CONFIG_PATH="/etc/supervisor/conf.d/run-nginx.conf"
 
-readonly DEFAULT_PORT=8200
+readonly DEFAULT_PORT=8000
+readonly DEFAULT_PROXY_PASS_URL="https://127.0.0.1:8200/v1/sys/health?standbyok=true"
 readonly DEFAULT_LOG_LEVEL="info"
-
-readonly GCP_COMPUTE_INSTANCE_METADATA_URL="http://metadata.google.internal/computeMetadata/v1"
-readonly GCP_METADATA_REQUEST_HEADER="Metadata-Flavor: Google"
-
-readonly DEFAULT_PATH_SERVICE_ACCOUNT_PRIVATE_KEY="/tmp/credentials.json"
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly SCRIPT_NAME="$(basename "$0")"
 
 function print_usage {
   echo
-  echo "Usage: run-vault [OPTIONS]"
+  echo "Usage: run-nginx [OPTIONS]"
   echo
-  echo "This script is used to configure and run Vault on an AWS server."
-  echo
-  echo "Required Arguments:"
-  echo
-  echo -e "  --gcs-bucket\t\tThe name of the Google Cloud Storage Bucket where Vault data should be stored."
-  echo -e "  --tls-cert-file\tSpecifies the path to the certificate for TLS. To use a CA certificate, concatenate"
-  echo -e "                 \tthe primary certificate and the CA certificate together."
-  echo -e "  --tls-key-file\tSpecifies the path to the private key for the certificate."
+  echo "This script is used to configure and run nginx as a simple HTTP proxy server."
   echo
   echo "Optional Arguments:"
   echo
-  echo -e "  --gcp-creds-file\tThe file path on the Compute Instance of a JSON file that stores credentials for a"
-  echo -e "                  \tGCP Service Account that has read-write access to the configured GCS Bucket."
-  echo -e "  --port\t\tThe port for Vault to listen on. Default is $DEFAULT_PORT."
-  echo -e "  --cluster-port\tThe port for Vault to listen on for server-to-server requests. Default is --port + 1."
-  echo -e "  --config-dir\t\tThe path to the Vault config folder. Default is the absolute path of '../config', relative to this script."
-  echo -e "  --bin-dir\t\tThe path to the folder with Vault binary. Default is the absolute path of the parent folder of this script."
+  echo -e "  --port\t\tThe port on which the HTTP server accepts inbound connections. Default: $DEFAULT_PORT"
+  echo -e "  --proxy-pass-url\tThe URL to which all inbound requests will be forwarded. Default: $DEFAULT_PROXY_PASS_URL"
+  echo -e "  --config-dir\t\tThe path to the nginx config folder. Default is the absolute path of '../config', relative to this script."
+  echo -e "  --bin-dir\t\tThe path to the folder with the nginx binary. Default is the absolute path of the parent folder of this script."
   echo -e "  --log-dir\t\tThe path to the Vault log folder. Default is the absolute path of '../log', relative to this script."
   echo -e "  --log-level\t\tThe log verbosity to use with Vault. Default is $DEFAULT_LOG_LEVEL."
-  echo -e "  --user\t\tThe user to run Vault as. Default is to use the owner of --config-dir."
-  echo -e "  --skip-vault-config\tIf this flag is set, don't generate a Vault configuration file. Default is false."
-
+  echo -e "  --user\t\tThe user to run nginx as. Default is to use the owner of --config-dir."
   echo
   echo "Example:"
   echo
-  echo "  run-vault --gcs-bucket my-vault-bucket --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem"
+  echo "run-nginx --port-listener 8000"
   echo
 }
 
@@ -79,13 +64,6 @@ function log_error {
   log "ERROR" "$message"
 }
 
-# Based on code from: http://stackoverflow.com/a/16623897/483528
-function strip_prefix {
-  local readonly str="$1"
-  local readonly prefix="$2"
-  echo "${str#$prefix}"
-}
-
 function assert_not_empty {
   local readonly arg_name="$1"
   local readonly arg_value="$2"
@@ -106,64 +84,99 @@ function assert_is_installed {
   fi
 }
 
-# Get the value at a specific Instance Metadata path.
-function get_instance_metadata_value {
-  local readonly path="$1"
-
-  log_info "Looking up Metadata value at $GCP_COMPUTE_INSTANCE_METADATA_URL/$path"
-  curl --silent --show-error --location --header "$GCP_METADATA_REQUEST_HEADER" "$GCP_COMPUTE_INSTANCE_METADATA_URL/$path"
-}
-
-# Get the IP Address of the current Compute Instance
-function get_instance_ip_address {
-  local network_interface_number="$1"
-
-  # If no network interface number was specified, default to the first one
-  if [[ -z "$network_interface_number" ]]; then
-    network_interface_number=0
-  fi
-
-  log_info "Looking up Compute Instance IP Address on Network Interface $network_interface_number"
-  get_instance_metadata_value "instance/network-interfaces/$network_interface_number/ip"
-}
-
-function generate_vault_config {
-  local readonly tls_cert_file="$1"
-  local readonly tls_key_file="$2"
-  local readonly port="$3"
-  local readonly cluster_port="$4"
-  local readonly config_dir="$5"
-  local readonly user="$6"
-  local readonly gcs_bucket="$7"
-  local readonly gcp_creds_file="$8"
-  local readonly config_path="$config_dir/$VAULT_CONFIG_FILE"
+function generate_ngnix_config {
+  local readonly port="$1"
+  local readonly config_dir="$2"
+  local readonly user="$3"
+  local readonly proxy_pass_url="$4"
+  local readonly config_path="$config_dir/$NGINX_CONFIG_FILE"
 
   local instance_ip_address
   instance_ip_address=$(get_instance_ip_address)
 
-  log_info "Creating default Vault config file in $config_path"
+  log_info "Creating default nginx config file in $config_path"
   cat > "$config_path" <<EOF
-storage "gcs" {
-  bucket = "$gcs_bucket"
-  credentials_file = "$gcp_creds_file"
+# Running any extra software on our Vault servers makes me anxious, so at least this Nginx config file carefully thinks
+# through every option. Feedback is welcome on any security improvements here.
+
+# Run nginx as the linux user "$user"
+# http://nginx.org/en/docs/ngx_core_module.html#user
+user  $user;
+
+# Use just a single core since we expect low traffic
+# http://nginx.org/en/docs/ngx_core_module.html#worker_processes
+worker_processes  1;
+
+# Defines a file that will store the process ID of the main process.
+# http://nginx.org/en/docs/ngx_core_module.html#pid
+pid  /var/run/nginx.pid;
+
+# Configure error logs
+# http://nginx.org/en/docs/ngx_core_module.html#error_log
+#error_log  /var/log/nginx/error.log  warn;
+
+# Run nginx as a foreground process (vs. background service) because supervisord will be acting as the process supervisor
+# http://nginx.org/en/docs/ngx_core_module.html#daemon
+daemon  off;
+
+# Set the maximum number of simultaneous connections that can be opened by a worker process.
+# http://nginx.org/en/docs/ngx_core_module.html#worker_connections
+events {
+  worker_connections  1024;
 }
 
-ha_storage "consul" {
-  address = "127.0.0.1:8500"
-  path    = "vault/"
-  scheme  = "http"
-  service = "vault"
+# Configuration directives for handling HTTP traffic
+# http://nginx.org/en/docs/http/ngx_http_core_module.html
+http {
 
-  # HA settings
-  cluster_addr  = "https://$instance_ip_address:$cluster_port"
-  redirect_addr = "https://$instance_ip_address:$cluster_port"
-}
+  # Map file name extensions to MIME types of responses.
+  # http://nginx.org/en/docs/http/ngx_http_core_module.html#types
+  types {
+    application/json  json;
+    text/plain  txt;
+  }
 
-listener "tcp" {
-  address         = "0.0.0.0:$port"
-  cluster_address = "0.0.0.0:$cluster_port"
-  tls_cert_file   = "$tls_cert_file"
-  tls_key_file    = "$tls_key_file"
+  # Define the default MIME type of an HTTP response.
+  # http://nginx.org/en/docs/http/ngx_http_core_module.html#default_type
+  default_type  text/plain;
+
+  # Declare log the formatting type "main"
+  log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
+  '\$status \$body_bytes_sent "\$http_referer" '
+  '"\$http_user_agent" "\$http_x_forwarded_for"';
+
+  # Declare the location of non-error logs using the "main" formatting type
+  #access_log  /var/log/nginx/access.log  main;
+
+  # We're using Nginx as a reverse proxy and don't need to read any local files, so disable this
+  # https://t37.net/nginx-optimization-understanding-sendfile-tcp_nodelay-and-tcp_nopush.html
+  sendfile  off;
+
+  # Keep TCP client connections open for this many seconds before timing out. We want this slightly higher than one minute
+  # so that health checks sent every 60 seconds need not re-establish a TCP connection.
+  # http://nginx.org/en/docs/http/ngx_http_core_module.html#keepalive_timeout
+  keepalive_timeout  65;
+
+  # Configuration directives for a virtual server
+  # http://nginx.org/en/docs/http/ngx_http_core_module.html#server
+  server {
+
+    # Listen for inbound connections on this port
+    # http://nginx.org/en/docs/http/ngx_http_core_module.html#listen
+    listen  $port;
+
+    # Set the name of the virtual server. Use the local machine's hostname; note that we are passing a string literal
+    # here to be evaluated by nginx, not a local bash variable.
+    # http://nginx.org/en/docs/http/ngx_http_core_module.html#server_name
+    server_name  "\$hostname";
+
+    # Proxy all requests to Vault listening on 127.0.0.1:8200
+    # http://nginx.org/en/docs/http/ngx_http_core_module.html#location
+    # http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_pass
+    location * {
+        proxy_pass  $proxy_pass_url;
+    }
+  }
 }
 EOF
   chown "$user:$user" "$config_path"
@@ -171,28 +184,28 @@ EOF
 
 function generate_supervisor_config {
   local readonly supervisor_config_path="$1"
-  local readonly vault_config_dir="$2"
-  local readonly vault_bin_dir="$3"
-  local readonly vault_log_dir="$4"
-  local readonly vault_log_level="$5"
-  local readonly vault_user="$6"
+  local readonly nginx_config_dir="$2"
+  local readonly nginx_bin_dir="$3"
+  local readonly nginx_log_dir="$4"
+  local readonly nginx_log_level="$5"
+  local readonly nginx_user="$6"
 
   log_info "Creating Supervisor config file to run Vault in $supervisor_config_path"
   cat > "$supervisor_config_path" <<EOF
-[program:vault]
-command=$vault_bin_dir/vault server -config $vault_config_dir -log-level=$vault_log_level
-stdout_logfile=$vault_log_dir/vault-stdout.log
-stderr_logfile=$vault_log_dir/vault-error.log
+[program:nginx]
+command=$nginx_bin_dir/nginx -c $nginx_config_dir/nginx -log-level=$nginx_log_level
+stdout_logfile=$nginx_log_dir/nginx-stdout.log
+stderr_logfile=$nginx_log_dir/nginx-error.log
 numprocs=1
 autostart=true
 autorestart=true
 stopsignal=INT
-user=$vault_user
+user=$nginx_user
 EOF
 }
 
-function start_vault {
-  log_info "Reloading Supervisor config and starting Vault"
+function start_nginx {
+  log_info "Reloading Supervisor config and starting Nginx"
   supervisorctl reread
   supervisorctl update
 }
@@ -204,53 +217,32 @@ function get_owner_of_path {
 }
 
 function run {
-  local gcs_bucket=""
-  local tls_cert_file=""
-  local tls_key_file=""
-  local gcp_creds_file=""
   local port="$DEFAULT_PORT"
-  local cluster_port=""
+  local proxy_pass_url="$DEFAULT_PROXY_PASS_URL"
   local config_dir=""
   local bin_dir=""
   local log_dir=""
   local log_level="$DEFAULT_LOG_LEVEL"
   local user=""
-  local skip_vault_config="false"
-  local all_args=()
 
   while [[ $# > 0 ]]; do
     local key="$1"
 
     case "$key" in
-      --tls-cert-file)
-        tls_cert_file="$2"
-        shift
-        ;;
-      --tls-key-file)
-        tls_key_file="$2"
-        shift
-        ;;
-      --gcs-bucket)
-        gcs_bucket="$2"
-        shift
-        ;;
-      --gcp-creds-file)
-        gcp_creds_file="$2"
-        shift
-        ;;
       --port)
-        assert_not_empty "$key" "$2"
         port="$2"
         shift
         ;;
-      --cluster-port)
-        assert_not_empty "$key" "$2"
-        cluster_port="$2"
+      --proxy-pass-url)
+        proxy_pass_url="$2"
         shift
         ;;
       --config-dir)
-        assert_not_empty "$key" "$2"
         config_dir="$2"
+        shift
+        ;;
+      --user)
+        user="$2"
         shift
         ;;
       --bin-dir)
@@ -268,14 +260,6 @@ function run {
         log_level="$2"
         shift
         ;;
-      --user)
-        assert_not_empty "$key" "$2"
-        user="$2"
-        shift
-        ;;
-      --skip-vault-config)
-        skip_vault_config="true"
-        ;;
       --help)
         print_usage
         exit
@@ -290,13 +274,11 @@ function run {
     shift
   done
 
-  assert_not_empty "--tls-cert-file" "$tls_cert_file"
-  assert_not_empty "--tls-key-file" "$tls_key_file"
-  assert_not_empty "--gcs-bucket" "$gcs_bucket"
+  assert_not_empty "--port" "$port"
+  assert_not_empty "--proxy-pass-url" "$proxy_pass_url"
+  assert_not_empty "--config-dir" "$config_dir"
 
   assert_is_installed "supervisorctl"
-  assert_is_installed "curl"
-  assert_is_installed "jq"
 
   if [[ -z "$config_dir" ]]; then
     config_dir=$(cd "$SCRIPT_DIR/../config" && pwd)
@@ -314,18 +296,9 @@ function run {
     user=$(get_owner_of_path "$config_dir")
   fi
 
-  if [[ -z "$cluster_port" ]]; then
-    cluster_port=$(( $port + 1 ))
-  fi
-
-  if [[ "$skip_vault_config" == "true" ]]; then
-    log_info "The --skip-vault-config flag is set, so will not generate a default Vault config file."
-  else
-    generate_vault_config "$tls_cert_file" "$tls_key_file" "$port" "$cluster_port" "$config_dir" "$user" "$gcs_bucket" "$gcp_creds_file"
-  fi
-
+  generate_ngnix_config "$port" "$config_dir" "$user" "$proxy_pass_url"
   generate_supervisor_config "$SUPERVISOR_CONFIG_PATH" "$config_dir" "$bin_dir" "$log_dir" "$log_level" "$user"
-  start_vault
+  start_nginx
 }
 
 run "$@"
