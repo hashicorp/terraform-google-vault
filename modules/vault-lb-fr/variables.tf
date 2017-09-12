@@ -11,6 +11,14 @@ variable "cluster_tag_name" {
   description = "The tag name that the Vault Compute Instances use to automatically discover each other and form a cluster."
 }
 
+variable "health_check_path" {
+  description = "The URL path the Health Check will query. Must return a 200 OK when the service is ready to receive requests from the Load Balancer."
+}
+
+variable "health_check_port" {
+  description = "The port to be used by the Health Check."
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
@@ -31,11 +39,6 @@ variable "network_name" {
 variable "health_check_description" {
   description = "A description to add to the Health Check created by this module."
   default = ""
-}
-
-variable "health_check_path" {
-  description = "The URL path the Health Check will query. Must return a 200 OK when the service is ready to receive requests from the Load Balancer."
-  default     = "/v1/sys/health?standbyok=true"
 }
 
 variable "health_check_interval_sec" {

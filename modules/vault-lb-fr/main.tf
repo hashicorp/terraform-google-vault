@@ -47,7 +47,7 @@ resource "google_compute_http_health_check" "vault" {
   healthy_threshold = "${var.health_check_healthy_threshold}"
   unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
 
-  port = "${var.api_port}"
+  port = "${var.health_check_port}"
   request_path = "${var.health_check_path}"
 }
 

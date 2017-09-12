@@ -82,6 +82,9 @@ module "vault_load_balancer" {
   cluster_name = "${var.vault_cluster_name}"
   cluster_tag_name = "${var.vault_cluster_name}"
 
+  health_check_path = "/"
+  health_check_port = "${var.web_proxy_port}"
+
 //  name = "${var.vault_cluster_name}"
 //
 //  vpc_id     = "${data.aws_vpc.default.id}"
