@@ -137,15 +137,16 @@ function create_nginx_install_paths {
   chown -R "$username:$username" "$nginx_cache_dir"
 }
 
-# We create this PID file upfront because we intend to run nginx is as a non-root user
+# We create this PID file upfront because we intend to run nginx is as a non-root user. But /var/run lives in tmpfs,
+# which will be deleted on each boot, so we tell Ubuntu to automatically create our temp folder on boot with the
+# right permissions (Approach based on https://askubuntu.com/a/306479/221222)
 function create_nginx_pid_folder {
   local readonly pid_folder="$1"
   local readonly username="$2"
 
-  log_info "Creating Nginx PID folder at $pid_folder"
+  log_info "Creating script that will create Nginx PID folder $pid_folder on boot"
 
-  mkdir -p $pid_folder
-  chown "$username:$username" $pid_folder
+  echo "d $pid_folder 0744 $username $username" > /usr/lib/tmpfiles.d/nginx.conf
 }
 
 function download_nginx_binary {
