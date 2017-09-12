@@ -16,3 +16,4 @@ readonly VAULT_TLS_KEY_FILE="/opt/vault/tls/vault.key.pem"
 # These variables are passed in via Terraform template interplation
 /opt/consul/bin/run-consul --client --cluster-tag-name "${consul_cluster_tag_name}"
 /opt/vault/bin/run-vault --gcs-bucket ${vault_cluster_tag_name} --tls-cert-file "$VAULT_TLS_CERT_FILE"  --tls-key-file "$VAULT_TLS_KEY_FILE"
+/opt/nginx/bin/run-nginx --port ${web_proxy_port} --proxy-pass-url "https://127.0.0.1:8200/v1/sys/health?standbyok=true"

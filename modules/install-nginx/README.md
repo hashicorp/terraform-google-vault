@@ -1,5 +1,11 @@
 # Vault Install Script
 
+This folder contains a script for running a minimal HTTP web server in Python. The web server is configured to redirect
+all HTTP traffic, regardless of the path of the request, to an HTTPS endpoint that is the Vault health check. This is
+necessary because [GCP does not yet support associating Target Groups with an HTTPS Health Check](
+https://github.com/terraform-providers/terraform-provider-google/issues/18). Instead, Google recommends that we setup
+a simple HTTP server that redirects to HTTPS if a health check is only available in HTTPS. 
+
 This folder contains a script for installing Vault and its dependencies. You can use this script, along with the
 [run-vault script](/modules/run-vault) it installs, to create a Vault [Amazon Machine Image 
 (AMI)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) that can be deployed in 

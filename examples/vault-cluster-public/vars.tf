@@ -69,6 +69,11 @@ variable "consul_server_cluster_size" {
   default = 3
 }
 
+variable "web_proxy_port" {
+  description = "The port at which the HTTP proxy server will listen for incoming HTTP requests that will be forwarded to the Vault Health Check URL. We must have an HTTP proxy server to work around the limitation that GCP only permits Health Checks via HTTP, not HTTPS."
+  default = "8000"
+}
+
 //variable "create_dns_entry" {
 //  description = "If set to true, this module will create a Route 53 DNS A record for the ELB in the var.hosted_zone_id hosted zone with the domain name in var.domain_name."
 //}

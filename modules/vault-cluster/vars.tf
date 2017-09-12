@@ -107,6 +107,11 @@ variable "cluster_port" {
   default = 8201
 }
 
+variable "web_proxy_port" {
+  description = "The port at which the HTTP proxy server will listen for incoming HTTP requests that will be forwarded to the Vault Health Check URL. We must have an HTTP proxy server to work around the limitation that GCP only permits Health Checks via HTTP, not HTTPS."
+  default = 8000
+}
+
 variable "allowed_inbound_cidr_blocks_api" {
   description = "A list of CIDR-formatted IP address ranges from which the Compute Instances will allow connections to Vault on the configured TCP Listener (see https://goo.gl/Equ4xP)"
   type = "list"
