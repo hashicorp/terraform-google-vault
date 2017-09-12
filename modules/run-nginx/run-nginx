@@ -120,12 +120,11 @@ http {
   # http://nginx.org/en/docs/http/ngx_http_core_module.html#types
   types {
     application/json  json;
-    text/plain  txt;
   }
 
   # Define the default MIME type of an HTTP response.
   # http://nginx.org/en/docs/http/ngx_http_core_module.html#default_type
-  default_type  text/plain;
+  default_type  application/json;
 
   # Declare log the formatting type "main"
   log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
@@ -160,8 +159,10 @@ http {
     # Proxy all requests to Vault listening on 127.0.0.1:8200
     # http://nginx.org/en/docs/http/ngx_http_core_module.html#location
     # http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_pass
-    location * {
+    location / {
+        proxy_set_header  Host \$host;
         proxy_pass  $proxy_pass_url;
+        proxy_redirect  off;
     }
   }
 }
