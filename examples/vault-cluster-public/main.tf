@@ -47,7 +47,7 @@ module "vault_cluster" {
   # Even when the Vault cluster is pubicly accessible via a Load Balancer, we still make the Vault nodes themselves
   # private to improve the overall security posture. Note that the only way to reach private nodes via SSH is to first
   # SSH into another node that is not private.
-  assign_public_ip_addresses = true
+  assign_public_ip_addresses = false
 
   # To enable external access to the Vault Cluster, enter the approved CIDR Blocks or tags below.
   # We enable health checks from the Consul Server cluster to Vault.
@@ -127,7 +127,7 @@ module "consul_cluster" {
 
   # In a production setting, we strongly recommend only launching a Consul Server cluster as private nodes.
   # Note that the only way to reach private nodes via SSH is to first SSH into another node that is not private.
-  assign_public_ip_addresses = true
+  assign_public_ip_addresses = false
 
   allowed_inbound_tags_dns = ["${var.vault_cluster_name}"]
   allowed_inbound_tags_http_api = ["${var.vault_cluster_name}"]
