@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY A VAULT CLUSTER IN GOOGLE CLOUD
-# This is an example of how to use the vault-cluster and vault-load-balancer modules to deploya Vault cluster in GCP with
-# a Load Balancer in front of it. This cluster uses Consul, running in a separate cluster, as its High Availability backend.
+# This is an example of how to use the vault-cluster to deploy a private Vault cluster in GCP with a Load Balancer in
+# front of it. This cluster uses Consul, running in a separate cluster, as its High Availability backend.
 # ---------------------------------------------------------------------------------------------------------------------
 
 provider "google" {
@@ -20,7 +20,7 @@ terraform {
 module "vault_cluster" {
   # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
   # to a specific version of the modules, such as the following example:
-  # source = "git::git@github.com:gruntwork-io/vault-aws-blueprint.git//modules/vault-cluster?ref=v0.0.1"
+  # source = "git::git@github.com:gruntwork-io/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
   source = "../../modules/vault-cluster"
 
   gcp_zone = "${var.gcp_zone}"
@@ -39,8 +39,8 @@ module "vault_cluster" {
   gcs_bucket_force_destroy = "${var.gcs_bucket_force_destroy}"
 
   # Regrettably, GCE only supports HTTP health checks, not HTTPS Health Checks (https://github.com/terraform-providers/terraform-provider-google/issues/18)
-  # Therefore, per GCE recommendations, we run a simple HTTP proxy server that forwards all requests to the Vault Health
-  # Check URL specified in the startup-script-vault.sh
+  # But Vault is only configured to listen for HTTPS requests. Therefore, per GCE recommendations, we run a simple HTTP
+  # proxy server that forwards all requests to the Vault Health Check URL specified in the startup-script-vault.sh
   enable_web_proxy = true
   web_proxy_port = "${var.web_proxy_port}"
 
@@ -58,8 +58,7 @@ module "vault_cluster" {
   instance_group_target_pools = ["${module.vault_load_balancer.target_pool_url}"]
 }
 
-# Render the Startup Script that will run on each Vault Instance on boot.
-# This script will configure and start Vault.
+# Render the Startup Script that will run on each Vault Instance on boot. This script will configure and start Vault.
 data "template_file" "startup_script_vault" {
   template = "${file("${path.module}/startup-script-vault.sh")}"
 
@@ -85,29 +84,7 @@ module "vault_load_balancer" {
 
   health_check_path = "/"
   health_check_port = "${var.web_proxy_port}"
-
-//  name = "${var.vault_cluster_name}"
-//
-//  vpc_id     = "${data.aws_vpc.default.id}"
-//  subnet_ids = "${data.aws_subnet_ids.default.ids}"
-//
-//  # To make testing easier, we allow requests from any IP address here but in a production deployment, we *strongly*
-//  # recommend you limit this to the IP address ranges of known, trusted servers inside your VPC.
-//  allowed_inbound_cidr_blocks = ["0.0.0.0/0"]
-//
-//  # In order to access Vault over HTTPS, we need a domain name that matches the TLS cert
-//  create_dns_entry = "${var.create_dns_entry}"
-//  # Terraform conditionals are not short-circuiting, so we use join as a workaround to avoid errors when the
-//  # aws_route53_zone data source isn't actually set: https://github.com/hashicorp/hil/issues/50
-//  hosted_zone_id   = "${var.create_dns_entry ? join("", data.aws_route53_zone.selected.*.zone_id) : ""}"
-//  domain_name      = "${var.vault_domain_name}"
 }
-
-//# Look up the Route 53 Hosted Zone by domain name
-//data "aws_route53_zone" "selected" {
-//  count = "${var.create_dns_entry}"
-//  name  = "${var.hosted_zone_domain_name}."
-//}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY THE CONSUL SERVER CLUSTER

@@ -1,7 +1,9 @@
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY A VAULT CLUSTER IN GOOGLE CLOUD
-# This is an example of how to use the vault-cluster and vault-load-balancer modules to deploy a Vault cluster in GCP with
-# a Load Balancer in front of it. This cluster uses Consul, running in a separate cluster, as its High Availability backend.
+# This is an example of how to use the vault-cluster module to deploy a public Vault cluster in GCP. A public Vault
+# cluster is NOT recommended for production usage, but it's the easiest way to try things out. For production usage,
+# see the vault-cluster-private example, or if necessary, the vault-cluster-public example. Note that this Vault cluster
+# uses Consul, running in a separate cluster, as its High Availability backend.
 # ---------------------------------------------------------------------------------------------------------------------
 
 provider "google" {
@@ -49,8 +51,7 @@ module "vault_cluster" {
   allowed_inbound_tags_api = ["${var.consul_server_cluster_name}"]
 }
 
-# Render the Startup Script that will run on each Vault Instance on boot.
-# This script will configure and start Vault.
+# Render the Startup Script that will run on each Vault Instance on boot. This script will configure and start Vault.
 data "template_file" "startup_script_vault" {
   template = "${file("${path.module}/examples/root-example/startup-script-vault.sh")}"
 

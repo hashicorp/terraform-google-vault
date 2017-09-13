@@ -10,5 +10,5 @@ set -e
 # Inspired by https://alestic.com/2010/12/ec2-user-data-output/
 exec > >(tee /var/log/startup-script.log|logger -t startup-script -s 2>/dev/console) 2>&1
 
-# These variables are passed in via Terraform template interplation
+# Note that the variables formatted as \${} are passed in via Terraform template interpolation.
 /opt/consul/bin/run-consul --server --cluster-tag-name "${cluster_tag_name}"
