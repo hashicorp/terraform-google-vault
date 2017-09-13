@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY A VAULT CLUSTER IN GOOGLE CLOUD
-# This is an example of how to use the vault-cluster and vault-load-balancer modules to deploya Vault cluster in GCP with
+# This is an example of how to use the vault-cluster and vault-load-balancer modules to deploy a Vault cluster in GCP with
 # a Load Balancer in front of it. This cluster uses Consul, running in a separate cluster, as its High Availability backend.
 # ---------------------------------------------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ terraform {
 module "vault_cluster" {
   # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
   # to a specific version of the modules, such as the following example:
-  # source = "git::git@github.com:gruntwork-io/vault-aws-blueprint.git//modules/vault-cluster?ref=v0.0.1"
+  # source = "git::git@github.com:gruntwork-io/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
   source = "modules/vault-cluster"
 
   gcp_zone = "${var.gcp_zone}"
