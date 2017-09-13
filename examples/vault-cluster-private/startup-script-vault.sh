@@ -13,6 +13,6 @@ exec > >(tee /var/log/startup-script.log|logger -t startup-script -s 2>/dev/cons
 readonly VAULT_TLS_CERT_FILE="/opt/vault/tls/vault.crt.pem"
 readonly VAULT_TLS_KEY_FILE="/opt/vault/tls/vault.key.pem"
 
-# Note that the variables formatted as \${} are passed in via Terraform template interpolation.
+# Note that any variables below with <dollar-sign><curly-brace><var-name><curly-brace> are expected to be interpolated by Terraform.
 /opt/consul/bin/run-consul --client --cluster-tag-name "${consul_cluster_tag_name}"
 /opt/vault/bin/run-vault --gcs-bucket ${vault_cluster_tag_name} --tls-cert-file "$VAULT_TLS_CERT_FILE"  --tls-key-file "$VAULT_TLS_KEY_FILE"

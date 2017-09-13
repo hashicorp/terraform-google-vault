@@ -1,3 +1,15 @@
+output "gcp_project" {
+  value = "${var.gcp_project}"
+}
+
+output "gcp_zone" {
+  value = "${var.gcp_zone}"
+}
+
+output "vault_cluster_size" {
+  value = "${var.vault_cluster_size}"
+}
+
 output "cluster_tag_name" {
   value = "${module.vault_cluster.cluster_tag_name}"
 }
