@@ -2,7 +2,7 @@
 # A script that is meant to be used with the root Vault cluster example to:
 #
 # 1. Wait for the Vault server cluster to come up.
-# 2. Print out the IP addresses of the Vault servers.
+# 2. Print out the names of the Vault servers.
 # 3. Print out some example commands you can run against your Vault servers.
 
 set -e
@@ -81,28 +81,37 @@ function join {
   printf "%s$separator" "${values[@]}" | sed "s/$separator$//"
 }
 
-function get_all_vault_server_ips {
+function get_all_vault_server_property_values {
+  local server_property_name="$1"
+
+  local gcp_project
+  local gcp_zone
+  local cluster_tag_name
   local expected_num_vault_servers
+
+  gcp_project=$(get_required_terraform_output "gcp_project")
+  gcp_zone=$(get_required_terraform_output "gcp_zone")
+  cluster_tag_name=$(get_required_terraform_output "cluster_tag_name")
   expected_num_vault_servers=$(get_required_terraform_output "vault_cluster_size")
 
-  log_info "Looking up public IP addresses for $expected_num_vault_servers Vault server EC2 Instances."
+  log_info "Looking up $server_property_name for $expected_num_vault_servers Vault server Compute Instances."
 
-  local ips
+  local vals
   local i
 
   for (( i=1; i<="$MAX_RETRIES"; i++ )); do
-    ips=($(get_vault_server_ips))
-    if [[ "${#ips[@]}" -eq "$expected_num_vault_servers" ]]; then
-      log_info "Found all $expected_num_vault_servers public IP addresses!"
-      echo "${ips[@]}"
+    vals=($(get_vault_server_property_values "$gcp_project" "$gcp_zone" "$cluster_tag_name" "$server_property_name"))
+    if [[ "${#vals[@]}" -eq "$expected_num_vault_servers" ]]; then
+      log_info "Found $server_property_name for all $expected_num_vault_servers expected Vault servers!"
+      echo "${vals[@]}"
       return
     else
-      log_warn "Found ${#ips[@]} of $expected_num_vault_servers public IP addresses. Will sleep for $SLEEP_BETWEEN_RETRIES_SEC seconds and try again."
+      log_warn "Found $server_property_name for ${#vals[@]} of $expected_num_vault_servers Vault servers. Will sleep for $SLEEP_BETWEEN_RETRIES_SEC seconds and try again."
       sleep "$SLEEP_BETWEEN_RETRIES_SEC"
     fi
   done
 
-  log_error "Failed to find the IP addresses for $expected_num_vault_servers Vault server EC2 Instances after $MAX_RETRIES retries."
+  log_error "Failed to find the $server_property_name for $expected_num_vault_servers Vault server Compute Instances after $MAX_RETRIES retries."
   exit 1
 }
 
@@ -161,64 +170,59 @@ function wait_for_vault_server_to_come_up {
   exit 1
 }
 
-function get_vault_server_ips {
-  local aws_region
-  local cluster_tag_key
-  local cluster_tag_value
+function get_vault_server_property_values {
+  local readonly gcp_project="$1"
+  local readonly gcp_zone="$2"
+  local readonly cluster_tag_name="$3"
+  local readonly property_name="$4"
   local instances
 
-  aws_region=$(get_required_terraform_output "aws_region")
-  cluster_tag_key=$(get_required_terraform_output "vault_servers_cluster_tag_key")
-  cluster_tag_value=$(get_required_terraform_output "vault_servers_cluster_tag_value")
+  cluster_tag_name=$(get_required_terraform_output "cluster_tag_name")
 
-  log_info "Fetching public IP addresses for EC2 Instances in $aws_region with tag $cluster_tag_key=$cluster_tag_value"
+  log_info "Fetching external IP addresses for Vault Server Compute Instances with tag \"$cluster_tag_name\""
 
-  instances=$(aws ec2 describe-instances \
-    --region "$aws_region" \
-    --filter "Name=tag:$cluster_tag_key,Values=$cluster_tag_value" "Name=instance-state-name,Values=running")
+  instances=$(gcloud compute instances list \
+    --project "$gcp_project"\
+    --filter "zone : $gcp_zone" \
+    --filter "tags.items~^$cluster_tag_name\$" \
+    --format "value($property_name)")
 
-  echo "$instances" | jq -r '.Reservations[].Instances[].PublicIpAddress'
+  echo "$instances"
+}
+
+function get_all_vault_server_ips {
+  get_all_vault_server_property_values "EXTERNAL_IP"
+}
+
+function get_all_vault_server_names {
+  get_all_vault_server_property_values "NAME"
 }
 
 function print_instructions {
-  local readonly server_ips=($@)
-  local server_ip="${server_ips[0]}"
-
-  local ssh_key_name
-  ssh_key_name=$(get_required_terraform_output "ssh_key_name")
-  ssh_key_name="$ssh_key_name.pem"
+  local readonly project="$1"
+  local readonly zone="$2"
+  shift; shift;
+  local readonly server_names=($@)
+  local server_name="${server_names[0]}"
 
   local instructions=()
-  instructions+=("\nYour Vault servers are running at the following IP addresses:\n\n${server_ips[@]/#/    }\n")
+  instructions+=("\nThe following Vault servers are running:\n\n${server_names[@]/#/    }\n")
 
   instructions+=("To initialize your Vault cluster, SSH to one of the servers and run the init command:\n")
-  instructions+=("    ssh -i $ssh_key_name ubuntu@$server_ip")
+  instructions+=("    gcloud compute --project \"$project\" ssh --zone \"$zone\" $server_name")
   instructions+=("    vault init")
 
   instructions+=("\nTo unseal your Vault cluster, SSH to each of the servers and run the unseal command with 3 of the 5 unseal keys:\n")
-  for server_ip in "${server_ips[@]}"; do
-    instructions+=("    ssh -i $ssh_key_name ubuntu@$server_ip")
+  for server_name in "${server_names[@]}"; do
+    instructions+=("    gcloud compute --project \"$project\" ssh --zone \"$zone\" $server_name")
     instructions+=("    vault unseal (run this 3 times)\n")
   done
 
-  local vault_elb_domain_name
-  vault_elb_domain_name=$(get_optional_terraform_output "vault_fully_qualified_domain_name" || true)
-  if [[ -z "$vault_elb_domain_name" ]]; then
-    vault_elb_domain_name=$(get_optional_terraform_output "vault_elb_dns_name" || true)
-  fi
-
-  if [[ -z "$vault_elb_domain_name" ]]; then
-    instructions+=("\nOnce your cluster is unsealed, you can read and write secrets by SSHing to any of the servers:\n")
-    instructions+=("    ssh -i $ssh_key_name ubuntu@$server_ip")
-    instructions+=("    vault auth")
-    instructions+=("    vault write secret/example value=secret")
-    instructions+=("    vault read secret/example")
-  else
-    instructions+=("\nOnce your cluster is unsealed, you can read and write secrets via the ELB:\n")
-    instructions+=("    vault auth -address=https://$vault_elb_domain_name")
-    instructions+=("    vault write -address=https://$vault_elb_domain_name secret/example value=secret")
-    instructions+=("    vault read -address=https://$vault_elb_domain_name secret/example")
-  fi
+  instructions+=("\nOnce your cluster is unsealed, you can read and write secrets by SSHing to any of the servers:\n")
+  instructions+=("    gcloud compute --project \"$project\" ssh --zone \"$zone\" $server_name")
+  instructions+=("    vault auth")
+  instructions+=("    vault write secret/example value=secret")
+  instructions+=("    vault read secret/example")
 
   local instructions_str
   instructions_str=$(join "\n" "${instructions[@]}")
@@ -227,16 +231,24 @@ function print_instructions {
 }
 
 function run {
-  assert_is_installed "aws"
+  assert_is_installed "gcloud"
   assert_is_installed "jq"
   assert_is_installed "terraform"
   assert_is_installed "curl"
 
+  local gcp_project
+  local gcp_zone
   local server_ips
+  local server_names
+
+  gcp_project=$(get_required_terraform_output "gcp_project")
+  gcp_zone=$(get_required_terraform_output "gcp_zone")
   server_ips=$(get_all_vault_server_ips)
+  server_names=$(get_all_vault_server_names)
 
   wait_for_all_vault_servers_to_come_up "$server_ips"
-  print_instructions "$server_ips"
+
+  print_instructions "$gcp_project" "$gcp_zone" "$server_names"
 }
 
 run
