@@ -12,26 +12,26 @@ This Module includes the following submodules:
 
 * [install-vault](/modules/install-valut): This module can be used to install Vault. It can be used in a 
   [Packer](https://www.packer.io/) template to create a Vault 
-  [Amazon Machine Image (AMI)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html).
+  [Google Image](https://cloud.google.com/compute/docs/images).
 
 * [run-vault](/modules/run-vault): This module can be used to configure and run Vault. It can be used in a 
-  [User Data](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html#user-data-shell-scripts) 
-  script to fire up Vault while the server is booting.
+  [Startup Script](https://cloud.google.com/compute/docs/startupscript) 
+  to fire up Vault while the server is booting.
 
-* [install-nginx](/modules/install-valut): This module can be used to install Vault. It can be used in a 
+* [install-nginx](/modules/install-valut): This module can be used to install Nginx. It can be used in a 
   [Packer](https://www.packer.io/) template to create a Vault 
-  [Amazon Machine Image (AMI)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html).
+  [Google Image](https://cloud.google.com/compute/docs/images). This module is only necessary when using
+  a Load Balancer which requires a Health Checker.
 
-* [run-nginx](/modules/run-vault): This module can be used to configure and run Vault. It can be used in a 
-  [User Data](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html#user-data-shell-scripts) 
-  script to fire up Vault while the server is booting.
+* [run-nginx](/modules/run-vault): This module can be used to configure and run nginx. It can be used in a 
+  [Startup Script](https://cloud.google.com/compute/docs/startupscript) 
+  to launch nginx while the server is booting.
 
-* [vault-cluster](/modules/vault-cluster): Terraform code to deploy a cluster of Vault servers using an [Auto Scaling 
-  Group](https://aws.amazon.com/autoscaling/).
+* [vault-cluster](/modules/vault-cluster): Terraform code to deploy a cluster of Vault servers using a [Managed Instance
+  Group](https://cloud.google.com/compute/docs/instance-groups/).
     
-* [vault-lb-fr](/modules/vault-elb): Configures an [Elastic Load Balancer 
-  (ELB)](https://aws.amazon.com/elasticloadbalancing/classicloadbalancer/) in front of Vault if you need to access it
-  from the public Internet.
+* [vault-lb-fr](/modules/vault-elb): Configures a [Regional External Load Balancer](https://cloud.google.com/compute/docs/load-balancing/)
+  in front of Vault if you need to access it from the public Internet.
    
 * [private-tls-cert](/modules/private-tls-cert): Generate a private TLS certificate for use with a private Vault 
   cluster.
@@ -46,13 +46,13 @@ This Module includes the following submodules:
 ## What's a Terraform Module?
 
 A Terraform Module refers to a self-contained packages of Terraform configurations that are managed as a group. This repo
-is such a Module and contains many such "submodules" which can be composed together to create useful infrastructure patterns. 
+is a Terraform Module and contains many "submodules" which can be composed together to create useful infrastructure patterns. 
  
  
  
-## Who maintains this Terraform Module?
+## Who maintains this Module?
 
-This Terraform Module is maintained by [Gruntwork](http://www.gruntwork.io/). If you're looking for help or commercial 
+This Module is maintained by [Gruntwork](http://www.gruntwork.io/). If you're looking for help or commercial 
 support, send an email to [modules@gruntwork.io](mailto:modules@gruntwork.io?Subject=Vault%20Module). 
 Gruntwork can help with:
 
@@ -63,7 +63,7 @@ Gruntwork can help with:
 
 
 
-## How do you use this Terraform Module?
+## How do you use this Module?
 
 This Module adheres to [Terraform Module Conventions](https://www.terraform.io/docs/modules/index.html) and has the
 following folder structure:
@@ -90,20 +90,20 @@ To deploy the Vault cluster:
 
 1. Deploy that Image across a Managed Instance Group using the Terraform [vault-cluster-module](/modules/vault-cluster). 
 
-1. Execute the [run-consul script](https://github.com/gruntwork-io/consul-aws-blueprint/tree/master/modules/run-consul)
+1. Execute the [run-consul script](https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/run-consul)
    with the `--client` flag during boot on each Instance to have the Consul agent connect to the Consul server cluster. 
 
 1. Execute the [run-vault](/modules/run-vault) script during boot on each Instance to create the Vault cluster. 
 
-1. If you only need to access Vault from inside your AWS account (recommended), run the [install-dnsmasq 
-   module](https://github.com/gruntwork-io/consul-aws-blueprint/tree/master/modules/install-dnsmasq) on each server, and 
-   that server will be able to reach Vault using the Consul Server cluster as the DNS resolver (e.g. using an address 
+1. If you only need to access Vault from inside your GCP account (recommended), run the [install-dnsmasq 
+   module](https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/install-dnsmasq) on each server,
+   and that server will be able to reach Vault using the Consul Server cluster as the DNS resolver (e.g. using an address 
    like `vault.service.consul`). See the [vault-cluster-private example](/examples/vault-cluster-private) for working 
    sample code.
 
-1. If you need to access Vault from the public Internet, deploy the [vault-elb module](/modules/vault-elb) in a public 
-   subnet and have all requests to Vault go through the ELB. See the [vault-cluster-public 
-   example](/examples/vault-cluster-public) for working sample code.
+1. If you need to access Vault from the public Internet, deploy the [vault-lb-fr module](/modules/vault-lb-fr) and have
+   all requests to Vault go through the Load Balancer. See the [vault-cluster-public example](/examples/vault-cluster-public)
+   for working sample code.
 
 1. Head over to the [How do you use the Vault cluster?](/modules/vault-cluster#how-do-you-use-the-vault-cluster) guide
    to learn how to initialize, unseal, and use Vault.
@@ -116,13 +116,13 @@ See the [root-example](/examples/root-example) for the fastest way to try out th
 
 
 
-## How do I contribute to this Terraform Module?
+## How do I contribute to this Module?
 
 Contributions are very welcome! Check out the [Contribution Guidelines](/CONTRIBUTING.md) for instructions.
 
 
 
-## How is this Terraform Module versioned?
+## How is this Module versioned?
 
 This Terraform Module follows the principles of [Semantic Versioning](http://semver.org/). You can find each new release, 
 along with the changelog, in the [Releases Page](../../releases). 
