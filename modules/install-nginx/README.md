@@ -1,123 +1,122 @@
-# Vault Install Script
+# Nginx Install Script
 
-This folder contains a script for running a minimal HTTP web server in Python. The web server is configured to redirect
-all HTTP traffic, regardless of the path of the request, to an HTTPS endpoint that is the Vault health check. This is
-necessary because [GCP does not yet support associating Target Groups with an HTTPS Health Check](
-https://github.com/terraform-providers/terraform-provider-google/issues/18). Instead, Google recommends that we setup
-a simple HTTP server that redirects to HTTPS if a health check is only available in HTTPS. 
-
-This folder contains a script for installing Vault and its dependencies. You can use this script, along with the
-[run-vault script](/modules/run-vault) it installs, to create a Vault [Amazon Machine Image 
-(AMI)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) that can be deployed in 
-[AWS](https://aws.amazon.com/) across an Auto Scaling Group using the [vault-cluster module](/modules/vault-cluster).
+This folder contains a script for installing the [nginx](https://nginx.org) binary on a server. This script is motivated
+by the need to expose an HTTP health check endpoint for Vault while requiring that all other Vault endpoints are accessible
+via HTTPS only. This need arises from a [Google Cloud limitation](
+https://github.com/terraform-providers/terraform-provider-google/issues/18) where only HTTP Health Checks can be associated
+with a Target Pool, not HTTPS Health Checks.  
+ 
+You can use this script, along with the [run-nginx script](/modules/run-nginx) it installs, to create a [Google Image](
+https://cloud.google.com/compute/docs/images) that runs nginx alongside Vault.
 
 This script has been tested on the following operating systems:
 
 * Ubuntu 16.04
-* Amazon Linux
 
-There is a good chance it will work on other flavors of Debian, CentOS, and RHEL as well.
+There is a good chance it will work on other flavors of Debian as well.
 
+## Why nginx?
 
+Our use case requires that we setup a simple HTTP forwarding proxy, so we had several options available to us. 
+
+We considered using the [Python SimpleHttpServer](https://docs.python.org/2/library/simplehttpserver.html) because we
+can expect many OS's to come pre-installed with Python. However, anecdotal experience taught us that this server may fail
+when receiving more than one request per second, so this was eliminated as being too brittle.
+
+We considered using the [HTTP Daemon included in the BusyBox package](https://wiki.openwrt.org/doc/howto/http.httpd),
+which has a minimal footprint and is optimized for embedded systems. But BusyBox httpd is not well-documented and not
+widely used, making it more likely to fall prey to a vulnerability.
+
+So we settled on nginx, a massively popular, mature http server as giving us a nice balance of usability, familiarity,
+performance, and minimal security exposure. The major downside of nginx for our use case is that Nginx comes built in 
+with its own [process management](https://www.nginx.com/blog/inside-nginx-how-we-designed-for-performance-scale/), however
+we wish to have Nginx managed by our preferred process supervisor, supervisord. Getting nginx to work with supervisord
+is somewhat cumbersome, but ultimately gives us a clean management model.
 
 ## Quick start
 
-To install Vault, use `git` to clone this repository at a specific tag (see the [releases page](../../../../releases) 
-for all available tags) and run the `install-vault` script:
+To install the Nginx binary, use `git` to clone this repository at a specific tag (see the [releases page](
+../../../../releases) for all available tags) and run the `install-nginx` script:
 
 ```
-git clone --branch <VERSION> https://github.com/gruntwork-io/vault-aws-blueprint.git
-vault-aws-blueprint/modules/install-vault/install-vault --version 0.5.4
+git clone --branch <VERSION> https://github.com/gruntwork-io/terraform-google-vault.git
+terraform-google-vault/modules/install-nginx/install-nginx --version 0.5.4
 ```
 
-The `install-vault` script will install Vault, its dependencies, and the [run-vault script](/modules/run-vault).
-You can then run the `run-vault` script when the server is booting to start Vault.
+The `install-nginx` script will install the nginx binary and the [run-nginx script](/modules/run-ngninx).
+You can then run the `run-nginx` script when the server is booting to configure nginx for use with supervisord and as a
+simple HTTP proxy, and start the service.
 
-We recommend running the `install-vault` script as part of a [Packer](https://www.packer.io/) template to create a
-Vault [Amazon Machine Image (AMI)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) (see the 
-[vault-consul-ami example](/examples/vault-consul-ami) for sample code). You can then deploy the AMI across an Auto 
-Scaling Group using the [vault-cluster module](/modules/vault-cluster) (see the 
-[vault-cluster-public](/examples/vault-cluster-public) and [vault-cluster-private](/examples/vault-cluster-private) 
-examples for fully-working sample code).
+We recommend running the `install-nginx` script as part of a [Packer](https://www.packer.io/) template to create a
+Vault [Google Image](https://cloud.google.com/compute/docs/images) (see the [vault-consul-image example](
+/examples/vault-consul-image) for sample code). You can then deploy the Image across a Managed Instance Group using the 
+[vault-cluster module](/modules/vault-cluster) (see the [vault-cluster-public](/examples/vault-cluster-public) and 
+[vault-cluster-private](/examples/vault-cluster-private) examples for fully-working sample code).
 
 
 
 
 ## Command line Arguments
 
-The `install-vault` script accepts the following arguments:
+The `install-nginx` script accepts the following REQUIRED arguments:
 
-* `version VERSION`: Install Vault version VERSION. Required. 
-* `path DIR`: Install Vault into folder DIR. Optional.
-* `user USER`: The install dirs will be owned by user USER. Optional.
+* `signing-key PATH`: Verify the integrity of the nginx debian packages using the PGP key located at PATH.
+
+The `install-nginx` script accepts the following OPTIONAL arguments:
+
+* `path DIR`: Install nginx into folder DIR.
+* `user USER`: The install dirs will be owned by user USER.
+* `pid-folder DIR`: The PID file created and managed by Nginx will live in DIR.
 
 Example:
 
 ```
-install-vault --version 0.7.0
+install-nginx --signing-key /path/to/nginx-signing-key
 ```
 
 
 
 ## How it works
 
-The `install-vault` script does the following:
+The `install-nginx` script does the following:
 
-1. [Create a user and folders for Vault](#create-a-user-and-folders-for-vault)
-1. [Install Vault binaries and scripts](#install-vault-binaries-and-scripts)
-1. [Configure mlock](#configure-mlock)
-1. [Install supervisord](#install-supervisord)
-1. [Follow-up tasks](#follow-up-tasks)
-
-
-### Create a user and folders for Vault
-
-Create an OS user named `vault`. Create the following folders, all owned by user `vault`:
-
-* `/opt/vault`: base directory for Vault data (configurable via the `--path` argument).
-* `/opt/vault/bin`: directory for Vault binaries.
-* `/opt/vault/data`: directory where the Vault agent can store state.
-* `/opt/vault/config`: directory where the Vault agent looks up configuration.
-* `/opt/vault/log`: directory where the Vault agent will store log files.
-* `/opt/vault/tls`: directory where the Vault will look for TLS certs.
+1. [Create a user and folders for nginx](#create-a-user-and-folders-for-nginx)
+1. [Create PID folder for nginx](#create-the-pid-folder-for-nginx)
+1. [Download nginx binary](#download-nginx-binary)
+1. [Install nginx](#install-nginx)
 
 
-### Install Vault binaries and scripts
+### Create a user and folders for nginx
 
-Install the following:
+Create an OS user named `ngninx`. Create the following folders, all owned by user `nginx`:
 
-* `vault`: Download the Vault zip file from the [downloads page](https://www.vaultproject.io/downloads.html) (the 
-  version number is configurable via the `--version` argument), and extract the `vault` binary into 
-  `/opt/vault/bin`. Add a symlink to the `vault` binary in `/usr/local/bin`.
-* `run-vault`: Copy the [run-vault script](/modules/run-vault) into `/opt/vault/bin`. 
+* `/opt/nginx`: base directory for nginx data (configurable via the `--path` argument).
+* `/opt/nginx/bin`: directory for nginx binaries.
+* `/opt/nginx/config`: directory where nginx looks up configuration.
+* `/opt/nginx/log`: directory where the nginx will store log files. Note that these logs pertain to "nginx startup"
+  and "nginx shutdown." For nginx usage logs, see `/var/log/nginx`.
 
+### Create the PID folder for nginx 
 
-### Configure mlock
+Because Nginx manages its own processes, it creates a file (usually in `/var/run`) that stores the ID of the nginx process.
+But `/var/run` is only writable by the `root` user, so we create a special folder owned by the `nginx` user where this
+file can be written. But since `/var/run` is mounted with a `tmpfs` file system, this entire directory will be cleared 
+on boot, so the proper way to create this folder isn't to create it now, but to write an instruction that will run on 
+boot that will create the desired folder. 
 
-Give Vault permissions to make the `mlock` (memory lock) syscall. This syscall is used to prevent the OS from swapping
-Vault's memory to disk. For more info, see: https://www.vaultproject.io/docs/configuration/#disable_mlock.
+### Download nginx binary
 
+Download the latest stable nginx package from the debian apt repo maintained by nginx, and extract the binary `nginx`
+from it.
 
-### Install supervisord
+### Install nginx
 
-Install [supervisord](http://supervisord.org/). We use it as a cross-platform supervisor to ensure Vault is started
-whenever the system boots and restarted if the Vault process crashes.
-
-
-### Follow-up tasks
-
-After the `install-vault` script finishes running, you may wish to do the following:
-
-1. If you have custom Vault config (`.hcl`) files, you may want to copy them into the config directory (default:
-   `/opt/vault/config`).
-1. If `/usr/local/bin` isn't already part of `PATH`, you should add it so you can run the `vault` command without
-   specifying the full path.
-   
+Place the `nginx` binary in `/opt/nginx/bin` and make it accessible in the `PATH`. 
 
 
 ## Why use Git to install this code?
 
-<!-- TODO: update the package managers URL to the final URL when this Blueprint is released -->
+<!-- TODO: update the package managers URL to the final URL when this Module is released -->
 
 We needed an easy way to install these scripts that satisfied a number of requirements, including working on a variety 
 of operating systems and supported versioning. Our current solution is to use `git`, but this may change in the future.

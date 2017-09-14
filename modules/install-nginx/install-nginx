@@ -38,7 +38,7 @@ function print_usage {
   echo
   echo "Example:"
   echo
-  echo "  install-nginx"
+  echo "  install-nginx --signing-key /path/to/nginx_signing.key"
 }
 
 function log {
