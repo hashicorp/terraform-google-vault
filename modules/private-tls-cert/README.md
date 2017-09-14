@@ -2,7 +2,7 @@
 
 This module can be used to generate a Certificate Authority (CA) public key and the public and private keys of a 
 TLS certificate signed by this CA. This certificate is meant to be used with **private** services, such as a Vault 
-cluster accessed solely within your AWS account. For publicly-accessible services, especially services you access 
+cluster accessed solely within your GCP account. For publicly-accessible services, especially services you access 
 through a web browser, you should NOT use this module, and instead get certificates from a commercial Certificate 
 Authority, such as [Let's Encrypt](https://letsencrypt.org/).
 
@@ -15,10 +15,12 @@ If you're unfamiliar with how TLS certificates work, check out the [Background s
 
 1. Copy this module to your computer.
 
-1. Open `vars.tf` and fill in the variables that do not have a default.
+1. Open `variables.tf` and fill in the variables that do not have a default.
 
 1. DO NOT configure Terraform remote state storage for this code. You do NOT want to store the state files as they 
    will contain the private keys for the certificates.
+
+1. Run `terraform init`.
 
 1. Run `terraform apply`. The output will show you the paths to the generated files:
 
@@ -65,12 +67,10 @@ module](/modules/run-vault), you need to pass it the TLS certs:
 We **strongly** recommend encrypting the private key file while it's in transit to the servers that will use it. Here 
 are some of the ways you could do this:
 
-* Encrypt the certificate using [KMS](https://aws.amazon.com/kms/) and include the encrypted files in the AMI for your
-  Vault servers. Give those servers an IAM role that lets them access the same KMS key and decrypt their certs just
-  before booting.
-* Put your TLS cert in a secure S3 Bucket with encryption enabled. Give your Vault servers an IAM role that allows them
-  to download the certs from the S3 bucket just before booting.
-* Manually upload the certificate to each EC2 Instance with `scp`.
+* Encrypt the certificate using [Google KMS](https://cloud.google.com/kms/) and include the encrypted files in the Google
+  Image for your Vault servers. Give those servers appropriate permissions that lets them access the same KMS key and 
+  decrypt their certs just before booting.
+* Manually upload the certificate to each Compute Instance with `scp`.
 
 
 ### Distributing TLS certs to your clients   
@@ -121,7 +121,7 @@ The industry-standard way to add encryption for data in motion is to use TLS (th
 examples online explaining how TLS works, but here are the basics:
 
 - Some entity decides to be a "Certificate Authority" ("CA") meaning it will issue TLS certificates to websites or 
-  other services
+  other services.
 
 - An entity becomes a Certificate Authority by creating a public/private key pair and publishing the public portion 
   (typically known as the "CA Cert"). The private key is kept under the tightest possible security since anyone who 
@@ -196,7 +196,7 @@ So here's our strategy for issuing a TLS Cert for a private service:
     key is who they claim to be.
   - We will be extremely careful with the TLS private key since anyone who obtains it can impersonate our private 
     service! For this reason, we recommend immediately encrypting the private key with 
-    [KMS](https://aws.amazon.com/kms/).
+    [KMS](https://cloud.google.com/kms/).
 
 1. **Freely advertise our CA's public key to all internal services.**
   - Any service that wishes to connect securely to our private service will need our CA's public key so it can declare 
