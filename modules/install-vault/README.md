@@ -1,16 +1,15 @@
 # Vault Install Script
 
 This folder contains a script for installing Vault and its dependencies. You can use this script, along with the
-[run-vault script](/modules/run-vault) it installs, to create a Vault [Amazon Machine Image 
-(AMI)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) that can be deployed in 
-[AWS](https://aws.amazon.com/) across an Auto Scaling Group using the [vault-cluster module](/modules/vault-cluster).
+[run-vault script](/modules/run-vault) it installs, to create a Vault [Google Image](
+https://cloud.google.com/compute/docs/images) that can be deployed in [Google Cloud](https://cloud.google.com) across a
+Managed Instance Group using the [vault-cluster module](/modules/vault-cluster).
 
 This script has been tested on the following operating systems:
 
 * Ubuntu 16.04
-* Amazon Linux
 
-There is a good chance it will work on other flavors of Debian, CentOS, and RHEL as well.
+There is a good chance it will work on other flavors of Debian as well.
 
 
 
@@ -20,19 +19,18 @@ To install Vault, use `git` to clone this repository at a specific tag (see the 
 for all available tags) and run the `install-vault` script:
 
 ```
-git clone --branch <VERSION> https://github.com/gruntwork-io/vault-aws-blueprint.git
-vault-aws-blueprint/modules/install-vault/install-vault --version 0.5.4
+git clone --branch <VERSION> https://github.com/gruntwork-io/terraform-google-vault.git
+terraform-google-vault/modules/install-vault/install-vault --version 0.5.4
 ```
 
 The `install-vault` script will install Vault, its dependencies, and the [run-vault script](/modules/run-vault).
 You can then run the `run-vault` script when the server is booting to start Vault.
 
 We recommend running the `install-vault` script as part of a [Packer](https://www.packer.io/) template to create a
-Vault [Amazon Machine Image (AMI)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) (see the 
-[vault-consul-ami example](/examples/vault-consul-ami) for sample code). You can then deploy the AMI across an Auto 
-Scaling Group using the [vault-cluster module](/modules/vault-cluster) (see the 
-[vault-cluster-public](/examples/vault-cluster-public) and [vault-cluster-private](/examples/vault-cluster-private) 
-examples for fully-working sample code).
+Vault [Google Image](https://cloud.google.com/compute/docs/images) (see the [vault-consul-image example](
+/examples/vault-consul-image) for sample code). You can then deploy the Image across a Managed Instance Group using the
+[vault-cluster module](/modules/vault-cluster) (see the [vault-cluster-public](/examples/vault-cluster-public) and 
+[vault-cluster-private](/examples/vault-cluster-private) examples for fully-working sample code).
 
 
 
@@ -48,7 +46,7 @@ The `install-vault` script accepts the following arguments:
 Example:
 
 ```
-install-vault --version 0.7.0
+install-vault --version 0.8.2
 ```
 
 
@@ -115,5 +113,5 @@ After the `install-vault` script finishes running, you may wish to do the follow
 
 We needed an easy way to install these scripts that satisfied a number of requirements, including working on a variety 
 of operating systems and supported versioning. Our current solution is to use `git`, but this may change in the future.
-See [Package Managers](https://github.com/gruntwork-io/consul-aws-blueprint/blob/master/_docs/package-managers.md) for 
+See [Package Managers](https://github.com/gruntwork-io/terraform-aws-consul/blob/master/_docs/package-managers.md) for 
 a full discussion of the requirements, trade-offs, and why we picked `git`.
