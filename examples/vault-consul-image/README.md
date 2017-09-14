@@ -1,17 +1,16 @@
-# Vault and Consul AMI
+# Vault and Consul Google Image
 
-This folder shows an example of how to use the [install-vault module](/modules/install-vault) from this Blueprint and 
-the [install-consul](https://github.com/gruntwork-io/consul-aws-blueprint/tree/master/modules/install-consul)
-and [install-dnsmasq](https://github.com/gruntwork-io/consul-aws-blueprint/tree/master/modules/install-dnsmasq) modules
-from the Consul AWS Blueprint with [Packer](https://www.packer.io/) to create [Amazon Machine Images 
-(AMIs)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) that have Vault and Consul installed on top of:
+This folder shows an example of how to use the [install-vault module](/modules/install-vault) from this Module and 
+the [install-consul](https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/install-consul)
+and [install-dnsmasq](https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/install-dnsmasq) modules
+from the Consul GCP Module with [Packer](https://www.packer.io/) to create a [Google Image](
+https://cloud.google.com/compute/docs/images) that has Vault and Consul installed on top of:
  
 1. Ubuntu 16.04
-1. Amazon Linux
 
-You can use this AMI to deploy a [Vault cluster](https://www.vaultproject.io/) by using the [vault-cluster
+You can use this Google Image to deploy a [Vault cluster](https://www.vaultproject.io/) by using the [vault-cluster
 module](/modules/vault-cluster). This Vault cluster will use Consul as its storage backend, so you can also use the 
-same AMI to deploy a separate [Consul server cluster](https://www.consul.io/) by using the [consul-cluster 
+same Google Image to deploy a separate [Consul server cluster](https://www.consul.io/) by using the [consul-cluster 
 module](https://github.com/gruntwork-io/consul-aws-blueprint/tree/master/modules/consul-cluster). 
 
 Check out the [vault-cluster-private](/examples/vault-cluster-private) and 
@@ -22,16 +21,17 @@ installation and configuration, check out the [install-vault](/modules/install-v
 
 ## Quick start
 
-To build the Vault and Consul AMI:
+To build the Vault and Consul Google Image:
 
 1. `git clone` this repo to your computer.
 
 1. Install [Packer](https://www.packer.io/).
 
-1. Configure your AWS credentials using one of the [options supported by the AWS 
-   SDK](http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html). Usually, the easiest option is to
-   set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables.
+1. Configure your environment's Google credentials using the [Google Cloud SDK](https://cloud.google.com/sdk/).
 
+1. Update the `variables` section of the `vault-consul.json` Packer template to configure the Project ID, Google Cloud Zone, 
+   and Consul and Vault versions you wish to use.
+   
 1. Use the [private-tls-cert module](/modules/private-tls-cert) to generate a CA cert and public and private keys for a 
    TLS cert: 
    
@@ -47,7 +47,7 @@ To build the Vault and Consul AMI:
 
 1. Run `packer build vault-consul.json`.
 
-When the build finishes, it will output the IDs of the new AMIs. To see how to deploy one of these AMIs, check out the 
+When the build finishes, it will output the ID of the new Google Image. To see how to deploy this Image, check out the 
 [vault-cluster-private](/examples/vault-cluster-private) and [vault-cluster-public](/examples/vault-cluster-public) 
 examples.
 
@@ -69,7 +69,7 @@ provisioner. Instead of:
   },{
     "type": "shell",
     "inline": [
-      "/tmp/vault-aws-blueprint/modules/install-vault/install-vault --version {{user `vault_version`}}"
+      "/tmp/terraform-google-vault/modules/install-vault/install-vault --version {{user `vault_version`}}"
     ],
     "pause_before": "30s"
   }]
@@ -83,16 +83,16 @@ Your code should look more like this:
   "provisioners": [{
     "type": "shell",
     "inline": [
-      "git clone --branch <BLUEPRINT_VERSION> https://github.com/gruntwork-io/vault-aws-blueprint.git /tmp/vault-aws-blueprint",
-      "/tmp/vault-aws-blueprint/modules/install-vault/install-vault --version {{user `vault_version`}}"
+      "git clone --branch <MODULE_VERSION> https://github.com/gruntwork-io/terraform-google-vault.git /tmp/terraform-google-vault",
+      "/tmp/terraform-google-vault/modules/install-vault/install-vault --version {{user `vault_version`}}"
     ],
     "pause_before": "30s"
   }]
 }
 ```
 
-You should replace `<BLUEPRINT_VERSION>` in the code above with the version of this blueprint that you want to use (see
+You should replace `<MODULE_VERSION>` in the code above with the version of this Module that you want to use (see
 the [Releases Page](../../releases) for all available versions). That's because for production usage, you should always
-use a fixed, known version of this Blueprint, downloaded from the official Git repo. On the other hand, when you're 
-just experimenting with the Blueprint, it's OK to use a local checkout of the Blueprint, uploaded from your own 
+use a fixed, known version of this Module, downloaded from the official Git repo. On the other hand, when you're 
+just experimenting with the Module, it's OK to use a local checkout of the Module, uploaded from your own 
 computer.
