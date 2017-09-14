@@ -1,6 +1,6 @@
 # Private Vault Cluster Example 
 
-This examples deploys a private [Vault](https://www.vaultproject.io/) cluster in [GCP](https://cloud.google.com/)
+This example deploys a private [Vault](https://www.vaultproject.io/) cluster in [GCP](https://cloud.google.com/)
 using the [vault-cluster](/modules/vault-cluster) module. For an example of a public Vault cluster that is accessible
 from the public Internet, see [vault-cluster-public](/examples/vault-cluster-public). A private Vault cluster is only 
 reachable from another Compute Instance, so this example does not provide any built-in way of reaching the Compute 
