@@ -11,7 +11,6 @@ variable "cluster_name" {
   description = "The name of the Vault cluster (e.g. vault-stage). This variable is used to namespace all resources created by this module."
 }
 
-# TODO: Do I need this?
 variable "cluster_tag_name" {
   description = "The tag name the Compute Instances will look for to automatically discover each other and form a cluster. TIP: If running more than one VAult cluster, each cluster should have its own unique tag name."
 }
@@ -28,9 +27,8 @@ variable "source_image" {
   description = "The source image used to create the boot disk for a Vault node. Only images based on Ubuntu 16.04 LTS are supported at this time."
 }
 
-# TODO: Mention something about Consul and Vault being co-located?
 variable "startup_script" {
-  description = "A Startup Script to execute when the server first boots. We remmend passing in a bash script that executes the run-vault script, which should have been installed in the Vault Google Image by the install-vault module."
+  description = "A Startup Script to execute when the server first boots. We recommend passing in a bash script that executes the run-vault script, which should have been installed in the Vault Google Image by the install-vault module."
 }
 
 variable "gcs_bucket_name" {
