@@ -3,7 +3,6 @@
 # operating systems:
 #
 # 1. Ubuntu 16.04
-# 2. Amazon Linux
 
 set -e
 
@@ -22,7 +21,7 @@ function print_usage {
   echo
   echo "Usage: install-vault [OPTIONS]"
   echo
-  echo "This script can be used to install Vault and its dependencies. This script has been tested with Ubuntu 16.04 and Amazon Linux."
+  echo "This script can be used to install Vault and its dependencies. This script has been tested with Ubuntu 16.04."
   echo
   echo "Options:"
   echo
@@ -85,10 +84,6 @@ function create_supervisor_config {
   sudo cp "$SCRIPT_DIR/supervisord.conf" "$SUPERVISOR_DIR/supervisord.conf"
 }
 
-function has_yum {
-  [[ -n "$(command -v yum)" ]]
-}
-
 function has_apt_get {
   [[ -n "$(command -v apt-get)" ]]
 }
@@ -98,14 +93,10 @@ function install_dependencies {
 
   if $(has_apt_get); then
     sudo apt-get update -y
-    sudo apt-get install -y awscli curl unzip jq
+    sudo apt-get install -y curl unzip jq
     install_supervisord_debian
-  elif $(has_yum); then
-    sudo yum update -y
-    sudo yum install -y aws curl unzip jq
-    install_supervisord_amazon_linux
   else
-    log_error "Could not find apt-get or yum. Cannot install dependencies on this OS."
+    log_error "Could not find apt-get. Cannot install dependencies on this OS."
     exit 1
   fi
 }

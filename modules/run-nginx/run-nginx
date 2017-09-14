@@ -1,5 +1,6 @@
 #!/bin/bash
-# This script is used to configure and run nginx as a simple HTTP proxy server.
+# This script is used to configure and run nginx as a simple HTTP proxy server with process supervision provided by
+# supervisord. Nginx will be configured to forward all inbound requests to the --proxy-pass-url option.
 
 set -e
 

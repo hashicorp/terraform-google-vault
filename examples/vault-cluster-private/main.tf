@@ -10,6 +10,8 @@ provider "google" {
   region      = "${var.gcp_region}"
 }
 
+# Use Terraform 0.10.x so that we can take advantage of Terraform GCP functionality as a separate provider via
+# https://github.com/terraform-providers/terraform-provider-google
 terraform {
   required_version = ">= 0.10.3"
 }

@@ -1,6 +1,7 @@
 # ---------------------------------------------------------------------------------------------------------------------
 # THESE TEMPLATES REQUIRE TERRAFORM VERSION 0.10.3 AND ABOVE
-# Why? Because we want the latest GCP updates available in https://github.com/terraform-providers/terraform-provider-google
+# This way we can take advantage of Terraform GCP functionality as a separate provider via
+# https://github.com/terraform-providers/terraform-provider-google
 # ---------------------------------------------------------------------------------------------------------------------
 
 terraform {
@@ -217,8 +218,8 @@ resource "google_storage_bucket" "vault_storage_backend" {
   force_destroy = "${var.gcs_bucket_force_destroy}"
 }
 
-# ACLs are now deprecated as a way to secure a GCS Bucket (https://goo.gl/PgDCYb0), the Terraform Google Provider does
-# not yet expose a way to attach an IAM Policy to a Google Bucket so we resort to using the Bucket ACL in case users
+# ACLs are now deprecated as a way to secure a GCS Bucket (https://goo.gl/PgDCYb0), however the Terraform Google Provider
+# does not yet expose a way to attach an IAM Policy to a Google Bucket so we resort to using the Bucket ACL in case users
 # of this module wish to limit Bucket permissions via Terraform.
 resource "google_storage_bucket_acl" "vault_storage_backend" {
   bucket = "${google_storage_bucket.vault_storage_backend.name}"

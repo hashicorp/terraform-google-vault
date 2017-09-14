@@ -1,5 +1,7 @@
 #!/bin/bash
-# This script can be used to install nginx. This script has been tested with the following operating systems:
+# This script installs the latest stable nginx binary. Notably, it extracts the nginx binary from the latest nginx debian
+# package without installing any other aspect of the debian package (such as init.d scripts). This script has been tested
+# with the following operating systems:
 #
 # 1. Ubuntu 16.04
 
