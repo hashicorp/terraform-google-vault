@@ -28,13 +28,13 @@ function print_usage {
   echo -e "  --pid-folder\t\tThe local folder that should contain the PID file to be used by nginx. Default: $DEFAULT_NGINX_PID_FOLDER."
   echo -e "  --config-dir\t\tThe path to the nginx config folder. Default is the absolute path of '../config', relative to this script."
   echo -e "  --bin-dir\t\tThe path to the folder with the nginx binary. Default is the absolute path of the parent folder of this script."
-  echo -e "  --log-dir\t\tThe path to the Vault log folder. Default is the absolute path of '../log', relative to this script."
-  echo -e "  --log-level\t\tThe log verbosity to use with Vault. Default is $DEFAULT_LOG_LEVEL."
+  echo -e "  --log-dir\t\tThe path to the nginx log folder. Default is the absolute path of '../log', relative to this script."
+  echo -e "  --log-level\t\tThe log verbosity to use with nginx. Default is $DEFAULT_LOG_LEVEL."
   echo -e "  --user\t\tThe user to run nginx as. Default is to use the owner of --config-dir."
   echo
   echo "Example:"
   echo
-  echo "run-nginx --port-listener 8000"
+  echo "run-nginx --port 8000"
   echo
 }
 
@@ -182,10 +182,9 @@ function generate_supervisor_config {
   local readonly nginx_log_level="$5"
   local readonly nginx_user="$6"
 
-  log_info "Creating Supervisor config file to run Vault in $supervisor_config_path"
+  log_info "Creating Supervisor config file to run Nginx in $supervisor_config_path"
   cat > "$supervisor_config_path" <<EOF
 [program:nginx]
-#command=$nginx_bin_dir/nginx -c $nginx_config_dir/nginx.conf
 command=/usr/bin/pidproxy /var/run/nginx.pid $nginx_bin_dir/nginx -c $nginx_config_dir/nginx.conf
 stdout_logfile=$nginx_log_dir/nginx-stdout.log
 stderr_logfile=$nginx_log_dir/nginx-error.log

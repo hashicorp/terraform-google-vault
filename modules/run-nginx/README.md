@@ -1,79 +1,69 @@
-# Vault Run Script
+# Nginx Run Script
 
-This folder contains a script for configuring and running Vault on an [AWS](https://aws.amazon.com/) server. This 
-script has been tested on the following operating systems:
+This folder contains a script for configuring and running Nginx on a Vault [Google Cloud](https://cloud.google.com/)
+server. This script has been tested on the following operating systems:
 
 * Ubuntu 16.04
 
-There is a good chance it will work on other flavors of Debian, CentOS, and RHEL as well.
+There is a good chance it will work on other flavors of Debian as well.
 
 
 
 
 ## Quick start
 
-This script assumes you installed it, plus all of its dependencies (including Vault itself), using the [install-vault 
-module](/modules/install-vault). The default install path is `/opt/vault/bin`, so to start Vault in server mode, you 
-run:
+This script assumes you installed it, plus all of its dependencies (including nginx itself), using the [install-nginx 
+module](/modules/install-nginx). The default install path is `/opt/nginx/bin`, so to configure and start nginx, you run: 
 
 ```
-/opt/vault/bin/run-vault --s3-bucket my-vault-bucket --s3-bucket-region us-east-1 --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem
-```
+/opt/vault/bin/run-nginx --port 8000
+``` 
 
 This will:
 
-1. Generate a Vault configuration file called `default.hcl` in the Vault config dir (default: `/opt/vault/config`).
-   See [Vault configuration](#vault-configuration) for details on what this configuration file will contain and how
-   to override it with your own configuration.
+1. Generate an nginx configuration file called `nginx.conf` in the nginx config dir (default: `/opt/nginx/config`).
+   See [nginx configuration](#nginx-configuration) for details on what this configuration file will contain.
    
-1. Generate a [Supervisor](http://supervisord.org/) configuration file called `run-vault.conf` in the Supervisor
-   config dir (default: `/etc/supervisor/conf.d`) with a command that will run Vault:  
-   `vault server -config=/opt/vault/config`.
+1. Generate a [Supervisor](http://supervisord.org/) configuration file called `run-nginx.conf` in the Supervisor
+   config dir (default: `/etc/supervisor/conf.d`) with a command that will run nginx:  
+   `/opt/nginx/bin/nginx -c $nginx_config_dir/nginx.conf`.
 
-1. Tell Supervisor to load the new configuration file, thereby starting Vault.
+1. Tell Supervisor to load the new configuration file, thereby starting nginx.
 
-We recommend using the `run-vault` command as part of [User 
-Data](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html#user-data-shell-scripts), so that it executes
-when the EC2 Instance is first booting. After running `run-vault` on that initial boot, the `supervisord` configuration 
-will automatically restart Vault if it crashes or the EC2 instance reboots.
+We recommend using the `run-nginx` command as part of the [Startup Script](https://cloud.google.com/compute/docs/startupscript),
+so that it executes when the Compute Instance is first booting. After running `run-nginx` on that initial boot, the 
+`supervisord` configuration will automatically restart nginx if it crashes or the Compute Instance reboots.
 
-See the [vault-cluster-public](/examples/vault-cluster-public) and 
-[vault-cluster-private](/examples/vault-cluster-private) examples for fully-working sample code.
-
+See the [startup-script-vault.sh](/examples/vault-cluster-public/startup-script-vault.sh) example for fully-working
+sample code.
 
 
 
 ## Command line Arguments
 
-The `run-vault` script accepts the following arguments:
+The `run-nginx` script accepts the following arguments. All arguments are optional. See the script for default values.
 
-* `--s3-bucket` (required): Specifies the S3 bucket to use to store Vault data. 
-* `--s3-bucket-region` (required): Specifies the AWS region where `--s3-bucket` lives. 
-* `--tls-cert-file` (required): Specifies the path to the certificate for TLS. To configure the listener to use a CA 
-  certificate, concatenate the primary certificate and the CA certificate together. The primary certificate should 
-  appear first in the combined file. See [How do you handle encryption?](#how-do-you_handle-encryption) for more info.
-* `--tls-key-file` (required): Specifies the path to the private key for the certificate. See [How do you handle 
-  encryption?](#how-do-you_handle-encryption) for more info.
-* `--port` (optional): The port Vault should listen on. Default is `8200`.   
-* `--log-level` (optional): The log verbosity to use with Vault. Default is `info`.   
-* `--cluster-port` (optional): The port Vault should listen on for server-to-server communication. Default is 
-  `--port + 1`.   
-* `config-dir` (optional): The path to the Vault config folder. Default is to take the absolute path of `../config`, 
-  relative to the `run-vault` script itself.
-* `user` (optional): The user to run Vault as. Default is to use the owner of `config-dir`.
-* `skip-vault-config`: If this flag is set, don't generate a Vault configuration file. This is useful if you have
-  a custom configuration file and don't want to use any of of the default settings from `run-vault`. 
+| Argument | Description | Default | 
+| ------------------ | ------------| ------- | 
+| `--port`           | The port on which the HTTP server accepts inbound connections | `8000` |
+| `--proxy-pass-url` | The URL to which all inbound requests will be forwarded. | `https://127.0.0.1:8200/v1/sys/health?standbyok=true`| 
+| `--pid-folder`     | The local folder that should contain the PID file to be used by nginx. | `/var/run/nginx` | 
+| `--config-dir`     | The path to the nginx config folder. | absolute path of `../config`, relative to this script |
+| `--bin-dir`        | The path to the folder with the nginx binary. | absolute path of the parent folder of this script |
+| `--log-dir`        | The path to the Vault log folder. | absolute path of `../log`, relative to this script. | 
+| `--log-level`      | The log verbosity to use with Nginx. | `info` |
+| `--user`           | The user to run nginx as. | owner of `--config-dir` |
 
 Example:
 
 ```
-/opt/vault/bin/run-vault --s3-bucket my-vault-bucket --s3-bucket-region us-east-1 --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem
+/opt/vault/bin/run-nginx --port 8000
 ```
 
 
 
 
-## Vault configuration
+## Nginx configuration
 
 `run-vault` generates a configuration file for Vault called `default.hcl` that tries to figure out reasonable 
 defaults for a Vault cluster in AWS. Check out the [Vault Configuration Files 
