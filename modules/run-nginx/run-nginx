@@ -120,7 +120,7 @@ events {
 # http://nginx.org/en/docs/http/ngx_http_core_module.html
 http {
 
-  # Map file name extensions to MIME types of responses.
+  # Map file name extensions to MIME types of responses. Note that we enable a single MIME type.
   # http://nginx.org/en/docs/http/ngx_http_core_module.html#types
   types {
     application/json  json;
