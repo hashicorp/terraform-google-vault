@@ -1,12 +1,11 @@
 # Vault Run Script
 
-This folder contains a script for configuring and running Vault on an [AWS](https://aws.amazon.com/) server. This 
+This folder contains a script for configuring and running Vault on an [Google Cloud](https://cloud.google.com) server. This 
 script has been tested on the following operating systems:
 
 * Ubuntu 16.04
-* Amazon Linux
 
-There is a good chance it will work on other flavors of Debian, CentOS, and RHEL as well.
+There is a good chance it will work on other flavors of Debian as well.
 
 
 
@@ -18,7 +17,7 @@ module](/modules/install-vault). The default install path is `/opt/vault/bin`, s
 run:
 
 ```
-/opt/vault/bin/run-vault --s3-bucket my-vault-bucket --s3-bucket-region us-east-1 --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem
+/opt/vault/bin/run-vault --gcs-bucket my-bucket --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem
 ```
 
 This will:
@@ -33,10 +32,9 @@ This will:
 
 1. Tell Supervisor to load the new configuration file, thereby starting Vault.
 
-We recommend using the `run-vault` command as part of [User 
-Data](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html#user-data-shell-scripts), so that it executes
-when the EC2 Instance is first booting. After running `run-vault` on that initial boot, the `supervisord` configuration 
-will automatically restart Vault if it crashes or the EC2 instance reboots.
+We recommend using the `run-vault` command as part of the [Startup Script](https://cloud.google.com/compute/docs/startupscript),
+so that it executes when the Compute Instance is first booting. After running `run-vault` on that initial boot, the 
+`supervisord` configuration will automatically restart Vault if it crashes or the Compute Instance reboots.
 
 See the [vault-cluster-public](/examples/vault-cluster-public) and 
 [vault-cluster-private](/examples/vault-cluster-private) examples for fully-working sample code.
