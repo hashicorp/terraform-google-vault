@@ -45,9 +45,9 @@ The `run-nginx` script accepts the following arguments. All arguments are option
 
 | Argument | Description | Default | 
 | ------------------ | ------------| ------- | 
-| `--port`           | The port on which the HTTP server accepts inbound connections | `8000` |
-| `--proxy-pass-url` | The URL to which all inbound requests will be forwarded. | `https://127.0.0.1:8200/v1/sys/health?standbyok=true`| 
-| `--pid-folder`     | The local folder that should contain the PID file to be used by nginx. | `/var/run/nginx` | 
+| `--port`           | The port on which the HTTP server<br>accepts inbound connections | `8000` |
+| `--proxy-pass-url` | The URL to which all inbound requests<br>will be forwarded. | `https://127.0.0.1:8200/v1/sys/health?standbyok=true`| 
+| `--pid-folder`     | The local folder that should contain<br>the PID file to be used by nginx. | `/var/run/nginx` | 
 | `--config-dir`     | The path to the nginx config folder. | absolute path of `../config`, relative to this script |
 | `--bin-dir`        | The path to the folder with the nginx binary. | absolute path of the parent folder of this script |
 | `--log-dir`        | The path to the Vault log folder. | absolute path of `../log`, relative to this script. | 
