@@ -44,7 +44,7 @@ See the [vault-cluster-public](/examples/vault-cluster-public) and
 
 ## Command line Arguments
 
-The `run-vault` script accepts the following **required** arguments:
+The `run-vault` script accepts the following **REQUIRED** arguments:
 
 | Argument | Description | Default | 
 | ---------| ----------- | ------- |
@@ -52,7 +52,7 @@ The `run-vault` script accepts the following **required** arguments:
 | `--tls-cert-file` | Specifies the path to the certificate for TLS.<br>To use a CA certificate, concatenate the<br>primary certificate and the CA certificate together. || 
 | `--tls-key-file` | Specifies the path to the private key for the certificate. || 
 
-The `run-vault` script accepts the following **optional** arguments:
+The `run-vault` script accepts the following **OPTIONAL** arguments:
 
 | Argument | Description | Default | 
 | ---------| ----------- | ------- |
@@ -69,7 +69,7 @@ The `run-vault` script accepts the following **optional** arguments:
 Example:
 
 ```
-/opt/vault/bin/run-vault --s3-bucket my-vault-bucket --s3-bucket-region us-east-1 --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem
+/opt/vault/bin/run-vault --gcs-bucket my-vault-bucket --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem
 ```
 
 
@@ -78,7 +78,7 @@ Example:
 ## Vault configuration
 
 `run-vault` generates a configuration file for Vault called `default.hcl` that tries to figure out reasonable 
-defaults for a Vault cluster in AWS. Check out the [Vault Configuration Files 
+defaults for a Vault cluster in Google Cloud. Check out the [Vault Configuration Files 
 documentation](https://www.vaultproject.io/docs/configuration/index.html) for what configuration settings are
 available.
   
@@ -87,12 +87,10 @@ available.
 
 `run-vault` sets the following configuration values by default:
 
-* [storage](https://www.vaultproject.io/docs/configuration/index.html#storage): Configure S3 as the storage backend
+* [storage](https://www.vaultproject.io/docs/configuration/index.html#storage): Configure GCS as the storage backend
   with the following settings:
  
-     * [bucket](https://www.vaultproject.io/docs/configuration/storage/s3.html#bucket): Set to the `--s3-bucket`
-       parameter.
-     * [region](https://www.vaultproject.io/docs/configuration/storage/s3.html#region): Set to the `--s3-bucket-region` 
+     * [bucket](https://www.vaultproject.io/docs/configuration/storage/google-cloud.html#bucket): Set to the `--gcs-bucket`
        parameter.
  
 * [ha_storage](https://www.vaultproject.io/docs/configuration/index.html#ha_storage): Configure Consul as the [high 
@@ -144,7 +142,7 @@ If you want to override *all* the default settings, you can tell `run-vault` not
 at all using the `--skip-vault-config` flag:
 
 ```
-/opt/vault/bin/run-vault --s3-bucket my-vault-bucket --s3-bucket-region us-east-1 --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem --skip-vault-config
+/opt/vault/bin/run-vault --gcs-bucket my-vault-bucket --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem --skip-vault-config
 ```
 
 
@@ -164,7 +162,7 @@ When you execute the `run-vault` script, you need to provide the paths to the pu
 certificate:
 
 ```
-/opt/vault/bin/run-vault --s3-bucket my-vault-bucket --s3-bucket-region us-east-1 --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem
+/opt/vault/bin/run-vault --gcs-bucket my-vault-bucket --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem
 ```
 
 See the [private-tls-cert module](/modules/private-tls-cert) for information on how to generate a TLS certificate.
@@ -172,7 +170,7 @@ See the [private-tls-cert module](/modules/private-tls-cert) for information on 
 
 ### Consul encryption
 
-Since this Vault Blueprint uses Consul as a high availability storage backend, you may want to enable encryption for 
+Since this Vault Module uses Consul as a high availability storage backend, you may want to enable encryption for 
 Consul too. Note that Vault encrypts any data *before* sending it to a storage backend, so this isn't strictly 
 necessary, but may be a good extra layer of security.
 
