@@ -56,15 +56,15 @@ The `run-vault` script accepts the following **optional** arguments:
 
 | Argument | Description | Default | 
 | ---------| ----------- | ------- |
-| `--gcp-creds-file` | The file path on the Compute Instance of a JSON file that stores<br>credentials for a GCP Service Account that has read-write access to<br>the configured GCS Bucket. ||
+| `--gcp-creds-file` | The file path on the Compute Instance of a<br>JSON file that stores credentials for a<br>GCP Service Account that has read-write access to<br>the configured GCS Bucket. ||
 | `--port` | The port for Vault to listen on. | `8200` |
-| `--cluster-port` | The port for Vault to listen on for server-to-server requests. | `--port` + 1 |
+| `--cluster-port` | The port for Vault to listen on for<br>server-to-server requests. | `--port` + 1 |
 | `--config-dir` | The path to the Vault config folder. | absolute path of `../config`, relative to the `run-vault` script itself. |
 | `--bin-dir` | The path to the folder with Vault binary. | absolute path of the parent folder of this script. |
 | `--log-dir` | The path to the Vault log folder. | absolute path of `../log`, relative to this script. |
 | `--log-level` | The log verbosity to use with Vault. | `info` |   
 | `user` | The user to run Vault as. | owner of `config-dir`. |
-| `skip-vault-config` | If this flag is set, don't generate a Vault configuration file.<br>This is useful if you have a custom configuration file<br>and don't want to use any of of the default settings from `run-vault`. || 
+| `skip-vault-config` | If this flag is set, don't generate a Vault<br>configuration file. This is useful if<br>you have a custom configuration file<br>and don't want to use any of<br>the default settings from `run-vault`. || 
 
 Example:
 
