@@ -12,8 +12,6 @@ readonly DEFAULT_LOG_LEVEL="info"
 readonly GCP_COMPUTE_INSTANCE_METADATA_URL="http://metadata.google.internal/computeMetadata/v1"
 readonly GCP_METADATA_REQUEST_HEADER="Metadata-Flavor: Google"
 
-readonly DEFAULT_PATH_SERVICE_ACCOUNT_PRIVATE_KEY="/tmp/credentials.json"
-
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly SCRIPT_NAME="$(basename "$0")"
 
@@ -21,7 +19,7 @@ function print_usage {
   echo
   echo "Usage: run-vault [OPTIONS]"
   echo
-  echo "This script is used to configure and run Vault on an AWS server."
+  echo "This script is used to configure and run Vault on a Google Compute Instance."
   echo
   echo "Required Arguments:"
   echo

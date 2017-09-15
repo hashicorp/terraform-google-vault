@@ -142,7 +142,7 @@ they are unsealed.
 There are three ways to connect to Vault:
 
 1. [Access Vault from a Vault server](#access-vault-from-a-vault-server)
-1. [Access Vault from other servers in the same AWS account](#access-vault-from-other-servers-in-the-same-aws-account)
+1. [Access Vault from other servers in the same Google Cloud project](#access-vault-from-other-servers-in-the-same-google-cloud-project)
 1. [Access Vault from the public Internet](#access-vault-from-the-public-internet)
 
 
@@ -177,7 +177,7 @@ entries](https://www.consul.io/docs/guides/forwarding.html), you can access Vaul
 using a nice domain name instead, such as `vault.service.consul`.
 
 To set this up, use the [install-dnsmasq 
-module](https://github.com/gruntwork-io/consul-aws-blueprint/tree/master/modules/install-dnsmasq) on each server that 
+module](https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/install-dnsmasq) on each server that 
 needs to access Vault. This allows you to access Vault from your EC2 Instances as follows:
 
 ```

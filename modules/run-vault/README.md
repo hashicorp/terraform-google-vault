@@ -103,12 +103,10 @@ available.
     * [path](https://www.vaultproject.io/docs/configuration/storage/consul.html#path): Set to `vault/`.
     * [service](https://www.vaultproject.io/docs/configuration/storage/consul.html#service): Set to `vault`.  
     * [redirect_addr](https://www.vaultproject.io/docs/configuration/storage/consul.html#redirect_addr): 
-      Set to `https://<PRIVATE_IP>:<CLUSTER_PORT>` where `PRIVATE_IP` is the Instance's private IP fetched from
-      [Metadata](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) and `CLUSTER_PORT` is
+      Set to `https://<PRIVATE_IP>:<CLUSTER_PORT>` where `PRIVATE_IP` is the Instance's private IP and `CLUSTER_PORT` is
       the value passed to `--cluster-port`.  
     * [cluster_addr](https://www.vaultproject.io/docs/configuration/storage/consul.html#cluster_addr): 
-      Set to `https://<PRIVATE_IP>:<CLUSTER_PORT>` where `PRIVATE_IP` is the Instance's private IP fetched from
-      [Metadata](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) and `CLUSTER_PORT` is
+      Set to `https://<PRIVATE_IP>:<CLUSTER_PORT>` where `PRIVATE_IP` is the Instance's private IP and `CLUSTER_PORT` is
       the value passed to `--cluster-port`.
       
 * [listener](https://www.vaultproject.io/docs/configuration/index.html#listener): Configure a [TCP 
@@ -176,8 +174,8 @@ necessary, but may be a good extra layer of security.
 
 By default, the Vault server nodes communicate with a local Consul agent running on the same server over (unencrypted) 
 HTTP. However, you can configure those agents to talk to the Consul servers using TLS. Check out the [official Consul 
-encryption docs](https://www.consul.io/docs/agent/encryption.html) and the Consul AWS Blueprint [How do you handle 
-encryption docs](https://github.com/gruntwork-io/consul-aws-blueprint/tree/master/modules/run-consul#how-do-you-handle-encryption)
+encryption docs](https://www.consul.io/docs/agent/encryption.html) and the Consul GCP Module [How do you handle 
+encryption docs](https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/run-consul#how-do-you-handle-encryption)
 for more info.
 
 
