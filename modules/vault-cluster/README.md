@@ -1,9 +1,9 @@
 # Vault Cluster
 
 This folder contains a [Terraform](https://www.terraform.io/) module that can be used to deploy a 
-[Vault](https://www.vaultproject.io/) cluster in [AWS](https://aws.amazon.com/) on top of an Auto Scaling Group. This 
-module is designed to deploy an [Amazon Machine Image (AMI)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) 
-that had Vault installed via the [install-vault](/modules/install-vault) module in this Blueprint.
+[Vault](https://www.vaultproject.io/) cluster in [Google Cloud](https://cloud.google.com/) on top of a Managed Instance
+Group. This module is designed to deploy a [Google Image](https://cloud.google.com/compute/docs/images) 
+that had Vault installed via the [install-vault](/modules/install-vault) module in this Module.
 
 
 
@@ -15,23 +15,22 @@ code by adding a `module` configuration and setting its `source` parameter to UR
 
 ```hcl
 module "vault_cluster" {
-  # TODO: update this to the final URL
   # Use version v0.0.1 of the vault-cluster module
-  source = "github.com/gruntwork-io/vault-aws-blueprint//modules/vault-cluster?ref=v0.0.1"
+  source = "github.com/gruntwork-io/terraform-google-vault//modules/vault-cluster?ref=v0.0.1"
 
   # Specify the ID of the Vault AMI. You should build this using the scripts in the install-vault module.
-  ami_id = "ami-abcd1234"
+  source_image = "vault-consul-xxxxxx"
   
   # This module uses S3 as a storage backend
-  s3_bucket_name   = "${var.vault_s3_bucket}"
+  gcs_bucket_name   = "${var.gcs_bucket_name}"
   
   # Configure and start Vault during boot. 
-  user_data = <<-EOF
-              #!/bin/bash
-              /opt/vault/bin/run-vault --s3-bucket ${var.vault_s3_bucket} --s3-bucket-region ${var.aws_region} --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem
-              EOF
+  startup_script = <<-EOF
+                   #!/bin/bash
+                   /opt/vault/bin/run-vault --gcs-bucket ${var.gcs_bucket_name} --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem
+                   EOF
   
-  # ... See vars.tf for the other parameters you must define for the vault-cluster module
+  # ... See variables.tf for the other parameters you must define for the vault-cluster module
 }
 ```
 
@@ -43,22 +42,21 @@ Note the following parameters:
   this repo. That way, instead of using the latest version of this module from the `master` branch, which 
   will change every time you run Terraform, you're using a fixed version of the repo.
 
-* `ami_id`: Use this parameter to specify the ID of a Vault [Amazon Machine Image 
-  (AMI)](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html) to deploy on each server in the cluster. You
-  should install Vault in this AMI using the scripts in the [install-vault](/modules/install-vault) module.
+* `source_image`: Use this parameter to specify the name of a Vault [Google Image](
+  https://cloud.google.com/compute/docs/images) to deploy on each server in the cluster. You should install Vault in
+  this Image using the scripts in the [install-vault](/modules/install-vault) module.
   
-* `s3_bucket_name`: This module creates an [S3](https://aws.amazon.com/s3/) to use as a storage backend for Vault.
+* `gcs_bucket_name`: This module creates a [GCS](https://cloud.google.com/storage/) to use as a storage backend for Vault.
  
-* `user_data`: Use this parameter to specify a [User 
-  Data](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html#user-data-shell-scripts) script that each
-  server will run during boot. This is where you can use the [run-vault script](/modules/run-vault) to configure and 
-  run Vault. The `run-vault` script is one of the scripts installed by the [install-vault](/modules/install-vault) 
+* `startup_script`: Use this parameter to specify a [Startup Script](https://cloud.google.com/compute/docs/startupscript)
+  that each server will run during boot. This is where you can use the [run-vault script](/modules/run-vault) to configure
+  and  run Vault. The `run-vault` script is one of the scripts installed by the [install-vault](/modules/install-vault) 
   module. 
 
-You can find the other parameters in [vars.tf](vars.tf).
+You can find the other parameters in [variables.tf](variables.tf).
 
-Check out the [vault-cluster-public](/examples/vault-cluster-public) and 
-[vault-cluster-private](/examples/vault-cluster-private) examples for working sample code.
+Check out the [vault-cluster-public](/examples/vault-cluster-public) and [vault-cluster-private](/examples/vault-cluster-private)
+examples for working sample code.
 
 
 
@@ -69,17 +67,17 @@ Check out the [vault-cluster-public](/examples/vault-cluster-public) and
 To use the Vault cluster, you will typically need to SSH to each of the Vault servers. If you deployed the
 [vault-cluster-private](/examples/vault-cluster-private) or [vault-cluster-public](/examples/vault-cluster-public) 
 examples, the [vault-examples-helper.sh script](/examples/vault-examples-helper/vault-examples-helper.sh) will do the 
-tag lookup for you automatically (note, you must have the [AWS CLI](https://aws.amazon.com/cli/) and 
-[jq](https://stedolan.github.io/jq/) installed locally):
+tag lookup for you automatically (note, you must have the [Google Cloud SDK](https://cloud.google.com/sdk/) installed
+locally):
 
 ```
 > ../vault-examples-helper/vault-examples-helper.sh
 
-Your Vault servers are running at the following IP addresses:
+The following Vault servers are running:
 
-11.22.33.44
-11.22.33.55
-11.22.33.66
+vault-7djC
+vault-o81b
+vault-lx92
 ```
 
 ### Initializing the Vault cluster
@@ -107,7 +105,7 @@ this data is known by Vault, so you **MUST** save it in a secure place immediate
 the unseal keys should ever be so close together. You should distribute each one to a different, trusted administrator
 for safe keeping in completely separate secret stores and NEVER store them all in the same place. 
 
-In fact, a better option is to initial Vault with [PGP, GPG, or 
+In fact, a better option is to initialize Vault with [PGP, GPG, or 
 Keybase](https://www.vaultproject.io/docs/concepts/pgp-gpg-keybase.html) so that each unseal key is encrypted with a
 different user's public key. That way, no one, not even the operator running the `init` command can see all the keys
 in one place:
@@ -135,7 +133,8 @@ having 3 out of the 5 administrators (or whatever your key shard threshold is) d
 1. Repeat for each of the other Vault servers.
 
 Once this process is complete, all the Vault servers will be unsealed and you will be able to start reading and writing
-secrets.
+secrets. Note that if you are using a Load Balancer, your Load Balancer will only start routing to Vault servers once 
+they are unsealed.
 
 
 ### Connecting to the Vault cluster to read and write secrets
@@ -162,9 +161,16 @@ value               bar
 ```
 
 
-#### Access Vault from other servers in the same AWS account
+#### Access Vault from other servers in the same Google Cloud project
 
-To access Vault from a different server in the same account, you need to specify the URL of the Vault cluster. You 
+To access Vault from a different server in the same GCP project, first make sure that the variable `allowed_inbound_tags_api`
+specifies a [Google Tag](https://cloud.google.com/compute/docs/vpc/add-remove-network-tags) in use by the server that
+should have Vault access. Alternatively, update the variable `allowed_inbound_cidr_blocks_api` to specify a list of 
+CIDR-formatted IP address ranges that can access the Vault cluster. Note that, these must be private IP addresses,
+unless the variable `assign_public_ip_addresses` is set to `true`, in which case the cluster will be publicly accessible
+and any IP address is valid.
+
+Next, on the server that wants to connect to Vault, you need to specify the URL of the Vault cluster. You 
 could manually look up the Vault cluster's IP address, but since this module uses Consul not only as a [storage 
 backend](https://www.vaultproject.io/docs/configuration/storage/consul.html) but also as a way to register [DNS 
 entries](https://www.consul.io/docs/guides/forwarding.html), you can access Vault 
@@ -216,26 +222,26 @@ value               bar
 However, to avoid having to add the `-ca-cert` argument to every single call, you can use the [update-certificate-store 
 module](/modules/update-certificate-store) to configure the server to trust the CA.
 
-Check out the [vault-cluster-private example](/examples/vault-cluster-private) for working sample code.
+Check out the [vault-cluster-private example](/examples/vault-cluster-private) for working sample code. Alternatively,
+you may set the environment variable [VAULT_CACERT](https://www.vaultproject.io/docs/commands/environment.html).
 
 
 #### Access Vault from the public Internet
 
 We **strongly** recommend only running Vault in private subnets. That means it is not directly accessible from the 
 public Internet, which reduces your surface area to attackers. If you need users to be able to access Vault from 
-outside of AWS, we recommend using VPN to connect to AWS. 
+outside of Google Cloud, we recommend using VPN to connect to Google Cloud. 
  
-If VPN is not an option, and Vault must be accessible from the public Internet, you can use the [vault-elb 
-module](/modules/vault-elb) to deploy an [Elastic Load Balancer 
-(ELB)](https://aws.amazon.com/elasticloadbalancing/classicloadbalancer/) in your public subnets, and have all your users
-access Vault via this ELB:
+If VPN is not an option, and Vault must be accessible from the public Internet, you can use the [vault-lb-fr 
+module](/modules/vault-lb-fr) to deploy a regional external [Load Balancer](https://cloud.google.com/load-balancing/)
+and have all your users access Vault via this Load Balancer:
 
 ```
-vault -address=https://<ELB_DNS_NAME> read secret/foo
+vault -address=https://<LOAD_BALANCER_IP> read secret/foo
 ```
 
-Where `ELB_DNS_NAME` is the DNS name for your ELB, such as `vault.example.com`. You can configure the Vault address as 
-an environment variable:
+Where `LOAD_BALANCER_IP` is the IP address for your Load Balancer, such as `vault.example.com`. You can configure the
+Vault address as an environment variable:
 
 ```
 export VAULT_ADDR=https://vault.example.com
@@ -260,112 +266,76 @@ This module creates the following architecture:
 
 This architecture consists of the following resources:
 
-* [Auto Scaling Group](#auto-scaling-group)
-* [S3 bucket](#s3-bucket)
-* [Security Group](#security-group)
-* [IAM Role and Permissions](#iam-role-and-permissions)
+* [Managed Instance Group](#managed-instance-group)
+* [GCS Bucket](#gcs-bucket)
+* [Firewall Rules](#firewall-rules)
 
 
-### Auto Scaling Group
+### Managed Instance Group
 
-This module runs Vault on top of an [Auto Scaling Group (ASG)](https://aws.amazon.com/autoscaling/). Typically, you
-should run the ASG with 3 or 5 EC2 Instances spread across multiple [Availability 
-Zones](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html). Each of the EC2
-Instances should be running an AMI that has had Vault installed via the [install-vault](/modules/install-vault)
-module. You pass in the ID of the AMI to run using the `ami_id` input parameter.
-
-
-### S3 Bucket
-
-This module creates an [S3 bucket](https://aws.amazon.com/s3/) that Vault can use as a storage backend. S3 is a good
-choice for storage because it provides outstanding durability (99.999999999%) and availability (99.99%).  Unfortunately,
-S3 cannot be used for Vault High Availability coordination, so this module expects a separate Consul server cluster to 
-be deployed as a high availability backend.
+This module runs Vault on top of a zonal [Managed Instance Group](https://cloud.google.com/compute/docs/instance-groups/). 
+Typically, you should run the Instance Group with 3 or 5 Compute Instances spread across multiple [Zones](
+https://cloud.google.com/compute/docs/regions-zones/regions-zones), but regrettably, Terraform Managed Instance Groups
+[only support a single zone](https://github.com/terraform-providers/terraform-provider-google/issues/45). Each of the
+Compute Instances should be running a Google Image that has had Vault installed via the [install-vault](/modules/install-vault)
+module. You pass in the Google Image name to run using the `source_image` input parameter.
 
 
-### Security Group
+### GCS Bucket
 
-Each EC2 Instance in the ASG has a Security Group that allows:
+This module creates a [GCS bucket](https://cloud.google.com/storage/docs/) that Vault can use as a storage backend. 
+GCS is a good choice for storage because it provides outstanding durability (99.999999999%) and reasonable availability
+(99.9%).  Unfortunately, GCS cannot be used for Vault High Availability coordination, so this module expects a separate
+Consul server cluster to be deployed as a high availability backend.
+
+
+### Firewall Rules
+
+Network access to the Vault Compute Instances is governed by any VPC-levle Firewall Rules, but in addition, this module
+creates Firewall Rules to explicitly permit:
  
-* All outbound requests
-* Inbound requests on Vault's API port (default: port 8200)
-* Inbound requests on Vault's cluster port for server-to-server communication (default: port 8201)
-* Inbound SSH requests (default: port 22)
-
-The Security Group ID is exported as an output variable if you need to add additional rules. 
+* Allow Vault API requests within the cluster 
+* Allow inbound API requests from the desired tags or CIDR blocks
+* Allow inbound Health Check requests, if applicable
 
 Check out the [Security section](#security) for more details. 
-
-
-### IAM Role and Permissions
-
-Each EC2 Instance in the ASG has an [IAM Role](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html) attached
-with permissions to access its S3 bucket. The IAM Role ARN is exported as an output variable so you can add custom
-permissions. 
-
-
 
 
 
 ## How do you roll out updates?
 
-Please note that Vault does not support true zero-downtime upgrades, but with proper upgrade procedure the downtime 
-should be very short (a few hundred milliseconds to a second depending on how the speed of access to the storage 
-backend). See the [Vault upgrade guide instructions](https://www.vaultproject.io/docs/guides/upgrading/index.html) for
-details.
+Unfortunately, this remains an open item. Unlike Amazon Web Services, Google Cloud does not allow you to control the
+manner in which Compute Instances in a Managed Instance Group are updated, except that you can specify that either
+all Instances should be immediately restarted when a Managed Instance Group's Instance Template is updated (by setting
+the [update_strategy](https://www.terraform.io/docs/providers/google/r/compute_instance_group_manager.html#update_strategy)
+of the Managed Instance Group to `RESTART`), or that nothing at all should happen (by setting the update_strategy to 
+`NONE`).
 
-If you want to deploy a new version of Vault across a cluster deployed with this module, the best way to do that is to:
+While updating Consul, we must be mindful of always preserving a [quorum](https://www.consul.io/docs/guides/servers.html#removing-servers),
+but neither of the above options enables a safe update. While updating Vault, we need the ability to terminate one 
+Compute Instance at a time to avoid down time.
 
-1. Build a new AMI.
-1. Set the `ami_id` parameter to the ID of the new AMI.
-1. Run `terraform apply`.
+One possible option may be the use of GCP's [Rolling Updates Feature](https://cloud.google.com/compute/docs/instance-groups/updating-managed-instance-groups)
+however this feature remains in Alpha and may not necessarily support our use case.
 
-This updates the Launch Configuration of the ASG, so any new Instances in the ASG will have your new AMI, but it does
-NOT actually deploy those new instances. To make that happen, you need to:
+The most likely solution will involve writing a script that makes use of the [abandon-instances](https://cloud.google.com/sdk/gcloud/reference/compute/instance-groups/managed/abandon-instances)
+and [resize](https://cloud.google.com/sdk/gcloud/reference/compute/instance-groups/managed/resize) GCP API calls. Using
+these primitives, we can "abandon" Compute Instances from a Compute Instance Group (thereby removing them from the Group
+but leaving them otherwise untouched), manually add new Instances based on an updated Instance Template that will 
+automatically join the Consul cluster, make Consul API calls to our abandoned Instances to leave the Group, validate
+that all new Instances are members of the cluster and then manually terminate the abandoned Instances.  
 
-1. [Replace the standby nodes](#replace-the-standby-nodes)
-1. [Replace the primary node](#replace-the-primary-node)
-
-
-### Replace the standby nodes
-
-For each of the standby nodes:
-
-1. SSH to the EC2 Instance where the Vault standby is running.
-1. Execute `sudo supervisorctl stop vault` to have Vault shut down gracefully.
-1. Terminate the EC2 Instance.
-1. After a minute or two, the ASG should automatically launch a new Instance, with the new AMI, to replace the old one.
-1. Have each Vault admin SSH to the new EC2 Instance and unseal it.
-
-
-### Replace the primary node
-
-The procedure for the primary node is the same, but should be done LAST, after all the standbys have already been
-upgraded:
-
-1. SSH to the EC2 Instance where the Vault primary is running. This should be the last server that has the old version
-   of your AMI.
-1. Execute `sudo supervisorctl stop vault` to have Vault shut down gracefully.
-1. Terminate the EC2 Instance.
-1. After a minute or two, the ASG should automatically launch a new Instance, with the new AMI, to replace the old one.
-1. Have each Vault admin SSH to the new EC2 Instance and unseal it.
-
-
-
+For now, you can perform this process manually, but needless to say, PRs are welcome!
 
 
 ## What happens if a node crashes?
 
 There are two ways a Vault node may go down:
  
-1. The Vault process may crash. In that case, `supervisor` should restart it automatically. At this point, you will
-   need to have each Vault admin SSH to the Instance to unseal it again.
-1. The EC2 Instance running Vault dies. In that case, the Auto Scaling Group should launch a replacement automatically. 
-   Once again, the Vault admins will have to SSH to the replacement Instance and unseal it.
-
-Given the need for manual intervention, you will want to have alarms set up that go off any time a Vault node gets
-restarted.
-
+1. The Vault process may crash. In that case, `supervisor` should restart it automatically.
+1. The Compute Instance running Vault stops, crashes, or is otherwise deleted. In that case, the Managed Instance Group
+   will launch a replacement automatically.  In this case, the Vault node will automatically recover, however it will
+   now be in a sealed state, so operators must manually unseal it before it can process traffic again.
 
 
 
@@ -388,46 +358,29 @@ Vault uses TLS to encrypt its network traffic. For instructions on configuring T
 
 ### Encryption at rest
 
-Vault servers keep everything in memory and does not write any data to the local hard disk. To persist data, Vault
+Vault servers keep everything in memory and do not write any data to the local hard disk. To persist data, Vault
 encrypts it, and sends it off to its storage backends, so no matter how the backend stores that data, it is already
-encrypted. By default, this Blueprint uses Consul as a storage backend, so if you want an additional layer of 
-protection, you can check out the [official Consul encryption docs](https://www.consul.io/docs/agent/encryption.html) 
-and the Consul AWS Blueprint [How do you handle encryption 
-docs](https://github.com/gruntwork-io/consul-aws-blueprint/tree/master/modules/run-consul#how-do-you-handle-encryption)
-for more info.
-
-Note that if you want to enable encryption for the root EBS Volume for your Vault Instances (despite the fact that 
-Vault itself doesn't write anything to this volume), you need to enable that in your AMI. If you're creating the AMI 
-using Packer (e.g. as shown in the [vault-consul-ami example](/examples/vault-consul-ami)), you need to set the [encrypt_boot 
-parameter](https://www.packer.io/docs/builders/amazon-ebs.html#encrypt_boot) to `true`.  
+encrypted. By default, this Module uses GCS as a storage backend.
 
 
-### Dedicated instances
 
-If you wish to use dedicated instances, you can set the `tenancy` parameter to `"dedicated"` in this module. 
+### Firewall Rules
 
-
-### Security groups
-
-This module attaches a security group to each EC2 Instance that allows inbound requests as follows:
-
-* **Vault**: For the Vault API port (default: 8200), you can use the `allowed_inbound_cidr_blocks` parameter to control 
-  the list of [CIDR blocks](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) that will be allowed access
-  and the `allowed_inbound_security_group_ids` parameter to control the security groups that will be allowed access.  
-
-* **SSH**: For the SSH port (default: 22), you can use the `allowed_ssh_cidr_blocks` parameter to control the list of   
-  [CIDR blocks](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) that will be allowed access. 
-  
-Note that all the ports mentioned above are configurable via the `xxx_port` variables (e.g. `api_port`). See
-[vars.tf](vars.tf) for the full list.  
+This module creates Firewall Rules that explicitly permit the minimum ports necessary for the Vault cluster to function.
+See the Firewall Rules section above for details.
   
   
 
 ### SSH access
 
-You can associate an [EC2 Key Pair](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html) with each
-of the EC2 Instances in this cluster by specifying the Key Pair's name in the `ssh_key_name` variable. If you don't
-want to associate a Key Pair with these servers, set `ssh_key_name` to an empty string.
+You can SSH to the Compute Instances using the [conventional methods offered by GCE](
+https://cloud.google.com/compute/docs/instances/connecting-to-instance). Google [strongly recommends](
+https://cloud.google.com/compute/docs/instances/adding-removing-ssh-keys) that you connect to an Instance [from your web
+browser](https://cloud.google.com/compute/docs/instances/connecting-to-instance#sshinbrowser) or using the [gcloud
+command line tool](https://cloud.google.com/compute/docs/instances/connecting-to-instance#sshingcloud).
+
+If you must manually manage your SSH keys, use the `custom_metadata` property to specify accepted SSH keys in the format
+required by GCE. 
 
 
 
@@ -444,38 +397,38 @@ This module does NOT handle the following items, which you may want to provide o
 
 ### Consul
 
-This blueprint configures Vault to use Consul as a high availability storage backend. This module assumes you already 
+This Module configures Vault to use Consul as a high availability storage backend. It assumes you already 
 have Consul servers deployed in a separate cluster. We do not recommend co-locating Vault and Consul servers in the 
 same cluster because:
 
 1. Vault is a tool built specifically for security, and running any other software on the same server increases its
    surface area to attackers.
-1. This Vault Blueprint uses Consul as a high availability storage backend and both Vault and Consul keep their working 
-   set in memory. That means for every 1 byte of data in Vault, you'd also have 1 byte of data in Consul, doubling 
-   your memory consumption on each server.
+1. This Vault Module uses Consul as a high availability storage backend and both Vault and Consul keep their working 
+   set in memory. That means you have two programs independently jockying for memory consumption on each server.
 
-Check out the [Consul AWS Blueprint](https://github.com/gruntwork-io/consul-aws-blueprint) for how to deploy a Consul 
-server cluster in AWS. See the [vault-cluster-public](/examples/vault-cluster-public) and 
+Check out the [Consul GCP Module](https://github.com/gruntwork-io/terraform-google-consul) for how to deploy a Consul 
+server cluster in GCP. See the [vault-cluster-public](/examples/vault-cluster-public) and 
 [vault-cluster-private](/examples/vault-cluster-private) examples for sample code that shows how to run both a
 Vault server cluster and Consul server cluster.
 
 
 ### Monitoring, alerting, log aggregation
 
-This module does not include anything for monitoring, alerting, or log aggregation. All ASGs and EC2 Instances come 
-with limited [CloudWatch](https://aws.amazon.com/cloudwatch/) metrics built-in, but beyond that, you will have to 
-provide your own solutions. We especially recommend looking into Vault's [Audit 
-backends](https://www.vaultproject.io/docs/audit/index.html) for how you can capture detailed logging and audit 
-information.
+This module does not include anything for monitoring, alerting, or log aggregation. All Compute Instance Groups and 
+Compute Instances come with the option to use [Google StackDriver](https://cloud.google.com/stackdriver/), GCP's monitoring,
+logging, and diagnostics platform that works with both GCP and AWS.
 
-Given that any time Vault crashes, reboots, or restarts, you have to have the Vault admins manually unseal it (see
-[What happens if a node crashes?](#what-happens-if-a_node-crashes)), we **strongly** recommend configuring alerts that
-notify these admins whenever they need to take action!
+If you wish to install the StackDriver monitoring agent or logging agent, pass the desired installation instructions to
+the `startup_script` property.
 
 
-### VPCs, subnets, route tables
+### VPCs, subnetworks, route tables
 
-This module assumes you've already created your network topology (VPC, subnets, route tables, etc). You will need to 
-pass in the the relevant info about your network topology (e.g. `vpc_id`, `subnet_ids`) as input variables to this 
-module.
+This module assumes you've already created your network topology (VPC, subnetworks, route tables, etc). By default,
+it will use the "default" network for the Project you select, but you may specify custom networks via the `network_name`
+property.
 
+
+### DNS entries
+
+This module does not create any DNS entries for Consul (e.g. with Cloud DNS).

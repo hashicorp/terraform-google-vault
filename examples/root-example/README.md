@@ -4,9 +4,9 @@ This folder contains files for the example Terraform configuration contained in 
 
 That example deploys a publicly accessible [Vault](https://www.vaultproject.io/) cluster in [GCP](https://cloud.google.com/)
 using the [vault-cluster](/modules/vault-cluster) module. For an example of a private Vault cluster that is accessible
-only from inside the Google Cloud VPC, see [vault-cluster-private](/examples/vault-cluster-private). **Deploying Vault 
-as a publicly accessible cluster is NOT recommended in production; we do it here only to provide a convenient quick start
-experience.**. 
+only from inside the Google Cloud VPC, see [vault-cluster-private](/examples/vault-cluster-private). **Do NOT use this
+example in a production setting. Deploying Vault as a publicly accessible cluster is not recommended in production; we
+do it here only to provide a convenient quick start experience.**. 
 
 The Vault cluster uses [Consul](https://www.consul.io/) as a storage backend, so this example also deploys a separate
 Consul server cluster using the [consul-cluster module](
