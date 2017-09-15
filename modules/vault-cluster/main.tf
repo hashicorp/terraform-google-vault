@@ -142,7 +142,7 @@ resource "google_compute_instance_template" "vault_private" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Allow Vault-specific traffic within the cluster
-# - This Firewall Rule may be redundant depnding on the settings of your VPC Network, but if your Network is locked down,
+# - This Firewall Rule may be redundant depending on the settings of your VPC Network, but if your Network is locked down,
 #   this Rule will open up the appropriate ports.
 resource "google_compute_firewall" "allow_intracluster_vault" {
   name    = "${var.cluster_name}-rule-cluster"
@@ -160,7 +160,7 @@ resource "google_compute_firewall" "allow_intracluster_vault" {
 }
 
 # Specify which traffic is allowed into the Vault cluster solely for API requests
-# - This Firewall Rule may be redundant depnding on the settings of your VPC Network, but if your Network is locked down,
+# - This Firewall Rule may be redundant depending on the settings of your VPC Network, but if your Network is locked down,
 #   this Rule will open up the appropriate ports.
 # - Note that public access to your Vault cluster will only be permitted if var.assign_public_ip_addresses is true.
 # - This Firewall Rule is only created if at least one source tag or source CIDR block is specified.

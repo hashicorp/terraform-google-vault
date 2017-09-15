@@ -30,8 +30,9 @@ function print_usage {
   echo
   echo "Optional Arguments:"
   echo
-  echo -e "  --gcp-creds-file\tThe file path on the Compute Instance of a JSON file that stores credentials for a"
-  echo -e "                  \tGCP Service Account that has read-write access to the configured GCS Bucket."
+  echo -e "  --gcp-creds-file\tThe file path on the Compute Instance of a JSON file that stores credentials for a GCP"
+  echo -e "                  \tService Account that has read-write access to the configured GCS Bucket. If possible, leave"
+  echo -e "                  \tthis blank and obtain GCP resource permissions automatically via the default Service Account."
   echo -e "  --port\t\tThe port for Vault to listen on. Default is $DEFAULT_PORT."
   echo -e "  --cluster-port\tThe port for Vault to listen on for server-to-server requests. Default is --port + 1."
   echo -e "  --config-dir\t\tThe path to the Vault config folder. Default is the absolute path of '../config', relative to this script."
@@ -230,37 +231,30 @@ function run {
         shift
         ;;
       --port)
-        assert_not_empty "$key" "$2"
         port="$2"
         shift
         ;;
       --cluster-port)
-        assert_not_empty "$key" "$2"
         cluster_port="$2"
         shift
         ;;
       --config-dir)
-        assert_not_empty "$key" "$2"
         config_dir="$2"
         shift
         ;;
       --bin-dir)
-        assert_not_empty "$key" "$2"
         bin_dir="$2"
         shift
         ;;
       --log-dir)
-        assert_not_empty "$key" "$2"
         log_dir="$2"
         shift
         ;;
       --log-level)
-        assert_not_empty "$key" "$2"
         log_level="$2"
         shift
         ;;
       --user)
-        assert_not_empty "$key" "$2"
         user="$2"
         shift
         ;;
