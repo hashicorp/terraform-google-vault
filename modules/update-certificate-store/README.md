@@ -49,8 +49,8 @@ To use the `update-certificate-script`, use `git` to clone this repository at a 
 [releases page](../../../../releases) for all available tags) and run the `update-certificate-script` script:
 
 ```
-git clone --branch <VERSION> https://github.com/gruntwork-io/vault-aws-blueprint.git
-vault-aws-blueprint/modules/update-certificate-script/update-certificate-script --cert-file-path /opt/vault/tls/ca.cert.pem
+git clone --branch <VERSION> https://github.com/gruntwork-io/terraform-google-vault.git
+terraform-google-vault/modules/update-certificate-script/update-certificate-script --cert-file-path /opt/vault/tls/ca.cert.pem
 ```
 
 That's it!
@@ -84,6 +84,6 @@ The `run-vault` script accepts the following arguments:
 Example:
 
 ```
-vault-aws-blueprint/modules/update-certificate-script/update-certificate-script --cert-file-path /opt/vault/tls/ca.cert.pem
+terraform-google-vault/modules/update-certificate-script/update-certificate-script --cert-file-path /opt/vault/tls/ca.cert.pem
 ```
 
