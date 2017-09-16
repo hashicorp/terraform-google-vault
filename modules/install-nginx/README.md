@@ -6,7 +6,7 @@ via HTTPS only. This need arises from a [Google Cloud limitation](
 https://github.com/terraform-providers/terraform-provider-google/issues/18) where only HTTP Health Checks can be associated
 with a Target Pool, not HTTPS Health Checks.  
  
-You can use this script, along with the [run-nginx script](/modules/run-nginx) it installs, to create a [Google Image](
+You can use this script, along with the [run-nginx script](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/run-nginx) it installs, to create a [Google Image](
 https://cloud.google.com/compute/docs/images) that runs nginx alongside Vault.
 
 This script has been tested on the following operating systems:
@@ -43,15 +43,15 @@ git clone --branch <VERSION> https://github.com/gruntwork-io/terraform-google-va
 terraform-google-vault/modules/install-nginx/install-nginx --version 0.5.4
 ```
 
-The `install-nginx` script will install the nginx binary and the [run-nginx script](/modules/run-ngninx).
+The `install-nginx` script will install the nginx binary and the [run-nginx script](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/run-ngninx).
 You can then run the `run-nginx` script when the server is booting to configure nginx for use with supervisord and as a
 simple HTTP proxy, and start the service.
 
 We recommend running the `install-nginx` script as part of a [Packer](https://www.packer.io/) template to create a
 Vault [Google Image](https://cloud.google.com/compute/docs/images) (see the [vault-consul-image example](
 /examples/vault-consul-image) for sample code). You can then deploy the Image across a Managed Instance Group using the 
-[vault-cluster module](/modules/vault-cluster) (see the [vault-cluster-public](/examples/vault-cluster-public) and 
-[vault-cluster-private](/examples/vault-cluster-private) examples for fully-working sample code).
+[vault-cluster module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-cluster) (see the [vault-cluster-public](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) and 
+[vault-cluster-private](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private) examples for fully-working sample code).
 
 
 

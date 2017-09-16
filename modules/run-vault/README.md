@@ -13,7 +13,7 @@ There is a good chance it will work on other flavors of Debian as well.
 ## Quick start
 
 This script assumes you installed it, plus all of its dependencies (including Vault itself), using the [install-vault 
-module](/modules/install-vault). The default install path is `/opt/vault/bin`, so to start Vault in server mode, you 
+module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-vault). The default install path is `/opt/vault/bin`, so to start Vault in server mode, you 
 run:
 
 ```
@@ -36,8 +36,8 @@ We recommend using the `run-vault` command as part of the [Startup Script](https
 so that it executes when the Compute Instance is first booting. After running `run-vault` on that initial boot, the 
 `supervisord` configuration will automatically restart Vault if it crashes or the Compute Instance reboots.
 
-See the [vault-cluster-public](/examples/vault-cluster-public) and 
-[vault-cluster-private](/examples/vault-cluster-private) examples for fully-working sample code.
+See the [vault-cluster-public](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) and 
+[vault-cluster-private](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private) examples for fully-working sample code.
 
 
 
@@ -163,7 +163,7 @@ certificate:
 /opt/vault/bin/run-vault --gcs-bucket my-vault-bucket --tls-cert-file /opt/vault/tls/vault.crt.pem --tls-key-file /opt/vault/tls/vault.key.pem
 ```
 
-See the [private-tls-cert module](/modules/private-tls-cert) for information on how to generate a TLS certificate.
+See the [private-tls-cert module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/private-tls-cert) for information on how to generate a TLS certificate.
 
 
 ### Consul encryption

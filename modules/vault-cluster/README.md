@@ -3,7 +3,7 @@
 This folder contains a [Terraform](https://www.terraform.io/) module that can be used to deploy a 
 [Vault](https://www.vaultproject.io/) cluster in [Google Cloud](https://cloud.google.com/) on top of a Managed Instance
 Group. This module is designed to deploy a [Google Image](https://cloud.google.com/compute/docs/images) 
-that had Vault installed via the [install-vault](/modules/install-vault) module in this Module.
+that had Vault installed via the [install-vault](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-vault) module in this Module.
 
 
 
@@ -44,18 +44,18 @@ Note the following parameters:
 
 * `source_image`: Use this parameter to specify the name of a Vault [Google Image](
   https://cloud.google.com/compute/docs/images) to deploy on each server in the cluster. You should install Vault in
-  this Image using the scripts in the [install-vault](/modules/install-vault) module.
+  this Image using the scripts in the [install-vault](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-vault) module.
   
 * `gcs_bucket_name`: This module creates a [GCS](https://cloud.google.com/storage/) to use as a storage backend for Vault.
  
 * `startup_script`: Use this parameter to specify a [Startup Script](https://cloud.google.com/compute/docs/startupscript)
-  that each server will run during boot. This is where you can use the [run-vault script](/modules/run-vault) to configure
-  and  run Vault. The `run-vault` script is one of the scripts installed by the [install-vault](/modules/install-vault) 
+  that each server will run during boot. This is where you can use the [run-vault script](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/run-vault) to configure
+  and  run Vault. The `run-vault` script is one of the scripts installed by the [install-vault](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-vault) 
   module. 
 
 You can find the other parameters in [variables.tf](variables.tf).
 
-Check out the [vault-cluster-public](/examples/vault-cluster-public) and [vault-cluster-private](/examples/vault-cluster-private)
+Check out the [vault-cluster-public](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) and [vault-cluster-private](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private)
 examples for working sample code.
 
 
@@ -65,8 +65,8 @@ examples for working sample code.
 ## How do you use the Vault cluster?
 
 To use the Vault cluster, you will typically need to SSH to each of the Vault servers. If you deployed the
-[vault-cluster-private](/examples/vault-cluster-private) or [vault-cluster-public](/examples/vault-cluster-public) 
-examples, the [vault-examples-helper.sh script](/examples/vault-examples-helper/vault-examples-helper.sh) will do the 
+[vault-cluster-private](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private) or [vault-cluster-public](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) 
+examples, the [vault-examples-helper.sh script](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-examples-helper/vault-examples-helper.sh) will do the 
 tag lookup for you automatically (note, you must have the [Google Cloud SDK](https://cloud.google.com/sdk/) installed
 locally):
 
@@ -207,7 +207,7 @@ value               bar
 ```
 
 Note that if you're using a self-signed TLS cert (e.g. generated from the [private-tls-cert 
-module](/modules/private-tls-cert)), you'll need to have the public key of the CA that signed that cert or you'll get 
+module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/private-tls-cert)), you'll need to have the public key of the CA that signed that cert or you'll get 
 an "x509: certificate signed by unknown authority" error. You could pass the certificate manually:
  
 ```
@@ -220,9 +220,9 @@ value               bar
 ```
 
 However, to avoid having to add the `-ca-cert` argument to every single call, you can use the [update-certificate-store 
-module](/modules/update-certificate-store) to configure the server to trust the CA.
+module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/update-certificate-store) to configure the server to trust the CA.
 
-Check out the [vault-cluster-private example](/examples/vault-cluster-private) for working sample code. Alternatively,
+Check out the [vault-cluster-private example](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private) for working sample code. Alternatively,
 you may set the environment variable [VAULT_CACERT](https://www.vaultproject.io/docs/commands/environment.html).
 
 
@@ -233,7 +233,7 @@ public Internet, which reduces your surface area to attackers. If you need users
 outside of Google Cloud, we recommend using VPN to connect to Google Cloud. 
  
 If VPN is not an option, and Vault must be accessible from the public Internet, you can use the [vault-lb-fr 
-module](/modules/vault-lb-fr) to deploy a regional external [Load Balancer](https://cloud.google.com/load-balancing/)
+module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-lb-fr) to deploy a regional external [Load Balancer](https://cloud.google.com/load-balancing/)
 and have all your users access Vault via this Load Balancer:
 
 ```
@@ -262,7 +262,7 @@ vault read secret/foo
 
 This module creates the following architecture:
 
-![Vault architecture](/_docs/architecture.png)
+![Vault architecture](https://github.com/hashicorp/terraform-google-vault/blob/master/_docs/architecture.png?raw=true)
 
 This architecture consists of the following resources:
 
@@ -277,7 +277,7 @@ This module runs Vault on top of a zonal [Managed Instance Group](https://cloud.
 Typically, you should run the Instance Group with 3 or 5 Compute Instances spread across multiple [Zones](
 https://cloud.google.com/compute/docs/regions-zones/regions-zones), but regrettably, Terraform Managed Instance Groups
 [only support a single zone](https://github.com/terraform-providers/terraform-provider-google/issues/45). Each of the
-Compute Instances should be running a Google Image that has had Vault installed via the [install-vault](/modules/install-vault)
+Compute Instances should be running a Google Image that has had Vault installed via the [install-vault](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-vault)
 module. You pass in the Google Image name to run using the `source_image` input parameter.
 
 
@@ -371,7 +371,7 @@ Here are some of the main security considerations to keep in mind when using thi
 ### Encryption in transit
 
 Vault uses TLS to encrypt its network traffic. For instructions on configuring TLS, have a look at the
-[How do you handle encryption documentation](/modules/run-vault#how-do-you-handle-encryption).
+[How do you handle encryption documentation](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/run-vault#how-do-you-handle-encryption).
 
 
 ### Encryption at rest
@@ -425,8 +425,8 @@ same cluster because:
    set in memory. That means you have two programs independently jockying for memory consumption on each server.
 
 Check out the [Consul GCP Module](https://github.com/gruntwork-io/terraform-google-consul) for how to deploy a Consul 
-server cluster in GCP. See the [vault-cluster-public](/examples/vault-cluster-public) and 
-[vault-cluster-private](/examples/vault-cluster-private) examples for sample code that shows how to run both a
+server cluster in GCP. See the [vault-cluster-public](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) and 
+[vault-cluster-private](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private) examples for sample code that shows how to run both a
 Vault server cluster and Consul server cluster.
 
 

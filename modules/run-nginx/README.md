@@ -13,7 +13,7 @@ There is a good chance it will work on other flavors of Debian as well.
 ## Quick start
 
 This script assumes you installed it, plus all of its dependencies (including nginx itself), using the [install-nginx 
-module](/modules/install-nginx). The default install path is `/opt/nginx/bin`, so to configure and start nginx, you run: 
+module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-nginx). The default install path is `/opt/nginx/bin`, so to configure and start nginx, you run: 
 
 ```
 /opt/vault/bin/run-nginx --port 8000
@@ -34,7 +34,7 @@ We recommend using the `run-nginx` command as part of the [Startup Script](https
 so that it executes when the Compute Instance is first booting. After running `run-nginx` on that initial boot, the 
 `supervisord` configuration will automatically restart nginx if it crashes or the Compute Instance reboots.
 
-See the [startup-script-vault.sh](/examples/vault-cluster-public/startup-script-vault.sh) example for fully-working
+See the [startup-script-vault.sh](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public/startup-script-vault.sh) example for fully-working
 sample code.
 
 

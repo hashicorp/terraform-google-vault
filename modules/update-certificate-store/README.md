@@ -8,7 +8,7 @@ x509 certificate errors. This script has been tested on the following operating 
 
 There is a good chance it will work on other flavors of Debian as well.
 
-If you're unfamiliar with how TLS certificates work, check out the [Background section](/modules/private-tls-cert#background).
+If you're unfamiliar with how TLS certificates work, check out the [Background section](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/private-tls-cert#background).
 
 
 
@@ -66,7 +66,7 @@ refresh_interval    768h0m0s
 value               bar
 ```
 
-See the [vault-consul-ami example](/examples/vault-consul-ami) for working sample code.
+See the [vault-consul-ami example](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-consul-ami) for working sample code.
 
 
 
