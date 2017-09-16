@@ -40,10 +40,7 @@ To build the Vault and Consul Google Image:
        domain name here too.
     1. Set the `ip_addresses` to `127.0.0.1`. 
     1. For production usage, you should take care to protect the private key by encrypting it (see [Using TLS 
-       certs](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/private-tls-cert#using-tls-certs) for more info). 
-
-1. Update the `variables` section of the `vault-consul.json` Packer template to specify the AWS region, Vault 
-   version, Consul version, and the paths to the TLS cert files you just generated. 
+       certs](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/private-tls-cert#using-tls-certs) for more info).  
 
 1. Run `packer build vault-consul.json`.
 

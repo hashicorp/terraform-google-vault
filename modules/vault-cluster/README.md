@@ -414,6 +414,7 @@ This module does NOT handle the following items, which you may want to provide o
 * [Consul](#consul)
 * [Monitoring, alerting, log aggregation](#monitoring-alerting-log-aggregation)
 * [VPCs, subnets, route tables](#vpcs-subnets-route-tables)
+* [DNS entries](#dns-entries)
 
 
 ### Consul
@@ -447,9 +448,9 @@ the `startup_script` property.
 
 This module assumes you've already created your network topology (VPC, subnetworks, route tables, etc). By default,
 it will use the "default" network for the Project you select, but you may specify custom networks via the `network_name`
-property.
+property, or just use the default network topology created by GCP.
 
 
 ### DNS entries
 
-This module does not create any DNS entries for Consul (e.g. with Cloud DNS).
+This module does not create any DNS entries for Vault (e.g. with Cloud DNS).
