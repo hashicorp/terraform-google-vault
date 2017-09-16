@@ -12,7 +12,7 @@ variable "cluster_name" {
 }
 
 variable "cluster_tag_name" {
-  description = "The tag name the Compute Instances will look for to automatically discover each other and form a cluster. TIP: If running more than one VAult cluster, each cluster should have its own unique tag name."
+  description = "The tag name the Compute Instances will look for to automatically discover each other and form a cluster. TIP: If running more than one Vault cluster, each cluster should have its own unique tag name."
 }
 
 variable "machine_type" {

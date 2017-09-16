@@ -291,8 +291,8 @@ Consul server cluster to be deployed as a high availability backend.
 
 ### Firewall Rules
 
-Network access to the Vault Compute Instances is governed by any VPC-levle Firewall Rules, but in addition, this module
-creates Firewall Rules to explicitly permit:
+Network access to the Vault Compute Instances is governed by any VPC-level Firewall Rules, but in addition, this module
+creates Firewall Rules to explicitly:
  
 * Allow Vault API requests within the cluster 
 * Allow inbound API requests from the desired tags or CIDR blocks
@@ -378,8 +378,11 @@ Vault uses TLS to encrypt its network traffic. For instructions on configuring T
 
 Vault servers keep everything in memory and do not write any data to the local hard disk. To persist data, Vault
 encrypts it, and sends it off to its storage backends, so no matter how the backend stores that data, it is already
-encrypted. By default, this Module uses GCS as a storage backend.
-
+encrypted. Even so, by default, [GCE encrypts all data at rest](
+https://cloud.google.com/compute/docs/disks/customer-supplied-encryption), a process managed by GCE without any
+additional actions needed on your part. You can also provide your own encryption keys and GCE will use these to protect
+the Google-generated keys used to encrypt and decrypt your on-disk data. By default, this Module uses GCS as a storage
+backend.
 
 
 ### Firewall Rules
