@@ -351,7 +351,7 @@ from the public Internet. But running private nodes creates a few gotchas:
 
 - **SSHing to private Compute Instances.** When a Compute Instance is private, you can only SSH into it from within the
   network. This module does not give you any direct way to SSH to the private Compute Instances, so you must separately
-  setup a means to enter the network, for exampl, by setting up a public Bastion Host.
+  setup a means to enter the network, for example, by setting up a public Bastion Host.
 
 - **Internet access for private Compute Instances.** If you do want your private Compute Instances to have Internet 
   access, then Google recommends [setting up your own network proxy or NAT Gateway](
