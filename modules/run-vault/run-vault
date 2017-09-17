@@ -281,7 +281,6 @@ function run {
 
   assert_is_installed "supervisorctl"
   assert_is_installed "curl"
-  assert_is_installed "jq"
 
   if [[ -z "$config_dir" ]]; then
     config_dir=$(cd "$SCRIPT_DIR/../config" && pwd)

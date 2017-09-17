@@ -347,7 +347,7 @@ from the public Internet. But running private nodes creates a few gotchas:
   enables a Subnet property where you can [access Google APIs from within the network](
   https://cloud.google.com/compute/docs/private-google-access/configure-private-google-access) and not over the public
   Internet. **Setting this property is outside the scope of this module, but private Vault servers will not work unless
-  this is enabled.**
+  this is enabled, or they have public Internet access.**
 
 - **SSHing to private Compute Instances.** When a Compute Instance is private, you can only SSH into it from within the
   network. This module does not give you any direct way to SSH to the private Compute Instances, so you must separately
