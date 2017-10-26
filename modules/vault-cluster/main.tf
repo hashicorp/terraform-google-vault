@@ -100,7 +100,7 @@ resource "google_compute_instance_template" "vault_private" {
   instance_description = "${var.cluster_description}"
   machine_type = "${var.machine_type}"
 
-  tags = "${concat(list(var.cluster_tag_name), var.custom_tags)}"
+  tags = ["${concat(list(var.cluster_tag_name), var.custom_tags)}"]
   metadata_startup_script = "${var.startup_script}"
   metadata = "${merge(map(var.metadata_key_name_for_cluster_size, var.cluster_size), var.custom_metadata)}"
 
@@ -178,7 +178,7 @@ resource "google_compute_firewall" "allow_inboud_api" {
   }
 
   source_ranges = "${var.allowed_inbound_cidr_blocks_api}"
-  source_tags = "${var.allowed_inbound_tags_api}"
+  source_tags = ["${var.allowed_inbound_tags_api}"]
   target_tags = ["${var.cluster_tag_name}"]
 }
 
