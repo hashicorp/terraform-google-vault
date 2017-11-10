@@ -78,25 +78,25 @@ To deploy Vault with this Terraform Module, you will need to deploy two separate
 [Consul](https://www.consul.io/) servers (which Vault uses as a [high availability 
 backend](https://www.vaultproject.io/docs/concepts/ha.html)) and one to run Vault servers. 
 
-To deploy the Consul server cluster, use the [Consul GCP Module](https://github.com/gruntwork-io/terraform-google-consul). 
+To deploy the Consul server cluster, use the [Consul GCP Module](https://github.com/hashicorp/terraform-google-consul). 
 
 To deploy the Vault cluster:
 
 1. Create a Google Image that has Vault installed (using the [install-vault module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-vault)) and the Consul
    agent installed (using the [install-consul 
-   module](https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/install-consul)). Here is an 
+   module](https://github.com/hashicorp/terraform-google-consul/tree/master/modules/install-consul)). Here is an 
    [example Packer template](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-consul-image). Google Cloud does not allow the creation of public Images
    so you _must_ create this Image on your own to proceed!
 
 1. Deploy that Image across a Managed Instance Group using the Terraform [vault-cluster-module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-cluster). 
 
-1. Execute the [run-consul script](https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/run-consul)
+1. Execute the [run-consul script](https://github.com/hashicorp/terraform-google-consul/tree/master/modules/run-consul)
    with the `--client` flag during boot on each Instance to have the Consul agent connect to the Consul server cluster. 
 
 1. Execute the [run-vault](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/run-vault) script during boot on each Instance to create the Vault cluster. 
 
 1. If you only need to access Vault from inside your GCP account (recommended), run the [install-dnsmasq 
-   module](https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/install-dnsmasq) on each server,
+   module](https://github.com/hashicorp/terraform-google-consul/tree/master/modules/install-dnsmasq) on each server,
    and that server will be able to reach Vault using the Consul Server cluster as the DNS resolver (e.g. using an address 
    like `vault.service.consul`). See the [vault-cluster-private example](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private) for working 
    sample code.

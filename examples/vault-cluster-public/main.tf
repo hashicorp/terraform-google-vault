@@ -22,7 +22,7 @@ terraform {
 module "vault_cluster" {
   # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
   # to a specific version of the modules, such as the following example:
-  # source = "git::git@github.com:gruntwork-io/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
+  # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
   source = "../../modules/vault-cluster"
 
   gcp_zone = "${var.gcp_zone}"
@@ -78,7 +78,7 @@ data "template_file" "startup_script_vault" {
 module "vault_load_balancer" {
   # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
   # to a specific version of the modules, such as the following example:
-  # source = "git::git@github.com:gruntwork-io/terraform-google-vault.git//modules/vault-lb-regional-ext?ref=v0.0.1"
+  # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-lb-regional-ext?ref=v0.0.1"
   source = "../../modules/vault-lb-fr"
 
   cluster_name = "${var.vault_cluster_name}"
@@ -93,7 +93,7 @@ module "vault_load_balancer" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "consul_cluster" {
-  source = "git::git@github.com:gruntwork-io/terraform-google-consul.git//modules/consul-cluster?ref=v0.0.2"
+  source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.0.1"
 
   gcp_zone = "${var.gcp_zone}"
   cluster_name = "${var.consul_server_cluster_name}"

@@ -39,7 +39,7 @@ To install the Nginx binary, use `git` to clone this repository at a specific ta
 ../../../../releases) for all available tags) and run the `install-nginx` script:
 
 ```
-git clone --branch <VERSION> https://github.com/gruntwork-io/terraform-google-vault.git
+git clone --branch <VERSION> https://github.com/hashicorp/terraform-google-vault.git
 terraform-google-vault/modules/install-nginx/install-nginx --version 0.5.4
 ```
 
@@ -120,5 +120,5 @@ Place the `nginx` binary in `/opt/nginx/bin` and make it accessible in the `PATH
 
 We needed an easy way to install these scripts that satisfied a number of requirements, including working on a variety 
 of operating systems and supported versioning. Our current solution is to use `git`, but this may change in the future.
-See [Package Managers](https://github.com/gruntwork-io/terraform-google-consul/blob/master/_docs/package-managers.md) for 
+See [Package Managers](https://github.com/hashicorp/terraform-google-consul/blob/master/_docs/package-managers.md) for 
 a full discussion of the requirements, trade-offs, and why we picked `git`.

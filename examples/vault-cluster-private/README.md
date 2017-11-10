@@ -9,7 +9,7 @@ access these nodes.
 
 The Vault cluster uses [Consul](https://www.consul.io/) as a storage backend, so this example also deploys a separate
 Consul server cluster using the [consul-cluster module](
-https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/consul-cluster) from the Consul GCP Module.
+https://github.com/hashicorp/terraform-google-consul/tree/master/modules/consul-cluster) from the Consul GCP Module.
 
 You will need to create a [Google Image](https://cloud.google.com/compute/docs/images) that has Vault and Consul
 installed, which you can do using the [vault-consul-image example](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-consul-image)).  

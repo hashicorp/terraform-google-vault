@@ -49,7 +49,7 @@ To use the `update-certificate-script`, use `git` to clone this repository at a 
 [releases page](../../../../releases) for all available tags) and run the `update-certificate-script` script:
 
 ```
-git clone --branch <VERSION> https://github.com/gruntwork-io/terraform-google-vault.git
+git clone --branch <VERSION> https://github.com/hashicorp/terraform-google-vault.git
 terraform-google-vault/modules/update-certificate-script/update-certificate-script --cert-file-path /opt/vault/tls/ca.cert.pem
 ```
 

@@ -30,7 +30,7 @@ code by adding a `module` configuration and setting its `source` parameter to UR
 ```hcl
 module "vault_lb" {
   # Use version v0.0.1 of the vault-cluster module
-  source = "github.com/gruntwork-io/terraform-google-vault//modules/vault-lb-fr?ref=v0.0.1"
+  source = "github.com/hashicorp/terraform-google-vault//modules/vault-lb-fr?ref=v0.0.1"
 
   # This is the tag name that the Vault Compute Instances use to automatically discover each other. Knowing this, we 
   # can create a Firewall Rule that permits access from the Load Balancer to the Vault Cluster

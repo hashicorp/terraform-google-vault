@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script is meant to be run as the Startup Script of each Compute Instance while it's booting. The script uses the
 # run-consul script to configure and start Consul in server mode. This script assumes it's running in a Compute Instance
-# based on a Google Image built from the Packer template in https://github.com/gruntwork-io/terraform-google-consul at
+# based on a Google Image built from the Packer template in https://github.com/hashicorp/terraform-google-consul at
 # /examples/consul-image.
 
 set -e
