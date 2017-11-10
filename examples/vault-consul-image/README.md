@@ -1,8 +1,8 @@
 # Vault and Consul Google Image
 
 This folder shows an example of how to use the [install-vault module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-vault) from this Module and 
-the [install-consul](https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/install-consul)
-and [install-dnsmasq](https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/install-dnsmasq) modules
+the [install-consul](https://github.com/hashicorp/terraform-google-consul/tree/master/modules/install-consul)
+and [install-dnsmasq](https://github.com/hashicorp/terraform-google-consul/tree/master/modules/install-dnsmasq) modules
 from the Consul GCP Module with [Packer](https://www.packer.io/) to create a [Google Image](
 https://cloud.google.com/compute/docs/images) that has Vault and Consul installed on top of:
  
@@ -11,7 +11,7 @@ https://cloud.google.com/compute/docs/images) that has Vault and Consul installe
 You can use this Google Image to deploy a [Vault cluster](https://www.vaultproject.io/) by using the [vault-cluster
 module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-cluster). This Vault cluster will use Consul as its storage backend, so you can also use the 
 same Google Image to deploy a separate [Consul server cluster](https://www.consul.io/) by using the [consul-cluster 
-module](https://github.com/gruntwork-io/consul-aws-blueprint/tree/master/modules/consul-cluster). 
+module](https://github.com/hashicorp/terraform-google-consul/tree/master/modules/consul-cluster). 
 
 Check out the [vault-cluster-private](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private) and 
 [vault-cluster-public](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) examples for working sample code. For more info on Vault 
@@ -61,7 +61,7 @@ provisioner. Instead of:
 {
   "provisioners": [{
     "type": "file",
-    "source": "{{template_dir}}/../../../vault-aws-blueprint",
+    "source": "{{template_dir}}/../../../terraform-google-vault",
     "destination": "/tmp"
   },{
     "type": "shell",
@@ -80,7 +80,7 @@ Your code should look more like this:
   "provisioners": [{
     "type": "shell",
     "inline": [
-      "git clone --branch <MODULE_VERSION> https://github.com/gruntwork-io/terraform-google-vault.git /tmp/terraform-google-vault",
+      "git clone --branch <MODULE_VERSION> https://github.com/hashicorp/terraform-google-vault.git /tmp/terraform-google-vault",
       "/tmp/terraform-google-vault/modules/install-vault/install-vault --version {{user `vault_version`}}"
     ],
     "pause_before": "30s"

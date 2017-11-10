@@ -16,7 +16,7 @@ code by adding a `module` configuration and setting its `source` parameter to UR
 ```hcl
 module "vault_cluster" {
   # Use version v0.0.1 of the vault-cluster module
-  source = "github.com/gruntwork-io/terraform-google-vault//modules/vault-cluster?ref=v0.0.1"
+  source = "github.com/hashicorp/terraform-google-vault//modules/vault-cluster?ref=v0.0.1"
 
   # Specify the ID of the Vault AMI. You should build this using the scripts in the install-vault module.
   source_image = "vault-consul-xxxxxx"
@@ -177,7 +177,7 @@ entries](https://www.consul.io/docs/guides/forwarding.html), you can access Vaul
 using a nice domain name instead, such as `vault.service.consul`.
 
 To set this up, use the [install-dnsmasq 
-module](https://github.com/gruntwork-io/terraform-google-consul/tree/master/modules/install-dnsmasq) on each server that 
+module](https://github.com/hashicorp/terraform-google-consul/tree/master/modules/install-dnsmasq) on each server that 
 needs to access Vault. This allows you to access Vault from your EC2 Instances as follows:
 
 ```
@@ -428,7 +428,7 @@ same cluster because:
 1. This Vault Module uses Consul as a high availability storage backend and both Vault and Consul keep their working 
    set in memory. That means you have two programs independently jockying for memory consumption on each server.
 
-Check out the [Consul GCP Module](https://github.com/gruntwork-io/terraform-google-consul) for how to deploy a Consul 
+Check out the [Consul GCP Module](https://github.com/hashicorp/terraform-google-consul) for how to deploy a Consul 
 server cluster in GCP. See the [vault-cluster-public](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) and 
 [vault-cluster-private](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private) examples for sample code that shows how to run both a
 Vault server cluster and Consul server cluster.

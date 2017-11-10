@@ -55,7 +55,7 @@
   },{
     "type": "shell",
     "inline": [
-      "git clone --branch {{user `consul_module_version`}} https://github.com/gruntwork-io/terraform-google-consul.git /tmp/terraform-google-consul",
+      "git clone --branch {{user `consul_module_version`}} https://github.com/hashicorp/terraform-google-consul.git /tmp/terraform-google-consul",
       "/tmp/terraform-google-consul/modules/install-consul/install-consul --version {{user `consul_version`}}",
       "/tmp/terraform-google-consul/modules/install-dnsmasq/install-dnsmasq"
     ]
