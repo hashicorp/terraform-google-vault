@@ -3,9 +3,9 @@
   "variables": {
     "project_id": null,
     "zone": null,
-    "vault_version": "0.8.2",
-    "consul_module_version": "v0.0.2",
-    "consul_version": "0.9.2",
+    "vault_version": "0.8.3",
+    "consul_module_version": "v0.0.1",
+    "consul_version": "1.0.0",
     "ca_public_key_path": null,
     "tls_public_key_path": null,
     "tls_private_key_path": null
