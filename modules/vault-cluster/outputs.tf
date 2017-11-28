@@ -31,11 +31,11 @@ output "firewall_rule_allow_inbound_api_id" {
 }
 
 output "firewall_rule_allow_inbound_health_check_url" {
-  value = "${google_compute_firewall.allow_inboud_health_check.self_link}"
+  value = "${element(concat(google_compute_firewall.allow_inboud_health_check.*.self_link, list("")), 0)}"
 }
 
 output "firewall_rule_allow_inbound_health_check_id" {
-  value = "${google_compute_firewall.allow_inboud_health_check.id}"
+  value = "${element(concat(google_compute_firewall.allow_inboud_health_check.*.id, list("")), 0)}"
 }
 
 output "bucket_name_url" {
