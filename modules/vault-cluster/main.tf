@@ -172,7 +172,7 @@ resource "google_compute_firewall" "allow_intracluster_vault" {
 #   this Rule will open up the appropriate ports.
 # - Note that public access to your Vault cluster will only be permitted if var.assign_public_ip_addresses is true.
 # - This Firewall Rule is only created if at least one source tag or source CIDR block is specified.
-resource "google_compute_firewall" "allow_inboud_api" {
+resource "google_compute_firewall" "allow_inbound_api" {
   count = "${length(var.allowed_inbound_cidr_blocks_api) + length(var.allowed_inbound_tags_api) > 0 ? 1 : 0}"
 
   name    = "${var.cluster_name}-rule-external-api-access"
@@ -194,7 +194,7 @@ resource "google_compute_firewall" "allow_inboud_api" {
 # knows which nodes to route to. But GCP only permits HTTP Health Checks, not HTTPS Health Checks (https://github.com/terraform-providers/terraform-provider-google/issues/18)
 # so we must run a separate Web Proxy that forwards HTTP requests to the HTTPS Vault health check endpoint. This Firewall
 # Rule permits only the Google Cloud Health Checker to make such requests.
-resource "google_compute_firewall" "allow_inboud_health_check" {
+resource "google_compute_firewall" "allow_inbound_health_check" {
   count = "${var.enable_web_proxy}"
 
   name    = "${var.cluster_name}-rule-health-check"

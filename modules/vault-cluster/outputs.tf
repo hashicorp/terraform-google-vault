@@ -23,19 +23,19 @@ output "firewall_rule_allow_intracluster_vault_id" {
 }
 
 output "firewall_rule_allow_inbound_api_url" {
-  value = "${google_compute_firewall.allow_inboud_api.self_link}"
+  value = "${google_compute_firewall.allow_inbound_api.self_link}"
 }
 
 output "firewall_rule_allow_inbound_api_id" {
-  value = "${google_compute_firewall.allow_inboud_api.id}"
+  value = "${google_compute_firewall.allow_inbound_api.id}"
 }
 
 output "firewall_rule_allow_inbound_health_check_url" {
-  value = "${google_compute_firewall.allow_inboud_health_check.self_link}"
+  value = "${google_compute_firewall.allow_inbound_health_check.self_link}"
 }
 
 output "firewall_rule_allow_inbound_health_check_id" {
-  value = "${google_compute_firewall.allow_inboud_health_check.id}"
+  value = "${google_compute_firewall.allow_inbound_health_check.id}"
 }
 
 output "bucket_name_url" {
