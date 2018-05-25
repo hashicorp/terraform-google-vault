@@ -4,7 +4,7 @@
     "project_id": null,
     "zone": null,
     "vault_version": "0.8.3",
-    "consul_module_version": "v0.0.1",
+    "consul_module_version": "v0.0.3",
     "consul_version": "1.0.0",
     "ca_public_key_path": null,
     "tls_public_key_path": null,
@@ -51,6 +51,13 @@
       "sudo chown vault:vault /opt/vault/tls/*",
       "sudo chmod 600 /opt/vault/tls/*",
       "sudo /tmp/terraform-google-vault/modules/update-certificate-store/update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"
+    ]
+  },{
+    "type": "shell",
+    "inline": [
+      "sudo mkdir -p /opt/gruntwork",
+      "git clone --branch v0.0.3 https://github.com/gruntwork-io/bash-commons.git /tmp/bash-commons",
+      "sudo cp -r /tmp/bash-commons/modules/bash-commons/src /opt/gruntwork/bash-commons"
     ]
   },{
     "type": "shell",
