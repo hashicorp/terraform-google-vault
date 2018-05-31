@@ -23,11 +23,11 @@ output "firewall_rule_allow_intracluster_vault_id" {
 }
 
 output "firewall_rule_allow_inbound_api_url" {
-  value = "${google_compute_firewall.allow_inbound_api.self_link}"
+  value = "${element(concat(google_compute_firewall.allow_inbound_api.*.self_link, list("")), 0)}"
 }
 
 output "firewall_rule_allow_inbound_api_id" {
-  value = "${google_compute_firewall.allow_inbound_api.id}"
+  value = "${element(concat(google_compute_firewall.allow_inbound_api.*.id, list("")), 0)}"
 }
 
 output "firewall_rule_allow_inbound_health_check_url" {
