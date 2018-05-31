@@ -28,7 +28,6 @@
     "type": "shell",
     "inline": [
       "/tmp/terraform-google-vault/modules/install-vault/install-vault --version {{user `vault_version`}}",
-      "sudo /tmp/terraform-google-vault/modules/install-nginx/install-nginx --signing-key /tmp/terraform-google-vault/modules/install-nginx/nginx_signing.key"
     ]
   },{
     "type": "file",
