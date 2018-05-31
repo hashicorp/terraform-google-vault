@@ -191,11 +191,9 @@ resource "google_compute_firewall" "allow_inbound_api" {
 }
 
 # If we require a Load Balancer in front of the Vault cluster, we must specify a Health Check so that the Load Balancer
-# knows which nodes to route to. But GCP only permits HTTP Health Checks, not HTTPS Health Checks (https://github.com/terraform-providers/terraform-provider-google/issues/18)
-# so we must run a separate Web Proxy that forwards HTTP requests to the HTTPS Vault health check endpoint. This Firewall
-# Rule permits only the Google Cloud Health Checker to make such requests.
+# knows which nodes to route to. This Firewall Rule permits the Google Cloud Health Checker to make such requests.
 resource "google_compute_firewall" "allow_inbound_health_check" {
-  count = "${var.enable_web_proxy}"
+  count = "${var.enable_health_check}"
 
   name    = "${var.cluster_name}-rule-health-check"
   network = "${var.network_name}"
@@ -203,7 +201,7 @@ resource "google_compute_firewall" "allow_inbound_health_check" {
   allow {
     protocol = "tcp"
     ports    = [
-      "${var.web_proxy_port}",
+      "${var.api_port}",
     ]
   }
 

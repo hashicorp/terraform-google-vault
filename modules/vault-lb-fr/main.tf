@@ -34,13 +34,12 @@ resource "google_compute_target_pool" "vault" {
   name = "${var.cluster_name}-tp"
   description = "${var.target_pool_description}"
   session_affinity = "${var.target_pool_session_affinity}"
-  health_checks = ["${google_compute_http_health_check.vault.name}"]
+  health_checks = ["${google_compute_health_check.vault.name}"]
 }
 
 # Add a Health Check so that the Load Balancer will only route to healthy Compute Instances. Note that this Health
-# Check has no effect on whether GCE will attempt to reboot the Compute Instance. Note also that the Google API will
-# only allow a Target Pool to reference an HTTP Health Check. HTTPS or TCP Health Checks are not yet supported.
-resource "google_compute_http_health_check" "vault" {
+# Check has no effect on whether GCE will attempt to reboot the Compute Instance.
+resource "google_compute_health_check" "vault" {
   name = "${var.cluster_name}-hc"
   description = "${var.health_check_description}"
   check_interval_sec = "${var.health_check_interval_sec}"
@@ -48,8 +47,10 @@ resource "google_compute_http_health_check" "vault" {
   healthy_threshold = "${var.health_check_healthy_threshold}"
   unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
 
-  port = "${var.health_check_port}"
-  request_path = "${var.health_check_path}"
+  https_health_check {
+    port = "${var.api_port}"
+    request_path = "${var.health_check_path}"
+  }
 }
 
 # The Load Balancer may need explicit permission to forward traffic to our Vault Cluster.

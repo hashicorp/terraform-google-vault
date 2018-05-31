@@ -2,7 +2,7 @@
 
 This folder contains a [Terraform](https://www.terraform.io/) module that can be used to deploy a regional external
 [Network Load Balancer](https://cloud.google.com/compute/docs/load-balancing/network/) that fronts a [Vault](
-https://www.vaultproject.io/) cluster in [Google Cloud](https://cloud.google.com/). 
+https://www.vaultproject.io/) cluster in [Google Cloud](https://cloud.google.com/).
 
 In GCP, you do not actually create a new Network Load Balancer; rather you create a [Forwarding Rule](
 https://cloud.google.com/compute/docs/load-balancing/network/forwarding-rules) which enables you to access an existing
@@ -19,7 +19,7 @@ do so is to keep the Vault nodes themselves hidden from the public Internet, but
 created by this module in front.
 
 Some teams may wish to create an *internal* Load Balancer to have a single Vault endpoint. While there may be some use
-cases that necessitate this, a 
+cases that necessitate this, a
 
 
 ## How do you use this module?
@@ -32,20 +32,10 @@ module "vault_lb" {
   # Use version v0.0.1 of the vault-cluster module
   source = "github.com/hashicorp/terraform-google-vault//modules/vault-lb-fr?ref=v0.0.1"
 
-  # This is the tag name that the Vault Compute Instances use to automatically discover each other. Knowing this, we 
+  # This is the tag name that the Vault Compute Instances use to automatically discover each other. Knowing this, we
   # can create a Firewall Rule that permits access from the Load Balancer to the Vault Cluster
   cluster_tag_name   = "vault-test"
-  
-  # The Health Check will send an HTTP request to each of our Compute Instances. What path should it attempt to access
-  # for a Vault Health check? Normally we'd want to use "/v1/sys/health?standbyok=true", however GCP only supports HTTP
-  # Health Checks, not HTTPS Health Checks, so we must setup a forward proxy on the Vault server that forwards all inbound
-  # traffic to the Vault Health Check endpoint. Therefore, what we specify here doesn't really matter as long as it's
-  # non-empty.
-  health_check_path = "/"
-  
-  # See the above comment. The forward proxy's port is 8000 by default
-  health_check_port = 8000
-  
+
   # ... See variables.tf for the other parameters you can define for the vault-lb-fr module
 }
 ```

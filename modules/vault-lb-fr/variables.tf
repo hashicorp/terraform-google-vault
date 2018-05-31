@@ -11,18 +11,16 @@ variable "cluster_tag_name" {
   description = "The tag name that the Vault Compute Instances use to automatically discover each other and form a cluster."
 }
 
-variable "health_check_path" {
-  description = "The URL path the Health Check will query. Must return a 200 OK when the service is ready to receive requests from the Load Balancer."
-}
-
-variable "health_check_port" {
-  description = "The port to be used by the Health Check."
-}
-
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
+
+variable "health_check_path" {
+  # NOTE: You may want to return a 200 status code for other statuses if you intend to int and unseal Vault through the load balancer. For options see https://www.vaultproject.io/api/system/health.html
+  description = "The URL path the Health Check will query. Must return a 200 OK when the service is ready to receive requests from the Load Balancer."
+  default = "/v1/sys/health?standbyok=true"
+}
 
 variable "api_port" {
   description = "The port used by clients to talk to the Vault Server API"

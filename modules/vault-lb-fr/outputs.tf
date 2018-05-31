@@ -15,11 +15,11 @@ output "target_pool_url" {
 }
 
 output "health_check_id" {
-  value = "${google_compute_http_health_check.vault.id}"
+  value = "${google_compute_health_check.vault.id}"
 }
 
 output "health_check_url" {
-  value = "${google_compute_http_health_check.vault.self_link}"
+  value = "${google_compute_health_check.vault.self_link}"
 }
 
 output "firewall_rule_id" {
