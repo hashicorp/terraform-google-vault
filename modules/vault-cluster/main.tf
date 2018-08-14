@@ -61,6 +61,8 @@ resource "google_compute_instance_template" "vault_public" {
     source_image = "${var.source_image}"
     disk_size_gb = "${var.root_volume_disk_size_gb}"
     disk_type    = "${var.root_volume_disk_type}"
+    # Needed so that the instance template isn't replaced on each deploy.
+    device_name  = "persistent-disk-0"
   }
 
   network_interface {
@@ -118,6 +120,8 @@ resource "google_compute_instance_template" "vault_private" {
     boot         = true
     auto_delete  = true
     source_image = "${var.source_image}"
+    # Needed so that the instance template isn't replaced on each deploy.
+    device_name  = "persistent-disk-0"
   }
 
   network_interface {
