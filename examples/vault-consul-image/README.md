@@ -29,18 +29,18 @@ To build the Vault and Consul Google Image:
 
 1. Configure your environment's Google credentials using the [Google Cloud SDK](https://cloud.google.com/sdk/).
 
-1. Update the `variables` section of the `vault-consul.json` Packer template to configure the Project ID, Google Cloud Zone, 
-   and Consul and Vault versions you wish to use.
-   
-1. Use the [private-tls-cert module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/private-tls-cert) to generate a CA cert and public and private keys for a 
-   TLS cert: 
-   
+1. Use the [private-tls-cert module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/private-tls-cert) to generate a CA cert and public and private keys for a
+   TLS cert:
+
     1. Set the `dns_names` parameter to `vault.service.consul`. If you're using the [vault-cluster-public
-       example](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) and want a public domain name (e.g. `vault.example.com`), add that 
+       example](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) and want a public domain name (e.g. `vault.example.com`), add that
        domain name here too.
-    1. Set the `ip_addresses` to `127.0.0.1`. 
-    1. For production usage, you should take care to protect the private key by encrypting it (see [Using TLS 
-       certs](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/private-tls-cert#using-tls-certs) for more info).  
+    1. Set the `ip_addresses` to `127.0.0.1`.
+    1. For production usage, you should take care to protect the private key by encrypting it (see [Using TLS
+       certs](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/private-tls-cert#using-tls-certs) for more info).
+
+1. Update the `variables` section of the `vault-consul.json` Packer template to configure the Project ID, Google Cloud Zone,
+   and Consul and Vault versions you wish to use. Alternatively, you can pass in these values using `packer build vault-consul.json -var var_name=var_value ...`
 
 1. Run `packer build vault-consul.json`.
 

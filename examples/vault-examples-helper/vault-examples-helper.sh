@@ -56,7 +56,7 @@ function get_required_terraform_output {
   output_value=$(get_optional_terraform_output "$output_name")
 
   if [[ -z "$output_value" ]]; then
-    log_error "Unable to find a value for Terraform output $output_name"
+    log_error "Unable to find a value for Terraform output $output_name. Are you running this script in the same directory as your Terraform configuration?"
     exit 1
   fi
 
@@ -107,6 +107,11 @@ function get_all_vault_server_property_values {
       return
     else
       log_warn "Found $server_property_name for ${#vals[@]} of $expected_num_vault_servers Vault servers. Will sleep for $SLEEP_BETWEEN_RETRIES_SEC seconds and try again."
+
+      if [[ "${#vals[@]}" == 0 ]]; then
+        log_warn "Is the Terraform variable \"assign_public_ip_addresses\" of the vault-cluster Terraform module set to \"true\"?"
+      fi
+
       sleep "$SLEEP_BETWEEN_RETRIES_SEC"
     fi
   done
