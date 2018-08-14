@@ -49,7 +49,7 @@ variable "gcs_bucket_storage_class" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 variable "instance_group_target_pools" {
-  description = "To use a Load Balancer with the Consul cluster, you must populate this value. Specifically, this is the list of Target Pool URLs to which new Compute Instances in the Instance Group created by this module will be added. Note that updating the Target Pools attribute does not affect existing Compute Instances."
+  description = "To use a Load Balancer with the Vault cluster, you must populate this value. Specifically, this is the list of Target Pool URLs to which new Compute Instances in the Instance Group created by this module will be added. Note that updating the Target Pools attribute does not affect existing Compute Instances."
   type = "list"
   default = []
 }
@@ -91,8 +91,8 @@ variable "instance_group_update_strategy" {
   default = "NONE"
 }
 
-variable "enable_web_proxy" {
-  description = "If true, a Firewall Rule will be created that allows inbound Health Check traffic on var.web_proxy_port."
+variable "enable_health_check" {
+  description = "If true, a Firewall Rule will be created that allows inbound Health Check traffic on var.api_port."
   default = false
 }
 
@@ -121,11 +121,6 @@ variable "cluster_port" {
   default = 8201
 }
 
-variable "web_proxy_port" {
-  description = "The port at which the HTTP proxy server will listen for incoming HTTP requests that will be forwarded to the Vault Health Check URL. We must have an HTTP proxy server to work around the limitation that GCP only permits Health Checks via HTTP, not HTTPS. This value is originally set in the Startup Script that runs Nginx and passes the port value there."
-  default = 8000
-}
-
 variable "allowed_inbound_cidr_blocks_api" {
   description = "A list of CIDR-formatted IP address ranges from which the Compute Instances will allow connections to Vault on the configured TCP Listener (see https://goo.gl/Equ4xP)"
   type = "list"
@@ -141,7 +136,7 @@ variable "allowed_inbound_tags_api" {
 # Disk Settings
 
 variable "root_volume_disk_size_gb" {
-  description = "The size, in GB, of the root disk volume on each Consul node."
+  description = "The size, in GB, of the root disk volume on each Vault node."
   default = 30
 }
 

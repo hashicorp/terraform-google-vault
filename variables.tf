@@ -16,11 +16,11 @@ variable "gcp_zone" {
 }
 
 variable "vault_cluster_name" {
-  description = "The name of the Consul Server cluster. All resources will be namespaced by this value. E.g. consul-server-prod"
+  description = "The name of the Vault Server cluster. All resources will be namespaced by this value. E.g. vault-server-prod"
 }
 
 variable "vault_source_image" {
-  description = "The Google Image used to launch each node in the Consul Server cluster. You can build this Google Image yourself at /examples/vault-consul-image."
+  description = "The Google Image used to launch each node in the Vault Server cluster. You can build this Google Image yourself at /examples/vault-vault-image."
 }
 
 variable "consul_server_cluster_name" {
@@ -69,9 +69,4 @@ variable "vault_cluster_size" {
 variable "consul_server_cluster_size" {
   description = "The number of nodes to have in the Consul Server cluster. We strongly recommended that you use either 3 or 5."
   default = 3
-}
-
-variable "web_proxy_port" {
-  description = "The port at which the HTTP proxy server will listen for incoming HTTP requests that will be forwarded to the Vault Health Check URL. We must have an HTTP proxy server to work around the limitation that GCP only permits Health Checks via HTTP, not HTTPS."
-  default = "8000"
 }
