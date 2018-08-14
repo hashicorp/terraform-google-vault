@@ -120,7 +120,7 @@ function replace_text {
   local readonly replacement_text="$2"
   local readonly string="$3"
 
-  sudo echo "$string" | sed "s|$original_text_regex|$replacement_text|g"
+  echo "$string" | sed "s|$original_text_regex|$replacement_text|g"
 }
 
 function create_vault_user {
