@@ -6,8 +6,11 @@
 
 set -e
 
+readonly EMPTY_VAL="__EMPTY__"
+
 readonly DEFAULT_INSTALL_PATH="/opt/vault"
 readonly DEFAULT_VAULT_USER="vault"
+readonly DEFAULT_VAULT_DOWNLOAD_OPEN_SOURCE_URL="https://releases.hashicorp.com/vault/<version>/vault_<version>_linux_amd64.zip"
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly SYSTEM_BIN_DIR="/usr/local/bin"
@@ -23,15 +26,19 @@ function print_usage {
   echo
   echo "This script can be used to install Vault and its dependencies. This script has been tested with Ubuntu 16.04."
   echo
-  echo "Options:"
+  echo "Required Params:"
   echo
-  echo -e "  --version\t\tThe version of Vault to install. Required."
-  echo -e "  --path\t\tThe path where Vault should be installed. Optional. Default: $DEFAULT_INSTALL_PATH."
-  echo -e "  --user\t\tThe user who will own the Vault install directories. Optional. Default: $DEFAULT_VAULT_USER."
+  echo -e "  --version\t\tThe version of Vault to install."
+  echo
+  echo "Optional Params:"
+  echo
+  echo -e "  --path\t\tThe path where Vault should be installed. Default: $DEFAULT_INSTALL_PATH."
+  echo -e "  --user\t\tThe user who will own the Vault install directories. Default: $DEFAULT_VAULT_USER."
+  echo -e "  --download-url\tThe URL from which the Vault binary will be downloaded. Default: $DEFAULT_VAULT_DOWNLOAD_OPEN_SOURCE_URL."
   echo
   echo "Example:"
   echo
-  echo "  install-vault --version 0.7.0"
+  echo "  install-vault --version 0.10.4"
 }
 
 function log {
@@ -108,6 +115,14 @@ function user_exists {
   id "$username" >/dev/null 2>&1
 }
 
+function replace_text {
+  local readonly original_text_regex="$1"
+  local readonly replacement_text="$2"
+  local readonly string="$3"
+
+  echo "$string" | sed "s|$original_text_regex|$replacement_text|g"
+}
+
 function create_vault_user {
   local readonly username="$1"
 
@@ -139,14 +154,14 @@ function install_binaries {
   local readonly version="$1"
   local readonly path="$2"
   local readonly username="$3"
+  local readonly url="$4"
 
-  local readonly url="https://releases.hashicorp.com/vault/${version}/vault_${version}_linux_amd64.zip"
   local readonly download_path="/tmp/vault_${version}_linux_amd64.zip"
   local readonly bin_dir="$path/bin"
   local readonly vault_dest_path="$bin_dir/vault"
   local readonly run_vault_dest_path="$bin_dir/run-vault"
 
-  log_info "Downloading Vault $version from $url to $download_path"
+  log_info "Downloading Vault from $url to $download_path"
   curl -o "$download_path" "$url"
   unzip -d /tmp "$download_path"
 
@@ -179,6 +194,7 @@ function install {
   local version=""
   local path="$DEFAULT_INSTALL_PATH"
   local user="$DEFAULT_VAULT_USER"
+  local download_url="$EMPTY_VAL"
 
   while [[ $# > 0 ]]; do
     local key="$1"
@@ -196,6 +212,10 @@ function install {
         user="$2"
         shift
         ;;
+      --download-url)
+        download_url="$2"
+        shift
+        ;;
       --help)
         print_usage
         exit
@@ -211,15 +231,17 @@ function install {
   done
 
   assert_not_empty "--version" "$version"
-  assert_not_empty "--path" "$path"
-  assert_not_empty "--user" "$user"
 
   log_info "Starting Vault install"
+
+  if [[ "$download_url" == "$EMPTY_VAL" ]]; then
+    download_url=$(replace_text "<version>" "${version}" "$DEFAULT_VAULT_DOWNLOAD_OPEN_SOURCE_URL")
+  fi
 
   install_dependencies
   create_vault_user "$user"
   create_vault_install_paths "$path" "$user"
-  install_binaries "$version" "$path" "$user"
+  install_binaries "$version" "$path" "$user" "$download_url"
   configure_mlock
 
   log_info "Vault install complete!"
