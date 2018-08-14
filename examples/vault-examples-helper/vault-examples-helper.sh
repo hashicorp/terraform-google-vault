@@ -215,17 +215,17 @@ function print_instructions {
 
   instructions+=("To initialize your Vault cluster, SSH to one of the servers and run the init command:\n")
   instructions+=("    gcloud compute --project \"$project\" ssh --zone \"$zone\" $server_name")
-  instructions+=("    vault init")
+  instructions+=("    vault operator init")
 
   instructions+=("\nTo unseal your Vault cluster, SSH to each of the servers and run the unseal command with 3 of the 5 unseal keys:\n")
   for server_name in "${server_names[@]}"; do
     instructions+=("    gcloud compute --project \"$project\" ssh --zone \"$zone\" $server_name")
-    instructions+=("    vault unseal (run this 3 times)\n")
+    instructions+=("    vault operator unseal (run this 3 times)\n")
   done
 
   instructions+=("\nOnce your cluster is unsealed, you can read and write secrets by SSHing to any of the servers:\n")
   instructions+=("    gcloud compute --project \"$project\" ssh --zone \"$zone\" $server_name")
-  instructions+=("    vault auth")
+  instructions+=("    vault login")
   instructions+=("    vault write secret/example value=secret")
   instructions+=("    vault read secret/example")
 
