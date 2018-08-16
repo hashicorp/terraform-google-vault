@@ -86,7 +86,7 @@ module "vault_load_balancer" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "consul_cluster" {
-  source = "git::https://github.com/hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.0.3"
+  source = "github.com/hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.0.3"
 
   gcp_zone = "${var.gcp_zone}"
   cluster_name = "${var.consul_server_cluster_name}"

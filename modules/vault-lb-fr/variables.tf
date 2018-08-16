@@ -17,7 +17,7 @@ variable "cluster_tag_name" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 variable "health_check_path" {
-  # NOTE: You may want to return a 200 status code for other statuses if you intend to int and unseal Vault through the load balancer. For options see https://www.vaultproject.io/api/system/health.html
+  # NOTE: You may want to return a 200 status code for other statuses if you intend to init and unseal Vault through the load balancer. For options see https://www.vaultproject.io/api/system/health.html
   description = "The URL path the Health Check will query. Must return a 200 OK when the service is ready to receive requests from the Load Balancer."
   default = "/v1/sys/health?standbyok=true"
 }
