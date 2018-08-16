@@ -22,7 +22,7 @@ terraform {
 module "vault_cluster" {
   # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
   # to a specific version of the modules, such as the following example:
-  # source = "git::https://github.com/hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.4"
+  # source = "github.com/hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.4"
   source = "../../modules/vault-cluster"
 
   gcp_zone = "${var.gcp_zone}"
@@ -53,8 +53,8 @@ module "vault_cluster" {
   # This property is only necessary when using a Load Balancer
   instance_group_target_pools = ["${module.vault_load_balancer.target_pool_url}"]
 
-  # When using a Load Balancer you must set this property to true in orderallow health checks through the firewall.
-  enable_health_check = true
+  # When using a Load Balancer you must set this property to true in order to allow health checks through the firewall.
+  using_load_balancer = true
 }
 
 # Render the Startup Script that will run on each Vault Instance on boot. This script will configure and start Vault.
@@ -74,7 +74,7 @@ data "template_file" "startup_script_vault" {
 module "vault_load_balancer" {
   # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
   # to a specific version of the modules, such as the following example:
-  # source = "git::https://github.com/hashicorp/terraform-google-vault.git//modules/vault-lb-fr?ref=v0.0.4"
+  # source = "github.com/hashicorp/terraform-google-vault.git//modules/vault-lb-fr?ref=v0.0.4"
   source = "../../modules/vault-lb-fr"
 
   cluster_name = "${var.vault_cluster_name}"

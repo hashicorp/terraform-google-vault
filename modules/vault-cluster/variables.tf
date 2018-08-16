@@ -91,8 +91,8 @@ variable "instance_group_update_strategy" {
   default = "NONE"
 }
 
-variable "enable_health_check" {
-  description = "If true, a Firewall Rule will be created that allows inbound Health Check traffic on var.api_port."
+variable "using_load_balancer" {
+  description = "If you are using a load balancer with Vault, set this to true. If true, a Firewall Rule will be created that allows inbound Health Check traffic on var.api_port."
   default = false
 }
 

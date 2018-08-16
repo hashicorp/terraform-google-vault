@@ -193,7 +193,7 @@ resource "google_compute_firewall" "allow_inbound_api" {
 # If we require a Load Balancer in front of the Vault cluster, we must specify a Health Check so that the Load Balancer
 # knows which nodes to route to. This Firewall Rule permits the Google Cloud Health Checker to make such requests.
 resource "google_compute_firewall" "allow_inbound_health_check" {
-  count = "${var.enable_health_check}"
+  count = "${var.using_load_balancer}"
 
   name    = "${var.cluster_name}-rule-health-check"
   network = "${var.network_name}"
