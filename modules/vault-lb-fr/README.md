@@ -19,8 +19,8 @@ do so is to keep the Vault nodes themselves hidden from the public Internet, but
 created by this module in front.
 
 Some teams may wish to create an *internal* Load Balancer to have a single Vault endpoint. While there may be some use
-cases that necessitate this, a
-
+cases that necessitate this, all Vault nodes will forward to the active Vault master, so an internal load balancer should
+not be necessary.
 
 ## How do you use this module?
 
