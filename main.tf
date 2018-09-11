@@ -26,8 +26,7 @@ module "vault_cluster" {
 
   gcp_project_id     = "${var.gcp_project_id}"
   network_project_id = "${var.network_project_id}"
-
-  gcp_zone = "${var.gcp_zone}"
+  gcp_region         = "${var.gcp_region}"
 
   cluster_name     = "${var.vault_cluster_name}"
   cluster_size     = "${var.vault_cluster_size}"
@@ -76,6 +75,7 @@ module "consul_cluster" {
 
   gcp_project_id     = "${var.gcp_project_id}"
   gcp_region         = "${var.gcp_region}"
+
   cluster_name       = "${var.consul_server_cluster_name}"
   cluster_tag_name   = "${var.consul_server_cluster_name}"
   cluster_size       = "${var.consul_server_cluster_size}"

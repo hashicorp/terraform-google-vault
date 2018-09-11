@@ -2,8 +2,8 @@ output "gcp_project" {
   value = "${var.gcp_project}"
 }
 
-output "gcp_zone" {
-  value = "${var.gcp_zone}"
+output "gcp_region" {
+  value = "${var.gcp_region}"
 }
 
 output "vault_cluster_size" {

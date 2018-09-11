@@ -3,8 +3,8 @@
   "variables": {
     "project_id": null,
     "zone": null,
-    "vault_version": "0.10.4",
-    "consul_module_version": "v0.0.3",
+    "vault_version": "0.11.1",
+    "consul_module_version": "v0.2.0",
     "consul_version": "1.2.2",
     "ca_public_key_path": null,
     "tls_public_key_path": null,
