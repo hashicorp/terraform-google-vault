@@ -40,6 +40,9 @@ module "vault_cluster" {
   gcs_bucket_storage_class = "${var.gcs_bucket_class}"
   gcs_bucket_force_destroy = "${var.gcs_bucket_force_destroy}"
 
+  root_volume_disk_size_gb = "${var.root_volume_disk_size_gb}"
+  root_volume_disk_type = "${var.root_volume_disk_type}"
+
   # Regrettably, GCE only supports HTTP health checks, not HTTPS Health Checks (https://github.com/terraform-providers/terraform-provider-google/issues/18)
   # But Vault is only configured to listen for HTTPS requests. Therefore, per GCE recommendations, we run a simple HTTP
   # proxy server that forwards all requests to the Vault Health Check URL specified in the startup-script-vault.sh
