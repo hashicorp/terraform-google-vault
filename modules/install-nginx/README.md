@@ -43,7 +43,7 @@ git clone --branch <VERSION> https://github.com/hashicorp/terraform-google-vault
 terraform-google-vault/modules/install-nginx/install-nginx --version 0.5.4
 ```
 
-The `install-nginx` script will install the nginx binary and the [run-nginx script](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/run-ngninx).
+The `install-nginx` script will install the nginx binary and the [run-nginx script](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/run-nginx).
 You can then run the `run-nginx` script when the server is booting to configure nginx for use with supervisord and as a
 simple HTTP proxy, and start the service.
 
@@ -116,9 +116,7 @@ Place the `nginx` binary in `/opt/nginx/bin` and make it accessible in the `PATH
 
 ## Why use Git to install this code?
 
-<!-- TODO: update the package managers URL to the final URL when this Module is released -->
-
 We needed an easy way to install these scripts that satisfied a number of requirements, including working on a variety 
 of operating systems and supported versioning. Our current solution is to use `git`, but this may change in the future.
-See [Package Managers](https://github.com/hashicorp/terraform-google-consul/blob/master/_docs/package-managers.md) for 
+See [Package Managers](https://github.com/hashicorp/terraform-aws-consul/blob/master/_docs/package-managers.md) for
 a full discussion of the requirements, trade-offs, and why we picked `git`.
