@@ -100,7 +100,9 @@ function install_dependencies {
 
   if $(has_apt_get); then
     sudo apt-get update -y
-    sudo apt-get install -y curl unzip jq
+
+    # libcap2-bin: Installs setcap, which we will use to call configure_mlock
+    sudo apt-get install -y curl unzip jq libcap2-bin
     install_supervisord_debian
   else
     log_error "Could not find apt-get. Cannot install dependencies on this OS."
