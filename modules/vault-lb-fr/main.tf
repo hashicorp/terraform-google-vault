@@ -66,6 +66,6 @@ resource "google_compute_firewall" "load_balancer" {
   # "130.211.0.0/22" - Enable inbound traffic from the Google Cloud Load Balancer (https://goo.gl/xULu8U)
   # "35.191.0.0/16" - Enable inbound traffic from the Google Cloud Health Checkers (https://goo.gl/xULu8U)
   # "0.0.0.0/0" - Enable any IP address to reach our nodes
-  source_ranges = ["130.211.0.0/22", "35.191.0.0/16", "0.0.0.0/0"]
+  source_ranges = "${concat(list("130.211.0.0/22", "35.191.0.0/16"), var.allow_access_from_cidr_blocks)}"
   target_tags = ["${var.cluster_tag_name}"]
 }

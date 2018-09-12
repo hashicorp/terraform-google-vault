@@ -91,3 +91,9 @@ variable "firewall_rule_description" {
   description = "A description to add to the Firewall Rule created by this module."
   default = ""
 }
+
+variable "allow_access_from_cidr_blocks" {
+  description = "The list of CIDR-formatted IP address ranges from which access to the Vault load balancer will be allowed."
+  type = "list"
+  default = ["0.0.0.0/0"]
+}

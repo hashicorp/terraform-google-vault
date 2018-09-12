@@ -68,3 +68,13 @@ variable "consul_server_cluster_size" {
   description = "The number of nodes to have in the Consul Server cluster. We strongly recommended that you use either 3 or 5."
   default = 3
 }
+
+variable "root_volume_disk_size_gb" {
+  description = "The size, in GB, of the root disk volume on each Consul node."
+  default = 30
+}
+
+variable "root_volume_disk_type" {
+  description = "The GCE disk type. Can be either pd-ssd, local-ssd, or pd-standard"
+  default = "pd-standard"
+}

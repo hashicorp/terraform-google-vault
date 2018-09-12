@@ -41,6 +41,9 @@ module "vault_cluster" {
   gcs_bucket_storage_class = "${var.gcs_bucket_class}"
   gcs_bucket_force_destroy = "${var.gcs_bucket_force_destroy}"
 
+  root_volume_disk_size_gb = "${var.root_volume_disk_size_gb}"
+  root_volume_disk_type = "${var.root_volume_disk_type}"
+
   # Note that the only way to reach private nodes via SSH is to first SSH into another node that is not private.
   assign_public_ip_addresses = false
 

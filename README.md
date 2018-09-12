@@ -10,7 +10,7 @@ server cluster as a [high availability backend](https://www.vaultproject.io/docs
 
 This Module includes the following submodules:
 
-* [install-vault](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-valut): This module can be used to install Vault. It can be used in a 
+* [install-vault](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-vault): This module can be used to install Vault. It can be used in a
   [Packer](https://www.packer.io/) template to create a Vault 
   [Google Image](https://cloud.google.com/compute/docs/images).
 
@@ -18,7 +18,7 @@ This Module includes the following submodules:
   [Startup Script](https://cloud.google.com/compute/docs/startupscript) 
   to fire up Vault while the server is booting.
 
-* [install-nginx](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-valut): This module can be used to install Nginx. It can be used in a 
+* [install-nginx](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-nginx): This module can be used to install Nginx. It can be used in a
   [Packer](https://www.packer.io/) template to create a Vault 
   [Google Image](https://cloud.google.com/compute/docs/images). This module is only necessary when using
   a Load Balancer which requires a Health Checker.
@@ -30,7 +30,7 @@ This Module includes the following submodules:
 * [vault-cluster](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-cluster): Terraform code to deploy a cluster of Vault servers using a [Managed Instance
   Group](https://cloud.google.com/compute/docs/instance-groups/).
     
-* [vault-lb-fr](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-elb): Configures a [Regional External Load Balancer](https://cloud.google.com/compute/docs/load-balancing/)
+* [vault-lb-fr](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-lb-fr): Configures a [Regional External Load Balancer](https://cloud.google.com/compute/docs/load-balancing/)
   in front of Vault if you need to access it from the public Internet.
    
 * [private-tls-cert](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/private-tls-cert): Generate a private TLS certificate for use with a private Vault 
