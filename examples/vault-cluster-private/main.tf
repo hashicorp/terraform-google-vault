@@ -60,6 +60,7 @@ data "template_file" "startup_script_vault" {
   vars {
     consul_cluster_tag_name = "${var.consul_server_cluster_name}"
     vault_cluster_tag_name = "${var.vault_cluster_name}"
+    enable_vault_ui = "${var.enable_vault_ui ? "--enable-vault-ui" : ""}"
   }
 }
 

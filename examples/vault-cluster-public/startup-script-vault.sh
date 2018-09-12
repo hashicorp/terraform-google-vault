@@ -16,7 +16,7 @@ readonly VAULT_TLS_KEY_FILE="/opt/vault/tls/vault.key.pem"
 
 # Note that any variables below with <dollar-sign><curly-brace><var-name><curly-brace> are expected to be interpolated by Terraform.
 /opt/consul/bin/run-consul --client --cluster-tag-name "${consul_cluster_tag_name}"
-/opt/vault/bin/run-vault --gcs-bucket ${vault_cluster_tag_name} --tls-cert-file "$VAULT_TLS_CERT_FILE"  --tls-key-file "$VAULT_TLS_KEY_FILE"
+/opt/vault/bin/run-vault --gcs-bucket ${vault_cluster_tag_name} --tls-cert-file "$VAULT_TLS_CERT_FILE" --tls-key-file "$VAULT_TLS_KEY_FILE" ${enable_vault_ui}
 
 # We run an nginx server to expose an HTTP endpoint that will be used solely for Vault health checks. This is because
 # Google Cloud only permits HTTP health checks to be associated with the Load Balancer.

@@ -79,3 +79,8 @@ variable "root_volume_disk_type" {
   description = "The GCE disk type. Can be either pd-ssd, local-ssd, or pd-standard"
   default = "pd-standard"
 }
+
+variable "enable_vault_ui" {
+  description = "If true, enable the Vault UI"
+  default = true
+}
