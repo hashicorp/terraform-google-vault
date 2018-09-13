@@ -75,3 +75,13 @@ variable "web_proxy_port" {
   description = "The port at which the HTTP proxy server will listen for incoming HTTP requests that will be forwarded to the Vault Health Check URL. We must have an HTTP proxy server to work around the limitation that GCP only permits Health Checks via HTTP, not HTTPS."
   default = "8000"
 }
+
+variable "root_volume_disk_size_gb" {
+  description = "The size, in GB, of the root disk volume on each Consul node."
+  default = 30
+}
+
+variable "root_volume_disk_type" {
+  description = "The GCE disk type. Can be either pd-ssd, local-ssd, or pd-standard"
+  default = "pd-standard"
+}

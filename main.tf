@@ -40,6 +40,9 @@ module "vault_cluster" {
   gcs_bucket_storage_class = "${var.gcs_bucket_class}"
   gcs_bucket_force_destroy = "${var.gcs_bucket_force_destroy}"
 
+  root_volume_disk_size_gb = "${var.root_volume_disk_size_gb}"
+  root_volume_disk_type = "${var.root_volume_disk_type}"
+
   # Even when the Vault cluster is pubicly accessible via a Load Balancer, we still make the Vault nodes themselves
   # private to improve the overall security posture. Note that the only way to reach private nodes via SSH is to first
   # SSH into another node that is not private.

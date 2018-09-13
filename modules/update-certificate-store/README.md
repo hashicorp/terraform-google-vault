@@ -66,7 +66,7 @@ refresh_interval    768h0m0s
 value               bar
 ```
 
-See the [vault-consul-ami example](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-consul-ami) for working sample code.
+See the [vault-consul-ami example](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-consul-image) for working sample code.
 
 
 

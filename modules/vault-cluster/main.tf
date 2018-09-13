@@ -119,6 +119,8 @@ resource "google_compute_instance_template" "vault_private" {
     boot         = true
     auto_delete  = true
     source_image = "${var.source_image}"
+    disk_size_gb = "${var.root_volume_disk_size_gb}"
+    disk_type    = "${var.root_volume_disk_type}"
   }
 
   network_interface {
