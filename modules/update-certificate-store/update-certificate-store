@@ -27,7 +27,7 @@ function print_usage {
   echo
   echo "Example:"
   echo
-  echo "  update-certificate-store --cert-file /opt/vault/tls/ca.crt.pem"
+  echo "  update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"
 }
 
 function log {
