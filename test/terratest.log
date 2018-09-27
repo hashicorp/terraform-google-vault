@@ -1,0 +1,470 @@
+=== RUN   TestVaultClusterEnterpriseWithUbuntuImage
+=== PAUSE TestVaultClusterEnterpriseWithUbuntuImage
+=== CONT  TestVaultClusterEnterpriseWithUbuntuImage
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:43+02:00 test_structure.go:23: The 'SKIP_build_image' environment variable is not set, so executing stage 'build_image'.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:43+02:00 region.go:156: Looking up all GCP regions available in this account
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:44+02:00 region.go:67: Using Region asia-southeast1
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:45+02:00 region.go:141: Using Zone asia-southeast1-a
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:45+02:00 save_test_data.go:148: Storing test data in /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/TestVaultClusterEnterpriseWithUbuntuImage905599381/terraform-google-vault/examples/vault-cluster-private/.test-data/GCPProjectID.json so it can be reused later
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:45+02:00 save_test_data.go:148: Storing test data in /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/TestVaultClusterEnterpriseWithUbuntuImage905599381/terraform-google-vault/examples/vault-cluster-private/.test-data/GCPRegion.json so it can be reused later
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:45+02:00 save_test_data.go:148: Storing test data in /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/TestVaultClusterEnterpriseWithUbuntuImage905599381/terraform-google-vault/examples/vault-cluster-private/.test-data/GCPZone.json so it can be reused later
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:47+02:00 retry.go:69: Running terraform [init -upgrade=false]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:47+02:00 command.go:52: Running command terraform with args [init -upgrade=false]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:48+02:00 command.go:96: 
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:48+02:00 command.go:96: [0m[1mInitializing provider plugins...[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:48+02:00 command.go:96: - Checking for available provider plugins on https://releases.hashicorp.com...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:48+02:00 command.go:96: - Downloading plugin for provider "tls" (1.2.0)...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: 
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: The following providers do not have any version constraints in configuration,
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: so the latest version was installed.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: 
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: To prevent automatic upgrades to new major versions that may contain breaking
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: changes, it is recommended to add version = "..." constraints to the
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: corresponding provider blocks in configuration, with the constraint strings
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: suggested below.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: 
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: * provider.tls: version = "~> 1.2"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: 
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: [0m[1m[32mTerraform has been successfully initialized![0m[32m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: [0m[32m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: You may now begin working with Terraform. Try running "terraform plan" to see
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: any changes that are required for your infrastructure. All Terraform commands
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: should now work.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: 
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: If you ever set or change modules or backend configuration for Terraform,
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: rerun this command to reinitialize your working directory. If you forget, other
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:96: commands will detect it and remind you to do so if necessary.[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 retry.go:69: Running terraform [get -update]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:49+02:00 command.go:52: Running command terraform with args [get -update]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 retry.go:69: Running terraform [apply -input=false -lock=false -auto-approve -var organization_name="Gruntwork" -var validity_period_hours="1000" -var private_key_file_path="/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-private-key246096034" -var public_key_file_path="/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-public-key119943823" -var owner="robbym" -var ca_common_name="Vault Module Test CA" -var common_name="Vault Module Test" -var dns_names=["vault.service.consul"] -var ip_addresses=["127.0.0.1"] -var ca_public_key_file_path="/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/ca-public-key871088624"]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:52: Running command terraform with args [apply -input=false -lock=false -auto-approve -var organization_name="Gruntwork" -var validity_period_hours="1000" -var private_key_file_path="/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-private-key246096034" -var public_key_file_path="/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-public-key119943823" -var owner="robbym" -var ca_common_name="Vault Module Test CA" -var common_name="Vault Module Test" -var dns_names=["vault.service.consul"] -var ip_addresses=["127.0.0.1"] -var ca_public_key_file_path="/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/ca-public-key871088624"]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96: [0m[1mtls_private_key.ca: Creating...[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   algorithm:                  "" => "RSA"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   ecdsa_curve:                "" => "P256"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   private_key_pem:            "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   public_key_fingerprint_md5: "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   public_key_openssh:         "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   public_key_pem:             "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   rsa_bits:                   "" => "2048"[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96: [0m[1mtls_private_key.cert: Creating...[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   algorithm:                  "" => "RSA"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   ecdsa_curve:                "" => "P256"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   private_key_pem:            "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   public_key_fingerprint_md5: "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   public_key_openssh:         "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   public_key_pem:             "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:50+02:00 command.go:96:   rsa_bits:                   "" => "2048"[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_private_key.cert: Provisioning with 'local-exec'...[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[0mtls_private_key.cert (local-exec): Executing: ["/bin/sh" "-c" "echo '-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEA6IfvCXUPGec2LFHtZjtOEX24y7uTFq+gnJm7q7oAft+qU1Li\nXXwBurh93ukS+79S1OqMghCDe+cPt6ZSmY2IXu1W71LiRGtx4akZnEGPGDyJa+Dy\n8uDWcZBBcgDb4wR4UXaufGnRR0ioJtG6FzCow5yMMdgI4xsEblq3ecJcUAXT8hsc\nIGOSv4jgYTO02+0eJYzODykROmPHqYgIFOxwArX0CwG8teItACdY9zOEF8F4Nv16\nn4TdcHjGreAQAOOI4jRftASCDabBVUHSkHeftwEeYqiu704AWt8NT1NDmRQCI16h\n9PuqAUdNoGccihDIgmFVKSCBh1kPch/P8unBjwIDAQABAoIBACojF+n60HW9NE/r\nuL1h2c/JnIcuwoTF5rD6GswPtK9JELBwwJx4MEgJzqVqTwpXrUbwCe4319vID00U\nUruIrkGleK99sYr8fXKLFhz+tFOMBMsLxHrGy5VgsrtZ9H66/KKmgxAAjPAB9pay\nQqqZIrvvzmfp4hJlfvQQdFcYJWpKi6O0Uy/hWXsEOm+JeYdMA99ocO3M4TvYTgrv\n/6Ae4c5kSCOi/gq3ladwClF3X9XG87sjr+mS0Gnh4Azg4KO8ulaBa4laDGOsUH7k\nSHCZtGQWiHQD+bHjkNSJ7mco8YCS2Y8jRqI5TAv0zsQcjAyj3MmxQWc1ewHW3qgx\nord6QcECgYEA8cEdwu9sJgnoMXLI2j+RuK5P+t/qhvMrHjnpykym1ZL61ePoTu7V\nXgRgi2/M6yxdEei+s0bWNy8JZxSor5dmtTgR2IltnoYA8dpvp8pN/DdWy1sNyDXy\nxqruPjyh2QV7A5H4z4Pd92j/DgONVWfqavZihsmezGp7Hvwnsp3lLTcCgYEA9juu\npkV58F26bt8oWh6x5bGazVv0qq7UbbLqUnk8ghf+6/jQyrDE47LLVbsZT/Lrewpm\nNCJja0NeborL/p7UuxtwWDNZocoynHO72XIMNv1nUP3aPUDJnr1rGQeroADAAg9w\nj9gn0rrA52KqAZFhkhw0XvYUEY9VFzIatsmSemkCgYEAw61iH4SXbvqZ3FxiQnUt\nx+QfjJptRCnS/rY1i68bYseDDFlakXkzbtPwKSynGrtf4b0XjhiKD0SdQbgxCV9s\nnMXze+dQuP0SCrCZq6BOGxXXxOXAdAtmpHN6Pxnojram6S7fy2ea5EUyHO+3GCfy\nT/15pkvPovmVCnFi2GqBM2UCgYEAuADVfG8Ctnp0LRIaB25Upj7YXYnQBhRrriY7\nMLJkYxsnZpMjA7ShDT648DHGspXnHqUgxujDvo4zbQvPcVCjy8avZ1nIKzz8ISnj\nQJUXR6iJol5wzcEyaatG8wdmW0T0NxXuma9/4tun98ElJdLMRPFKuYPOb2jav2Cz\n0dBD47ECgYEAy+GTUzIN84wGSazJMNnfg62l7SQjcdx+Fnptk1cxiVZHPN3Po9fo\nHIA3VMqKn9/9szhVa9OKHAlJxKI1CbK0uCBioBrK0gvjCxKC4x7x4sziOtqIF71M\nxMB3replK3I5W0A0XFI+3GfTle6RpuRt+20wme9WJxfSw/W35l+X/rY=\n-----END RSA PRIVATE KEY-----\n' > '/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-private-key246096034' && chmod 0600 '/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-private-key246096034' && chown robbym '/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-private-key246096034'"]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_private_key.ca: Creation complete after 1s (ID: 1e0ec40e4a0cb039365b643df19399336114d266)[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_self_signed_cert.ca: Creating...[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   allowed_uses.#:         "" => "3"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   allowed_uses.0:         "" => "cert_signing"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   allowed_uses.1:         "" => "key_encipherment"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   allowed_uses.2:         "" => "digital_signature"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   cert_pem:               "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   early_renewal_hours:    "" => "0"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   is_ca_certificate:      "" => "true"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   key_algorithm:          "" => "RSA"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   private_key_pem:        "" => "48427ae3639840916866437bddcf6b2392c39c1f"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   subject.#:              "" => "1"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   subject.0.common_name:  "" => "Vault Module Test CA"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   subject.0.organization: "" => "Gruntwork"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   validity_end_time:      "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   validity_period_hours:  "" => "1000"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   validity_start_time:    "" => "<computed>"[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_self_signed_cert.ca: Provisioning with 'local-exec'...[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[0mtls_self_signed_cert.ca (local-exec): Executing: ["/bin/sh" "-c" "echo '-----BEGIN CERTIFICATE-----\nMIIDMjCCAhqgAwIBAgIQZdCz1VztuZ6VysPP2FPFhjANBgkqhkiG9w0BAQsFADAz\nMRIwEAYDVQQKEwlHcnVudHdvcmsxHTAbBgNVBAMTFFZhdWx0IE1vZHVsZSBUZXN0\nIENBMB4XDTE4MDkyNzA3NTU1MVoXDTE4MTEwNzIzNTU1MVowMzESMBAGA1UEChMJ\nR3J1bnR3b3JrMR0wGwYDVQQDExRWYXVsdCBNb2R1bGUgVGVzdCBDQTCCASIwDQYJ\nKoZIhvcNAQEBBQADggEPADCCAQoCggEBAM++9wLnvXNUy8n+uZkK2fXY/+Ai1ela\n8Ocnbc6/OaexiAGIufGZ1JsYqn51BaZAAhQYXmff+VN/3G1eAtS+nN8E/7yuODjs\nNOeBBCwW/DsFhfYEEpnyic5wQaNUGP1RVn+DPI73tt1rfuKI5QwpbPj5pGqftfPZ\nsQt18CzU8D2P+ZN9KyyZ4pPCN4/nXAHMG3ChwAVzPmZ1Z7r+oDDhEL/uO9Hz/3bk\nUf9t3E+6p7BTFYmGIS6kT2DkbwcYDa/VADW4TjXxJJjCPhOVbiLACDZJh+zft8zv\nMPlYiGbt6ydne+dUjeZ3tiNgp+dYUFpe1w4PU0+p7PmVz4a+NPEErOkCAwEAAaNC\nMEAwDgYDVR0PAQH/BAQDAgKkMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFOeJ\nNtGTAtT/+0pnabqZnmFASyJ4MA0GCSqGSIb3DQEBCwUAA4IBAQCh1vA2YpHtH4HY\ngSpJdxJCmp+wzePdhupxy/6hqSdalId0b1sgoF0F8UTO9lJrBomKnVY8OdFZYsbc\nprdJ8s2NC6k/F8Vo9X/Ihzl8nbRkvNT0NxpiLB45O1+NxX+lb4CqDGpq7MNbY5Ya\nn4z+PNA7YSZBjAeLYASaW/orAAXAMWRhB4X4aO4JTgHka0aeXXCauEbDl0taPd6G\njc+jgNSzvTDjQwDzy7g2DtlL7VnIsF8ovBN1EPJMttIQyduDPFH+/NBasTcCCBka\nMGC8JKHadw2hYrci/fqaC8pfK7iQKRQDlaXjDGmjK2X1h6TwTn+U1BuAVo9DVwLS\nC4fUUu6d\n-----END CERTIFICATE-----\n' > '/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/ca-public-key871088624' && chmod 0600 '/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/ca-public-key871088624' && chown robbym '/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/ca-public-key871088624'"]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_private_key.cert: Creation complete after 1s (ID: d2af76cc60b8be0a9ede4ea501a6de0ca1304b24)[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_self_signed_cert.ca: Creation complete after 0s (ID: 135335672776529429383319613029594940806)[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_cert_request.cert: Creating...[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   cert_request_pem:       "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   dns_names.#:            "" => "1"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   dns_names.0:            "" => "vault.service.consul"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   ip_addresses.#:         "" => "1"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   ip_addresses.0:         "" => "127.0.0.1"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   key_algorithm:          "" => "RSA"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   private_key_pem:        "" => "94922d830cf0c38ffdb0f0c5974b49e1fae78c7b"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   subject.#:              "" => "1"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   subject.0.common_name:  "" => "Vault Module Test"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   subject.0.organization: "" => "Gruntwork"[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_cert_request.cert: Creation complete after 0s (ID: ba4613f27c31b3864863bf67e5d338badb60a85e)[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_locally_signed_cert.cert: Creating...[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   allowed_uses.#:        "" => "2"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   allowed_uses.0:        "" => "key_encipherment"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   allowed_uses.1:        "" => "digital_signature"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   ca_cert_pem:           "" => "9c337ef928cb5cad36a16535d9a424479cb5ed45"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   ca_key_algorithm:      "" => "RSA"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   ca_private_key_pem:    "" => "48427ae3639840916866437bddcf6b2392c39c1f"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   cert_pem:              "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   cert_request_pem:      "" => "81b7da24beea5eea08423e1b0cd7646592ac8bd6"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   early_renewal_hours:   "" => "0"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   validity_end_time:     "" => "<computed>"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   validity_period_hours: "" => "1000"
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96:   validity_start_time:   "" => "<computed>"[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_locally_signed_cert.cert: Provisioning with 'local-exec'...[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[0mtls_locally_signed_cert.cert (local-exec): Executing: ["/bin/sh" "-c" "echo '-----BEGIN CERTIFICATE-----\nMIIDVjCCAj6gAwIBAgIRALURFA2RijrvfW7jur4NrNcwDQYJKoZIhvcNAQELBQAw\nMzESMBAGA1UEChMJR3J1bnR3b3JrMR0wGwYDVQQDExRWYXVsdCBNb2R1bGUgVGVz\ndCBDQTAeFw0xODA5MjcwNzU1NTFaFw0xODExMDcyMzU1NTFaMDAxEjAQBgNVBAoT\nCUdydW50d29yazEaMBgGA1UEAxMRVmF1bHQgTW9kdWxlIFRlc3QwggEiMA0GCSqG\nSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDoh+8JdQ8Z5zYsUe1mO04RfbjLu5MWr6Cc\nmburugB+36pTUuJdfAG6uH3e6RL7v1LU6oyCEIN75w+3plKZjYhe7VbvUuJEa3Hh\nqRmcQY8YPIlr4PLy4NZxkEFyANvjBHhRdq58adFHSKgm0boXMKjDnIwx2AjjGwRu\nWrd5wlxQBdPyGxwgY5K/iOBhM7Tb7R4ljM4PKRE6Y8epiAgU7HACtfQLAby14i0A\nJ1j3M4QXwXg2/XqfhN1weMat4BAA44jiNF+0BIINpsFVQdKQd5+3AR5iqK7vTgBa\n3w1PU0OZFAIjXqH0+6oBR02gZxyKEMiCYVUpIIGHWQ9yH8/y6cGPAgMBAAGjaDBm\nMA4GA1UdDwEB/wQEAwIFoDAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFOeJNtGT\nAtT/+0pnabqZnmFASyJ4MCUGA1UdEQQeMByCFHZhdWx0LnNlcnZpY2UuY29uc3Vs\nhwR/AAABMA0GCSqGSIb3DQEBCwUAA4IBAQBhme2dWlu0Rd2jWaUcuroLxA4QSTCh\nmNZLBrX4YVq10hyhT+X8brD79gaqX8EhMdQeItxFLNh0cRT1uu/mndhRAVAtVerx\nnxaFTsP7aByzawL20RBJ5rncnrtbkeMx5fmUQ192J64UZ+K5xp5avkw2ADZvIgs2\nnP9S7/zS/2VYxMSrx/00Yrp6BOJRsscItmth795nUT7uBITBlsKh8lBTRiNacgl9\n25YqT3D6f+Nn+wkGbAcZi3252SFGepFHV6vcTjwOt9iHEoY98thXA0dr3yrUshWt\nq+IEhkz2r3U3F74dAPoClY3+dS6W9gUZR97gIgSeJ91NvBVs6BZ72CYn\n-----END CERTIFICATE-----\n' > '/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-public-key119943823' && chmod 0600 '/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-public-key119943823' && chown robbym '/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-public-key119943823'"]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_locally_signed_cert.cert: Creation complete after 0s (ID: 240678943006865487286387069750015274199)[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1m[32m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: Apply complete! Resources: 5 added, 0 changed, 0 destroyed.[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1m[32m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: Outputs:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: 
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: ca_public_key_file_path = /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/ca-public-key871088624
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: private_key_file_path = /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-private-key246096034
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: public_key_file_path = /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-public-key119943823[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 retry.go:69: Running terraform [destroy -auto-approve -input=false -lock=false -var private_key_file_path="/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-private-key246096034" -var organization_name="Gruntwork" -var validity_period_hours="1000" -var ca_public_key_file_path="/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/ca-public-key871088624" -var public_key_file_path="/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-public-key119943823" -var owner="robbym" -var ca_common_name="Vault Module Test CA" -var common_name="Vault Module Test" -var dns_names=["vault.service.consul"] -var ip_addresses=["127.0.0.1"]]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:52: Running command terraform with args [destroy -auto-approve -input=false -lock=false -var private_key_file_path="/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-private-key246096034" -var organization_name="Gruntwork" -var validity_period_hours="1000" -var ca_public_key_file_path="/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/ca-public-key871088624" -var public_key_file_path="/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-public-key119943823" -var owner="robbym" -var ca_common_name="Vault Module Test CA" -var common_name="Vault Module Test" -var dns_names=["vault.service.consul"] -var ip_addresses=["127.0.0.1"]]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_private_key.cert: Refreshing state... (ID: d2af76cc60b8be0a9ede4ea501a6de0ca1304b24)[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_private_key.ca: Refreshing state... (ID: 1e0ec40e4a0cb039365b643df19399336114d266)[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_self_signed_cert.ca: Refreshing state... (ID: 135335672776529429383319613029594940806)[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_cert_request.cert: Refreshing state... (ID: ba4613f27c31b3864863bf67e5d338badb60a85e)[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_locally_signed_cert.cert: Refreshing state... (ID: 240678943006865487286387069750015274199)[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_locally_signed_cert.cert: Destroying... (ID: 240678943006865487286387069750015274199)[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_locally_signed_cert.cert: Destruction complete after 0s[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_cert_request.cert: Destroying... (ID: ba4613f27c31b3864863bf67e5d338badb60a85e)[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_self_signed_cert.ca: Destroying... (ID: 135335672776529429383319613029594940806)[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_cert_request.cert: Destruction complete after 0s[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_self_signed_cert.ca: Destruction complete after 0s[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_private_key.cert: Destroying... (ID: d2af76cc60b8be0a9ede4ea501a6de0ca1304b24)[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_private_key.ca: Destroying... (ID: 1e0ec40e4a0cb039365b643df19399336114d266)[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_private_key.cert: Destruction complete after 0s[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1mtls_private_key.ca: Destruction complete after 0s[0m[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: [0m[1m[32m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:96: Destroy complete! Resources: 5 destroyed.[0m
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 save_test_data.go:148: Storing test data in /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/TestVaultClusterEnterpriseWithUbuntuImage905599381/terraform-google-vault/examples/vault-cluster-private/.test-data/TlsCert so it can be reused later
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 packer.go:33: Running Packer to generate a custom artifact for template ../examples/vault-consul-image/vault-consul.json
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:51+02:00 command.go:52: Running command packer with args [build -machine-readable -var project_id=terratest-212612 -var zone=asia-southeast1-a -var ca_public_key_path=/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/ca-public-key871088624 -var tls_public_key_path=/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-public-key119943823 -var tls_private_key_path=/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-private-key246096034 -only=googlecompute ../examples/vault-consul-image/vault-consul.json]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:52+02:00 command.go:96: 1538034952,,ui,say,==> googlecompute: Checking image does not exist...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:53+02:00 command.go:96: 1538034953,,ui,say,==> googlecompute: Creating temporary SSH key for instance...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:57+02:00 command.go:96: 1538034957,,ui,say,==> googlecompute: Using image: ubuntu-1604-xenial-v20180912
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:57+02:00 command.go:96: 1538034957,,ui,say,==> googlecompute: Creating instance...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:57+02:00 command.go:96: 1538034957,,ui,message,    googlecompute: Loading zone: asia-southeast1-a
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:58+02:00 command.go:96: 1538034958,,ui,message,    googlecompute: Loading machine type: n1-standard-1
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:55:58+02:00 command.go:96: 1538034958,,ui,message,    googlecompute: Requesting instance creation...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:56:00+02:00 command.go:96: 1538034960,,ui,message,    googlecompute: Waiting for creation operation to complete...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:56:09+02:00 command.go:96: 1538034969,,ui,message,    googlecompute: Instance has been created!
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:56:09+02:00 command.go:96: 1538034969,,ui,say,==> googlecompute: Waiting for the instance to become running...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:56:10+02:00 command.go:96: 1538034970,,ui,message,    googlecompute: IP: 35.198.239.64
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:56:10+02:00 command.go:96: 1538034970,,ui,say,==> googlecompute: Waiting for SSH to become available...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:56:40+02:00 command.go:96: 1538035000,,ui,say,==> googlecompute: Connected to SSH!
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:56:40+02:00 command.go:96: 1538035000,,ui,say,==> googlecompute: Pausing 30s before the next provisioner...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T09:57:10+02:00 command.go:96: 1538035030,,ui,say,==> googlecompute: Uploading /Users/robbym/gopath/src/github.com/robmorgan/terraform-google-vault/examples/vault-consul-image/../../../terraform-google-vault => /tmp
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:28+02:00 command.go:96: 1538035348,,ui,say,==> googlecompute: Provisioning with shell script: /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/packer-shell586189970
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:31+02:00 command.go:96: 1538035351,,ui,message,    googlecompute: 2018-09-27 08:02:31 [INFO] [install-vault] Starting Vault install
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:31+02:00 command.go:96: 1538035351,,ui,message,    googlecompute: 2018-09-27 08:02:31 [INFO] [install-vault] Installing dependencies
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:31+02:00 command.go:96: 1538035351,,ui,message,    googlecompute: Hit:1 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:31+02:00 command.go:96: 1538035351,,ui,message,    googlecompute: Get:2 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates InRelease [109 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:31+02:00 command.go:96: 1538035351,,ui,message,    googlecompute: Get:3 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-backports InRelease [107 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:4 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial/main Sources [868 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:5 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial/restricted Sources [4%!(PACKER_COMMA)808 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:6 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial/universe Sources [7%!(PACKER_COMMA)728 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:7 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial/multiverse Sources [179 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:8 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial/universe amd64 Packages [7%!(PACKER_COMMA)532 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:9 http://security.ubuntu.com/ubuntu xenial-security InRelease [107 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:10 http://archive.canonical.com/ubuntu xenial InRelease [11.5 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:11 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial/universe Translation-en [4%!(PACKER_COMMA)354 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:12 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial/multiverse amd64 Packages [144 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:13 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial/multiverse Translation-en [106 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:14 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/main Sources [321 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:15 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/restricted Sources [2%!(PACKER_COMMA)528 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:16 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/universe Sources [222 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:17 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/multiverse Sources [8%!(PACKER_COMMA)388 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:18 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/main amd64 Packages [849 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:19 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/main Translation-en [347 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:20 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/universe amd64 Packages [691 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:21 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/universe Translation-en [279 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:22 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/multiverse amd64 Packages [16.4 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:23 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/multiverse Translation-en [8%!(PACKER_COMMA)344 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:24 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-backports/main Sources [4%!(PACKER_COMMA)488 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:25 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-backports/universe Sources [6%!(PACKER_COMMA)740 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:26 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-backports/main amd64 Packages [6%!(PACKER_COMMA)756 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:27 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-backports/main Translation-en [4%!(PACKER_COMMA)180 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:32+02:00 command.go:96: 1538035352,,ui,message,    googlecompute: Get:28 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-backports/universe amd64 Packages [7%!(PACKER_COMMA)568 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:33+02:00 command.go:96: 1538035353,,ui,message,    googlecompute: Get:29 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-backports/universe Translation-en [4%!(PACKER_COMMA)048 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:33+02:00 command.go:96: 1538035353,,ui,message,    googlecompute: Get:30 http://archive.canonical.com/ubuntu xenial/partner amd64 Packages [3%!(PACKER_COMMA)124 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:33+02:00 command.go:96: 1538035353,,ui,message,    googlecompute: Get:31 http://archive.canonical.com/ubuntu xenial/partner Translation-en [1%!(PACKER_COMMA)616 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:33+02:00 command.go:96: 1538035353,,ui,message,    googlecompute: Get:32 http://security.ubuntu.com/ubuntu xenial-security/main Sources [134 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:34+02:00 command.go:96: 1538035354,,ui,message,    googlecompute: Get:33 http://security.ubuntu.com/ubuntu xenial-security/restricted Sources [2%!(PACKER_COMMA)116 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:34+02:00 command.go:96: 1538035354,,ui,message,    googlecompute: Get:34 http://security.ubuntu.com/ubuntu xenial-security/universe Sources [75.8 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:35+02:00 command.go:96: 1538035355,,ui,message,    googlecompute: Get:35 http://security.ubuntu.com/ubuntu xenial-security/multiverse Sources [2%!(PACKER_COMMA)088 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:35+02:00 command.go:96: 1538035355,,ui,message,    googlecompute: Get:36 http://security.ubuntu.com/ubuntu xenial-security/main amd64 Packages [556 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:36+02:00 command.go:96: 1538035356,,ui,message,    googlecompute: Get:37 http://security.ubuntu.com/ubuntu xenial-security/main Translation-en [235 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:36+02:00 command.go:96: 1538035356,,ui,message,    googlecompute: Get:38 http://security.ubuntu.com/ubuntu xenial-security/universe amd64 Packages [379 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:36+02:00 command.go:96: 1538035356,,ui,message,    googlecompute: Get:39 http://security.ubuntu.com/ubuntu xenial-security/universe Translation-en [144 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:37+02:00 command.go:96: 1538035357,,ui,message,    googlecompute: Get:40 http://security.ubuntu.com/ubuntu xenial-security/multiverse amd64 Packages [3%!(PACKER_COMMA)460 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:37+02:00 command.go:96: 1538035357,,ui,message,    googlecompute: Get:41 http://security.ubuntu.com/ubuntu xenial-security/multiverse Translation-en [1%!(PACKER_COMMA)744 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:40+02:00 command.go:96: 1538035360,,ui,message,    googlecompute: Fetched 25.6 MB in 5s (4%!(PACKER_COMMA)446 kB/s)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: Reading package lists...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: Reading package lists...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: Building dependency tree...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: Reading state information...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: The following additional packages will be installed:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute:   libcurl3-gnutls libonig2
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: Suggested packages:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute:   zip
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: The following NEW packages will be installed:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute:   jq libonig2 unzip
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: The following packages will be upgraded:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute:   curl libcurl3-gnutls
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: 2 upgraded%!(PACKER_COMMA) 3 newly installed%!(PACKER_COMMA) 0 to remove and 13 not upgraded.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: Need to get 712 kB of archives.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: After this operation%!(PACKER_COMMA) 1%!(PACKER_COMMA)327 kB of additional disk space will be used.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: Get:1 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/main amd64 curl amd64 7.47.0-1ubuntu2.9 [138 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:41+02:00 command.go:96: 1538035361,,ui,message,    googlecompute: Get:2 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/main amd64 libcurl3-gnutls amd64 7.47.0-1ubuntu2.9 [184 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:42+02:00 command.go:96: 1538035362,,ui,message,    googlecompute: Get:3 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/universe amd64 libonig2 amd64 5.9.6-1ubuntu0.1 [86.7 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:42+02:00 command.go:96: 1538035362,,ui,message,    googlecompute: Get:4 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/universe amd64 jq amd64 1.5+dfsg-1ubuntu0.1 [144 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:43+02:00 command.go:96: 1538035363,,ui,message,    googlecompute: Get:5 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial/main amd64 unzip amd64 6.0-20ubuntu1 [158 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:43+02:00 command.go:96: 1538035363,,ui,message,    googlecompute: debconf: unable to initialize frontend: Dialog
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:43+02:00 command.go:96: 1538035363,,ui,message,    googlecompute: debconf: (Dialog frontend will not work on a dumb terminal%!(PACKER_COMMA) an emacs shell buffer%!(PACKER_COMMA) or without a controlling terminal.)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:43+02:00 command.go:96: 1538035363,,ui,message,    googlecompute: debconf: falling back to frontend: Readline
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:43+02:00 command.go:96: 1538035363,,ui,message,    googlecompute: debconf: unable to initialize frontend: Readline
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:43+02:00 command.go:96: 1538035363,,ui,message,    googlecompute: debconf: (This frontend requires a controlling tty.)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:43+02:00 command.go:96: 1538035363,,ui,message,    googlecompute: debconf: falling back to frontend: Teletype
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:43+02:00 command.go:96: 1538035363,,ui,message,    googlecompute: dpkg-preconfigure: unable to re-open stdin:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:43+02:00 command.go:96: 1538035363,,ui,message,    googlecompute: Fetched 712 kB in 1s (482 kB/s)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:44+02:00 command.go:96: 1538035364,,ui,message,    googlecompute: (Reading database ... 71002 files and directories currently installed.)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:44+02:00 command.go:96: 1538035364,,ui,message,    googlecompute: Preparing to unpack .../curl_7.47.0-1ubuntu2.9_amd64.deb ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:44+02:00 command.go:96: 1538035364,,ui,message,    googlecompute: Unpacking curl (7.47.0-1ubuntu2.9) over (7.47.0-1ubuntu2.8) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:45+02:00 command.go:96: 1538035365,,ui,message,    googlecompute: Preparing to unpack .../libcurl3-gnutls_7.47.0-1ubuntu2.9_amd64.deb ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:45+02:00 command.go:96: 1538035365,,ui,message,    googlecompute: Unpacking libcurl3-gnutls:amd64 (7.47.0-1ubuntu2.9) over (7.47.0-1ubuntu2.8) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:45+02:00 command.go:96: 1538035365,,ui,message,    googlecompute: Selecting previously unselected package libonig2:amd64.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:45+02:00 command.go:96: 1538035365,,ui,message,    googlecompute: Preparing to unpack .../libonig2_5.9.6-1ubuntu0.1_amd64.deb ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:45+02:00 command.go:96: 1538035365,,ui,message,    googlecompute: Unpacking libonig2:amd64 (5.9.6-1ubuntu0.1) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:45+02:00 command.go:96: 1538035365,,ui,message,    googlecompute: Selecting previously unselected package jq.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:45+02:00 command.go:96: 1538035365,,ui,message,    googlecompute: Preparing to unpack .../jq_1.5+dfsg-1ubuntu0.1_amd64.deb ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:45+02:00 command.go:96: 1538035365,,ui,message,    googlecompute: Unpacking jq (1.5+dfsg-1ubuntu0.1) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:45+02:00 command.go:96: 1538035365,,ui,message,    googlecompute: Selecting previously unselected package unzip.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:45+02:00 command.go:96: 1538035365,,ui,message,    googlecompute: Preparing to unpack .../unzip_6.0-20ubuntu1_amd64.deb ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:45+02:00 command.go:96: 1538035365,,ui,message,    googlecompute: Unpacking unzip (6.0-20ubuntu1) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:45+02:00 command.go:96: 1538035365,,ui,message,    googlecompute: Processing triggers for man-db (2.7.5-1) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:46+02:00 command.go:96: 1538035366,,ui,message,    googlecompute: Processing triggers for libc-bin (2.23-0ubuntu10) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:47+02:00 command.go:96: 1538035367,,ui,message,    googlecompute: Processing triggers for mime-support (3.59ubuntu1) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:48+02:00 command.go:96: 1538035368,,ui,message,    googlecompute: Setting up libcurl3-gnutls:amd64 (7.47.0-1ubuntu2.9) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:48+02:00 command.go:96: 1538035368,,ui,message,    googlecompute: Setting up curl (7.47.0-1ubuntu2.9) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:48+02:00 command.go:96: 1538035368,,ui,message,    googlecompute: Setting up libonig2:amd64 (5.9.6-1ubuntu0.1) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:48+02:00 command.go:96: 1538035368,,ui,message,    googlecompute: Setting up jq (1.5+dfsg-1ubuntu0.1) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:48+02:00 command.go:96: 1538035368,,ui,message,    googlecompute: Setting up unzip (6.0-20ubuntu1) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:48+02:00 command.go:96: 1538035368,,ui,message,    googlecompute: Processing triggers for libc-bin (2.23-0ubuntu10) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:49+02:00 command.go:96: 1538035369,,ui,message,    googlecompute: 2018-09-27 08:02:48 [INFO] [install-vault] Installing supervisord on Debian/Ubuntu
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:49+02:00 command.go:96: 1538035369,,ui,message,    googlecompute: Reading package lists...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:49+02:00 command.go:96: 1538035369,,ui,message,    googlecompute: Building dependency tree...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:49+02:00 command.go:96: 1538035369,,ui,message,    googlecompute: Reading state information...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:49+02:00 command.go:96: 1538035369,,ui,message,    googlecompute: The following additional packages will be installed:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:49+02:00 command.go:96: 1538035369,,ui,message,    googlecompute:   python-meld3
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:49+02:00 command.go:96: 1538035369,,ui,message,    googlecompute: Suggested packages:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:49+02:00 command.go:96: 1538035369,,ui,message,    googlecompute:   supervisor-doc
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:49+02:00 command.go:96: 1538035369,,ui,message,    googlecompute: The following NEW packages will be installed:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:49+02:00 command.go:96: 1538035369,,ui,message,    googlecompute:   python-meld3 supervisor
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: 0 upgraded%!(PACKER_COMMA) 2 newly installed%!(PACKER_COMMA) 0 to remove and 13 not upgraded.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Need to get 284 kB of archives.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: After this operation%!(PACKER_COMMA) 1%!(PACKER_COMMA)552 kB of additional disk space will be used.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Get:1 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial/universe amd64 python-meld3 all 1.0.2-2 [30.9 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Get:2 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/universe amd64 supervisor all 3.2.0-2ubuntu0.2 [253 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: debconf: unable to initialize frontend: Dialog
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: debconf: (Dialog frontend will not work on a dumb terminal%!(PACKER_COMMA) an emacs shell buffer%!(PACKER_COMMA) or without a controlling terminal.)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: debconf: falling back to frontend: Readline
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: debconf: unable to initialize frontend: Readline
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: debconf: (This frontend requires a controlling tty.)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: debconf: falling back to frontend: Teletype
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: dpkg-preconfigure: unable to re-open stdin:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Fetched 284 kB in 0s (476 kB/s)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Selecting previously unselected package python-meld3.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: (Reading database ... 71032 files and directories currently installed.)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Preparing to unpack .../python-meld3_1.0.2-2_all.deb ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Unpacking python-meld3 (1.0.2-2) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Selecting previously unselected package supervisor.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Preparing to unpack .../supervisor_3.2.0-2ubuntu0.2_all.deb ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Unpacking supervisor (3.2.0-2ubuntu0.2) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Processing triggers for man-db (2.7.5-1) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Processing triggers for systemd (229-4ubuntu21.4) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:50+02:00 command.go:96: 1538035370,,ui,message,    googlecompute: Processing triggers for ureadahead (0.100.0-19) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:51+02:00 command.go:96: 1538035371,,ui,message,    googlecompute: Setting up python-meld3 (1.0.2-2) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:51+02:00 command.go:96: 1538035371,,ui,message,    googlecompute: Setting up supervisor (3.2.0-2ubuntu0.2) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:52+02:00 command.go:96: 1538035372,,ui,message,    googlecompute: Processing triggers for systemd (229-4ubuntu21.4) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:52+02:00 command.go:96: 1538035372,,ui,message,    googlecompute: Processing triggers for ureadahead (0.100.0-19) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:53+02:00 command.go:96: 1538035373,,ui,message,    googlecompute: 2018-09-27 08:02:53 [INFO] [install-vault] Creating supervisord configuration file
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:53+02:00 command.go:96: 1538035373,,ui,message,    googlecompute: Synchronizing state of supervisor.service with SysV init with /lib/systemd/systemd-sysv-install...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:53+02:00 command.go:96: 1538035373,,ui,message,    googlecompute: Executing /lib/systemd/systemd-sysv-install enable supervisor
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:54+02:00 command.go:96: 1538035374,,ui,message,    googlecompute: 2018-09-27 08:02:54 [INFO] [install-vault] Checking if user vault exists
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:54+02:00 command.go:96: 1538035374,,ui,message,    googlecompute: 2018-09-27 08:02:54 [INFO] [install-vault] Creating user named vault
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:54+02:00 command.go:96: 1538035374,,ui,message,    googlecompute: 2018-09-27 08:02:54 [INFO] [install-vault] Creating install dirs for Vault at /opt/vault
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:54+02:00 command.go:96: 1538035374,,ui,message,    googlecompute: 2018-09-27 08:02:54 [INFO] [install-vault] Changing ownership of /opt/vault to vault
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:54+02:00 command.go:96: 1538035374,,ui,message,    googlecompute: 2018-09-27 08:02:54 [INFO] [install-vault] Downloading Vault to /tmp/vault.zip
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:57+02:00 command.go:96: 1538035377,,ui,message,    googlecompute: Archive:  /tmp/vault.zip
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-vault] Moving Vault binary to /opt/vault/bin/vault
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute:   inflating: /tmp/vault
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-vault] Adding symlink to /opt/vault/bin/vault in /usr/local/bin/vault
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-vault] Copying Vault run script to /opt/vault/bin/run-vault
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: /usr/local/bin/vault
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-vault] Giving Vault permission to use the mlock syscall
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-vault] Vault install complete!
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-nginx] Starting nginx install
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-nginx] Checking if user nginx exists
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-nginx] Creating user named nginx
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-nginx] Creating install dirs for nginx at /opt/nginx
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: OK
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-nginx] Changing ownership of /opt/nginx to nginx
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: Hit:1 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: Hit:2 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-nginx] Changing ownership of /var/log/nginx/ to nginx
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-nginx] Changing ownership of /var/cache/nginx/ to nginx
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-nginx] Creating script that will create Nginx PID folder /var/run/nginx on boot
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: Hit:3 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-backports InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:58+02:00 command.go:96: 1538035378,,ui,message,    googlecompute: 2018-09-27 08:02:58 [INFO] [install-nginx] Downloading nginx package
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:59+02:00 command.go:96: 1538035379,,ui,message,    googlecompute: Hit:4 http://security.ubuntu.com/ubuntu xenial-security InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:59+02:00 command.go:96: 1538035379,,ui,message,    googlecompute: Hit:5 http://archive.canonical.com/ubuntu xenial InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:59+02:00 command.go:96: 1538035379,,ui,message,    googlecompute: Get:6 http://nginx.org/packages/ubuntu xenial InRelease [4%!(PACKER_COMMA)339 B]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:02:59+02:00 command.go:96: 1538035379,,ui,message,    googlecompute: Get:7 http://nginx.org/packages/ubuntu xenial/nginx Sources [10.8 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:00+02:00 command.go:96: 1538035380,,ui,message,    googlecompute: Get:8 http://nginx.org/packages/ubuntu xenial/nginx amd64 Packages [15.8 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:03+02:00 command.go:96: 1538035383,,ui,message,    googlecompute: Fetched 31.0 kB in 1s (20.6 kB/s)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:04+02:00 command.go:96: 1538035384,,ui,message,    googlecompute: Reading package lists...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:05+02:00 command.go:96: 1538035385,,ui,message,    googlecompute: Get:1 http://nginx.org/packages/ubuntu xenial/nginx amd64 nginx amd64 1.14.0-1~xenial [823 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:09+02:00 command.go:96: 1538035389,,ui,message,    googlecompute: Fetched 823 kB in 4s (178 kB/s)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:09+02:00 command.go:96: 1538035389,,ui,message,    googlecompute: W: Can't drop privileges for downloading as file '/home/ubuntu/nginx_1.14.0-1~xenial_amd64.deb' couldn't be accessed by user '_apt'. - pkgAcquire::Run (13: Permission denied)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:09+02:00 command.go:96: 1538035389,,ui,message,    googlecompute: 2018-09-27 08:03:09 [INFO] [install-nginx] Extracting nginx binary from package
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:09+02:00 command.go:96: 1538035389,,ui,message,    googlecompute: 2018-09-27 08:03:09 [INFO] [install-nginx] Moving nginx binary from /tmp/nginx/bin/nginx to /opt/nginx/bin/nginx
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:09+02:00 command.go:96: 1538035389,,ui,message,    googlecompute: 2018-09-27 08:03:09 [INFO] [install-nginx] Copying nginx run script to /opt/nginx/bin/run-nginx
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:09+02:00 command.go:96: 1538035389,,ui,message,    googlecompute: 2018-09-27 08:03:09 [INFO] [install-nginx] Nginx install complete!
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:10+02:00 command.go:96: 1538035390,,ui,say,==> googlecompute: Uploading /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/ca-public-key871088624 => /tmp/ca.crt.pem
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:11+02:00 command.go:96: 1538035391,,ui,say,==> googlecompute: Uploading /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-public-key119943823 => /tmp/vault.crt.pem
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:13+02:00 command.go:96: 1538035393,,ui,say,==> googlecompute: Uploading /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-private-key246096034 => /tmp/vault.key.pem.enc
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:14+02:00 command.go:96: 1538035394,,ui,say,==> googlecompute: Provisioning with shell script: /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/packer-shell126698586
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:17+02:00 command.go:96: 1538035397,,ui,message,    googlecompute: Updating certificates in /etc/ssl/certs...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:17+02:00 command.go:96: 1538035397,,ui,message,    googlecompute: 2018-09-27 08:03:17 [INFO] [update-certificate-store] Adding CA public key /opt/vault/tls/ca.crt.pem to OS certificate store
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:19+02:00 command.go:96: 1538035399,,ui,message,    googlecompute: 1 added%!(PACKER_COMMA) 0 removed; done.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:19+02:00 command.go:96: 1538035399,,ui,message,    googlecompute: Running hooks in /etc/ca-certificates/update.d...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:19+02:00 command.go:96: 1538035399,,ui,message,    googlecompute: done.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:19+02:00 command.go:96: 1538035399,,ui,say,==> googlecompute: Provisioning with shell script: /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/packer-shell844050470
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:23+02:00 command.go:96: 1538035403,,ui,message,    googlecompute: Cloning into '/tmp/bash-commons'...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:25+02:00 command.go:96: 1538035405,,ui,message,    googlecompute: Note: checking out 'f3349c40d16c77ab7a6dcb91eec74f26322d9f49'.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:25+02:00 command.go:96: 1538035405,,ui,message,    googlecompute:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:25+02:00 command.go:96: 1538035405,,ui,message,    googlecompute: You are in 'detached HEAD' state. You can look around%!(PACKER_COMMA) make experimental
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:25+02:00 command.go:96: 1538035405,,ui,message,    googlecompute: changes and commit them%!(PACKER_COMMA) and you can discard any commits you make in this
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:25+02:00 command.go:96: 1538035405,,ui,message,    googlecompute: state without impacting any branches by performing another checkout.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:25+02:00 command.go:96: 1538035405,,ui,message,    googlecompute:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:25+02:00 command.go:96: 1538035405,,ui,message,    googlecompute: If you want to create a new branch to retain commits you create%!(PACKER_COMMA) you may
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:25+02:00 command.go:96: 1538035405,,ui,message,    googlecompute: do so (now or later) by using -b with the checkout command again. Example:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:25+02:00 command.go:96: 1538035405,,ui,message,    googlecompute:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:25+02:00 command.go:96: 1538035405,,ui,message,    googlecompute:   git checkout -b <new-branch-name>
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:25+02:00 command.go:96: 1538035405,,ui,message,    googlecompute:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:25+02:00 command.go:96: 1538035405,,ui,say,==> googlecompute: Provisioning with shell script: /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/packer-shell892040858
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:28+02:00 command.go:96: 1538035408,,ui,message,    googlecompute: Cloning into '/tmp/terraform-google-consul'...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute: Hit:1 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute: Note: checking out '46e1930d04a40caaf9fd096f033311aa6d88e1cc'.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute: You are in 'detached HEAD' state. You can look around%!(PACKER_COMMA) make experimental
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute: changes and commit them%!(PACKER_COMMA) and you can discard any commits you make in this
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute: state without impacting any branches by performing another checkout.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute: Hit:2 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute: If you want to create a new branch to retain commits you create%!(PACKER_COMMA) you may
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute: Hit:3 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-backports InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute: do so (now or later) by using -b with the checkout command again. Example:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute:   git checkout -b <new-branch-name>
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute: 2018-09-27 08:03:31 [INFO] [install-consul] Starting Consul install
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:31+02:00 command.go:96: 1538035411,,ui,message,    googlecompute: 2018-09-27 08:03:31 [INFO] [install-consul] Installing dependencies
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:32+02:00 command.go:96: 1538035412,,ui,message,    googlecompute: Hit:4 http://archive.canonical.com/ubuntu xenial InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:32+02:00 command.go:96: 1538035412,,ui,message,    googlecompute: Hit:5 http://security.ubuntu.com/ubuntu xenial-security InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:32+02:00 command.go:96: 1538035412,,ui,message,    googlecompute: Hit:6 http://nginx.org/packages/ubuntu xenial InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:33+02:00 command.go:96: 1538035413,,ui,message,    googlecompute: Reading package lists...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:33+02:00 command.go:96: 1538035413,,ui,message,    googlecompute: Reading package lists...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:33+02:00 command.go:96: 1538035413,,ui,message,    googlecompute: Building dependency tree...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:33+02:00 command.go:96: 1538035413,,ui,message,    googlecompute: Reading state information...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:34+02:00 command.go:96: 1538035414,,ui,message,    googlecompute: unzip is already the newest version (6.0-20ubuntu1).
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:34+02:00 command.go:96: 1538035414,,ui,message,    googlecompute: curl is already the newest version (7.47.0-1ubuntu2.9).
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:34+02:00 command.go:96: 1538035414,,ui,message,    googlecompute: jq is already the newest version (1.5+dfsg-1ubuntu0.1).
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:34+02:00 command.go:96: 1538035414,,ui,message,    googlecompute: 0 upgraded%!(PACKER_COMMA) 0 newly installed%!(PACKER_COMMA) 0 to remove and 13 not upgraded.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:34+02:00 command.go:96: 1538035414,,ui,message,    googlecompute: Reading package lists...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:34+02:00 command.go:96: 1538035414,,ui,message,    googlecompute: Building dependency tree...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:34+02:00 command.go:96: 1538035414,,ui,message,    googlecompute: Reading state information...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:34+02:00 command.go:96: 1538035414,,ui,message,    googlecompute: supervisor is already the newest version (3.2.0-2ubuntu0.2).
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:34+02:00 command.go:96: 1538035414,,ui,message,    googlecompute: 0 upgraded%!(PACKER_COMMA) 0 newly installed%!(PACKER_COMMA) 0 to remove and 13 not upgraded.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:34+02:00 command.go:96: 1538035414,,ui,message,    googlecompute: Synchronizing state of supervisor.service with SysV init with /lib/systemd/systemd-sysv-install...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:34+02:00 command.go:96: 1538035414,,ui,message,    googlecompute: Executing /lib/systemd/systemd-sysv-install enable supervisor
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:35+02:00 command.go:96: 1538035415,,ui,message,    googlecompute: 2018-09-27 08:03:34 [INFO] [install-consul] Creating user named consul
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:35+02:00 command.go:96: 1538035415,,ui,message,    googlecompute: 2018-09-27 08:03:34 [INFO] [install-consul] Creating install dirs for Consul at /opt/consul
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:35+02:00 command.go:96: 1538035415,,ui,message,    googlecompute: 2018-09-27 08:03:35 [INFO] [install-consul] Changing ownership of /opt/consul to consul
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:35+02:00 command.go:96: 1538035415,,ui,message,    googlecompute: 2018-09-27 08:03:35 [INFO] [install-consul] Downloading Consul 1.2.2 from https://releases.hashicorp.com/consul/1.2.2/consul_1.2.2_linux_amd64.zip to /tmp/consul_1.2.2_linux_amd64.zip
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:35+02:00 command.go:96: 1538035415,,ui,message,    googlecompute:   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:35+02:00 command.go:96: 1538035415,,ui,message,    googlecompute:                                  Dload  Upload   Total   Spent    Left  Speed
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: 100 17.5M  100 17.5M    0     0  43.9M      0 --:--:-- --:--:-- --:--:-- 44.0M
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: Archive:  /tmp/consul_1.2.2_linux_amd64.zip
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute:   inflating: /tmp/consul
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: 2018-09-27 08:03:36 [INFO] [install-consul] Moving Consul binary to /opt/consul/bin/consul
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: 2018-09-27 08:03:36 [INFO] [install-consul] Adding symlink to /opt/consul/bin/consul in /usr/local/bin/consul
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: 2018-09-27 08:03:36 [INFO] [install-consul] Copying Consul run script to /opt/consul/bin/run-consul
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: 2018-09-27 08:03:36 [INFO] [install-consul] Consul install complete!
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: 2018-09-27 08:03:36 [INFO] [install-dnsmasq] Starting Dnsmasq install
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: 2018-09-27 08:03:36 [INFO] [install-dnsmasq] Installing Dnsmasq
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: Hit:1 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: Hit:2 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: Hit:3 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-backports InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: Hit:4 http://archive.canonical.com/ubuntu xenial InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: Hit:5 http://nginx.org/packages/ubuntu xenial InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:36+02:00 command.go:96: 1538035416,,ui,message,    googlecompute: Hit:6 http://security.ubuntu.com/ubuntu xenial-security InRelease
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:38+02:00 command.go:96: 1538035418,,ui,message,    googlecompute: Reading package lists...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:38+02:00 command.go:96: 1538035418,,ui,message,    googlecompute: Reading package lists...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:38+02:00 command.go:96: 1538035418,,ui,message,    googlecompute: Building dependency tree...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:38+02:00 command.go:96: 1538035418,,ui,message,    googlecompute: Reading state information...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:38+02:00 command.go:96: 1538035418,,ui,message,    googlecompute: The following NEW packages will be installed:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:38+02:00 command.go:96: 1538035418,,ui,message,    googlecompute:   dnsmasq
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: 0 upgraded%!(PACKER_COMMA) 1 newly installed%!(PACKER_COMMA) 0 to remove and 13 not upgraded.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: Need to get 16.0 kB of archives.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: After this operation%!(PACKER_COMMA) 71.7 kB of additional disk space will be used.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: Get:1 http://asia-southeast1.gce.archive.ubuntu.com/ubuntu xenial-updates/universe amd64 dnsmasq all 2.75-1ubuntu0.16.04.5 [16.0 kB]
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: debconf: unable to initialize frontend: Dialog
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: debconf: (Dialog frontend will not work on a dumb terminal%!(PACKER_COMMA) an emacs shell buffer%!(PACKER_COMMA) or without a controlling terminal.)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: debconf: falling back to frontend: Readline
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: debconf: unable to initialize frontend: Readline
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: debconf: (This frontend requires a controlling tty.)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: debconf: falling back to frontend: Teletype
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: dpkg-preconfigure: unable to re-open stdin:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: Fetched 16.0 kB in 0s (27.2 kB/s)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: Selecting previously unselected package dnsmasq.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: (Reading database ... 71168 files and directories currently installed.)
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: Preparing to unpack .../dnsmasq_2.75-1ubuntu0.16.04.5_all.deb ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: Unpacking dnsmasq (2.75-1ubuntu0.16.04.5) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: Processing triggers for systemd (229-4ubuntu21.4) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: Processing triggers for ureadahead (0.100.0-19) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:39+02:00 command.go:96: 1538035419,,ui,message,    googlecompute: Setting up dnsmasq (2.75-1ubuntu0.16.04.5) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:40+02:00 command.go:96: 1538035420,,ui,message,    googlecompute: Processing triggers for systemd (229-4ubuntu21.4) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:40+02:00 command.go:96: 1538035420,,ui,message,    googlecompute: Processing triggers for ureadahead (0.100.0-19) ...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:41+02:00 command.go:96: 1538035421,,ui,message,    googlecompute: 2018-09-27 08:03:41 [INFO] [install-dnsmasq] Configuring Dnsmasq to forward lookups of the 'consul' domain to 127.0.0.1:8600 in /etc/dnsmasq.d/10-consul
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:41+02:00 command.go:96: 1538035421,,ui,message,    googlecompute: # Enable forward lookup of the 'consul' domain:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:41+02:00 command.go:96: 1538035421,,ui,message,    googlecompute: server=/consul/127.0.0.1#8600
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:41+02:00 command.go:96: 1538035421,,ui,message,    googlecompute:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:41+02:00 command.go:96: 1538035421,,ui,message,    googlecompute: listen-address=127.0.0.1
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:41+02:00 command.go:96: 1538035421,,ui,message,    googlecompute: bind-interfaces
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:41+02:00 command.go:96: 1538035421,,ui,message,    googlecompute: 2018-09-27 08:03:41 [INFO] [install-dnsmasq] Dnsmasq install complete!
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:03:42+02:00 command.go:96: 1538035422,,ui,say,==> googlecompute: Deleting instance...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:15+02:00 command.go:96: 1538035455,,ui,message,    googlecompute: Instance has been deleted!
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:15+02:00 command.go:96: 1538035455,,ui,say,==> googlecompute: Creating image...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:49+02:00 command.go:96: 1538035489,,ui,say,==> googlecompute: Deleting disk...
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:52+02:00 command.go:96: 1538035492,,ui,message,    googlecompute: Disk has been deleted!
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:52+02:00 command.go:96: 1538035492,,ui,say,Build 'googlecompute' finished.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:52+02:00 command.go:96: 1538035492,,ui,say,\n==> Builds finished. The artifacts of successful builds are:
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:52+02:00 command.go:96: 1538035492,googlecompute,artifact-count,1
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:52+02:00 command.go:96: 1538035492,googlecompute,artifact,0,builder-id,packer.googlecompute
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:52+02:00 command.go:96: 1538035492,googlecompute,artifact,0,id,vault-consul-2018-09-27-075552
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:52+02:00 command.go:96: 1538035492,googlecompute,artifact,0,string,A disk image was created: vault-consul-2018-09-27-075552
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:52+02:00 command.go:96: 1538035492,googlecompute,artifact,0,files-count,0
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:52+02:00 command.go:96: 1538035492,googlecompute,artifact,0,end
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:52+02:00 command.go:96: 1538035492,,ui,say,--> googlecompute: A disk image was created: vault-consul-2018-09-27-075552
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:53+02:00 save_test_data.go:148: Storing test data in /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/TestVaultClusterEnterpriseWithUbuntuImage905599381/terraform-google-vault/examples/vault-cluster-private/.test-data/Artifact.json so it can be reused later
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:53+02:00 test_structure.go:23: The 'SKIP_teardown' environment variable is not set, so executing stage 'teardown'.
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:53+02:00 save_test_data.go:175: Loading test data from /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/TestVaultClusterEnterpriseWithUbuntuImage905599381/terraform-google-vault/examples/vault-cluster-private/.test-data/GCPProjectID.json
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:53+02:00 save_test_data.go:175: Loading test data from /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/TestVaultClusterEnterpriseWithUbuntuImage905599381/terraform-google-vault/examples/vault-cluster-private/.test-data/Artifact.json
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:53+02:00 compute.go:94: Getting Image vault-consul-2018-09-27-075552
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:54+02:00 save_test_data.go:175: Loading test data from /var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/TestVaultClusterEnterpriseWithUbuntuImage905599381/terraform-google-vault/examples/vault-cluster-private/.test-data/TlsCert
+TestVaultClusterEnterpriseWithUbuntuImage 2018-09-27T10:04:54+02:00 compute.go:237: Destroying Image vault-consul-2018-09-27-075552
+--- PASS: TestVaultClusterEnterpriseWithUbuntuImage (556.45s)
+    save_test_data.go:159: Marshalled JSON: "terratest-212612"
+    save_test_data.go:159: Marshalled JSON: "asia-southeast1"
+    save_test_data.go:159: Marshalled JSON: "asia-southeast1-a"
+    save_test_data.go:159: Marshalled JSON: {"CAPublicKeyPath":"/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/ca-public-key871088624","PublicKeyPath":"/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-public-key119943823","PrivateKeyPath":"/var/folders/4y/w8n6q5x525v9rkl7pt5pwwl40000gn/T/tls-private-key246096034"}
+    save_test_data.go:159: Marshalled JSON: "vault-consul-2018-09-27-075552"
+PASS
+ok  	github.com/robmorgan/terraform-google-vault/test	556.524s
