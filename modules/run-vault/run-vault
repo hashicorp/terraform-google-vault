@@ -42,7 +42,14 @@ function print_usage {
   echo -e "  --user\t\tThe user to run Vault as. Default is to use the owner of --config-dir."
   echo -e "  --skip-vault-config\tIf this flag is set, don't generate a Vault configuration file. Default is false."
   echo -e "  --enable-ui\tIf this flag is set, the Vault UI will be enabled. Default is false."
-
+  echo
+  echo "Optional Arguments for enabling the GCP Cloud KMS seal:"
+  echo
+  echo -e "  --enable-auto-unseal\tIf this flag is set, enable the GCP Cloud KMS Auto-unseal feature. This feature requires Vault Enterprise. Default is false."
+  echo -e "  --auto-unseal-project\t"
+  echo -e "  --auto-unseal-region\t"
+  echo -e "  --auto-unseal-key-ring\t"
+  echo -e "  --auto-unseal-crypto-key\t"
   echo
   echo "Example:"
   echo
@@ -129,15 +136,56 @@ function generate_vault_config {
   local readonly user="$6"
   local readonly gcs_bucket="$7"
   local readonly gcp_creds_file="$8"
-  local readonly enable_ui="$9"
-
+  local readonly enable_auto_unseal="$9"
+  local readonly auto_unseal_project="${10}"
+  local readonly auto_unseal_region="${11}"
+  local readonly auto_unseal_key_ring="${12}"
+  local readonly auto_unseal_crypto_key="${13}"
+  local readonly enable_ui="${14}"
   local readonly config_path="$config_dir/$VAULT_CONFIG_FILE"
 
   local instance_ip_address
   instance_ip_address=$(get_instance_ip_address)
 
-  log_info "Creating default Vault config file in $config_path"
-  cat > "$config_path" <<EOF
+  if [[ "$enable_auto_unseal" == "true" ]]; then
+    log_info "Creating Vault gcpckms seal config file in $config_path"
+    cat > "$config_path" <<EOF
+ui = $enable_ui
+
+storage "gcs" {
+  bucket = "$gcs_bucket"
+  credentials_file = "$gcp_creds_file"
+}
+
+ha_storage "consul" {
+  address = "127.0.0.1:8500"
+  path    = "vault/"
+  scheme  = "http"
+  service = "vault"
+}
+
+seal "gcpckms" {
+  credentials = "$gcp_creds_file"
+  project     = "$auto_unseal_project"
+  region      = "$auto_unseal_region"
+  key_ring    = "$auto_unseal_key_ring"
+  crypto_key  = "$auto_unseal_crypto_key"
+}
+
+# HA settings
+cluster_addr  = "https://$instance_ip_address:$cluster_port"
+api_addr      = "https://$instance_ip_address:$port"
+
+listener "tcp" {
+  address         = "0.0.0.0:$port"
+  cluster_address = "0.0.0.0:$cluster_port"
+  tls_cert_file   = "$tls_cert_file"
+  tls_key_file    = "$tls_key_file"
+}
+EOF
+  else
+    log_info "Creating default Vault config file in $config_path"
+    cat > "$config_path" <<EOF
 ui = $enable_ui
 
 storage "gcs" {
@@ -163,6 +211,8 @@ listener "tcp" {
   tls_key_file    = "$tls_key_file"
 }
 EOF
+  fi
+
   chown "$user:$user" "$config_path"
 }
 
@@ -214,6 +264,11 @@ function run {
   local user=""
   local skip_vault_config="false"
   local enable_ui="false"
+  local enable_auto_unseal="false"
+  local auto_unseal_project=""
+  local auto_unseal_region=""
+  local auto_unseal_key_ring=""
+  local auto_unseal_crypto_key=""
   local all_args=()
 
   while [[ $# > 0 ]]; do
@@ -270,6 +325,25 @@ function run {
       --enable-ui)
         enable_ui="true"
         ;;
+      --enable-auto-unseal)
+        enable_auto_unseal="true"
+        ;;
+      --auto-unseal-project)
+        auto_unseal_project="$2"
+        shift
+        ;;
+      --auto-unseal-region)
+        auto_unseal_region="$2"
+        shift
+        ;;
+      --auto-unseal-key-ring)
+        auto_unseal_key_ring="$2"
+        shift
+        ;;
+      --auto-unseal-crypto-key)
+        auto_unseal_crypto_key="$2"
+        shift
+        ;;
       --help)
         print_usage
         exit
@@ -314,7 +388,7 @@ function run {
   if [[ "$skip_vault_config" == "true" ]]; then
     log_info "The --skip-vault-config flag is set, so will not generate a default Vault config file."
   else
-    generate_vault_config "$tls_cert_file" "$tls_key_file" "$port" "$cluster_port" "$config_dir" "$user" "$gcs_bucket" "$gcp_creds_file" "$enable_ui"
+    generate_vault_config "$tls_cert_file" "$tls_key_file" "$port" "$cluster_port" "$config_dir" "$user" "$gcs_bucket" "$gcp_creds_file" "$enable_auto_unseal" "$auto_unseal_project" "$auto_unseal_region" "$auto_unseal_key_ring" "$auto_unseal_crypto_key" "$enable_ui"
   fi
 
   generate_supervisor_config "$SUPERVISOR_CONFIG_PATH" "$config_dir" "$bin_dir" "$log_dir" "$log_level" "$user"
