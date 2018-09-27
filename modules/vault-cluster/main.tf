@@ -67,8 +67,7 @@ resource "google_compute_instance_template" "vault_public" {
   }
 
   network_interface {
-    network = "${var.subnetwork_name != "" ? "" : var.network_name}"
-    subnetwork = "${var.subnetwork_name != "" ? var.subnetwork_name : ""}"
+    network = "${var.network_name}"
     access_config {
       # The presence of this property assigns a public IP address to each Compute Instance. We intentionally leave it
       # blank so that an external IP address is selected automatically.
