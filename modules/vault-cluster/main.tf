@@ -18,6 +18,8 @@ terraform {
 # Create the single-zone Managed Instance Group where Vault will run.
 resource "google_compute_instance_group_manager" "vault" {
   name = "${var.cluster_name}-ig"
+  
+  project = "${var.gcp_project_id}"
 
   base_instance_name = "${var.cluster_name}"
   instance_template  = "${data.template_file.compute_instance_template_self_link.rendered}"
@@ -41,6 +43,7 @@ resource "google_compute_instance_template" "vault_public" {
 
   name_prefix = "${var.cluster_name}"
   description = "${var.cluster_description}"
+  project = "${var.gcp_project_id}"
 
   instance_description = "${var.cluster_description}"
   machine_type         = "${var.machine_type}"
@@ -101,6 +104,7 @@ resource "google_compute_instance_template" "vault_private" {
 
   name_prefix = "${var.cluster_name}"
   description = "${var.cluster_description}"
+  project = "${var.gcp_project_id}"
 
   instance_description = "${var.cluster_description}"
   machine_type = "${var.machine_type}"
@@ -158,6 +162,7 @@ resource "google_compute_instance_template" "vault_private" {
 resource "google_compute_firewall" "allow_intracluster_vault" {
   name    = "${var.cluster_name}-rule-cluster"
   network = "${var.network_name}"
+  project = "${var.gcp_project_id}"
 
   allow {
     protocol = "tcp"
@@ -180,6 +185,7 @@ resource "google_compute_firewall" "allow_inbound_api" {
 
   name    = "${var.cluster_name}-rule-external-api-access"
   network = "${var.network_name}"
+  project = "${var.gcp_project_id}"
 
   allow {
     protocol = "tcp"
@@ -202,6 +208,7 @@ resource "google_compute_firewall" "allow_inbound_health_check" {
 
   name    = "${var.cluster_name}-rule-health-check"
   network = "${var.network_name}"
+  project = "${var.gcp_project_id}"
 
   allow {
     protocol = "tcp"
@@ -223,6 +230,7 @@ resource "google_storage_bucket" "vault_storage_backend" {
   name = "${var.cluster_name}"
   location = "${var.gcs_bucket_location}"
   storage_class = "${var.gcs_bucket_storage_class}"
+  project = "${var.gcp_project_id}"
 
   # In prod, the Storage Bucket should NEVER be emptied and deleted via Terraform unless you know exactly what you're doing.
   # However, for testing purposes, it's often convenient to destroy a non-empty Storage Bucket.
@@ -235,6 +243,7 @@ resource "google_storage_bucket" "vault_storage_backend" {
 resource "google_storage_bucket_acl" "vault_storage_backend" {
   bucket = "${google_storage_bucket.vault_storage_backend.name}"
   predefined_acl = "${var.gcs_bucket_predefined_acl}"
+  project = "${var.gcp_project_id}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
