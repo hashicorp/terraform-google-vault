@@ -11,7 +11,6 @@ import (
 	"github.com/gruntwork-io/terratest/modules/packer"
 	"github.com/gruntwork-io/terratest/modules/retry"
 	"github.com/gruntwork-io/terratest/modules/ssh"
-	"github.com/gruntwork-io/terratest/modules/test-structure"
 )
 
 // Terratest saved value names
@@ -37,7 +36,11 @@ const SAVED_TLS_CERT = "TlsCert"
 const SAVED_KEYPAIR = "KeyPair"
 
 // Use Packer to build the Image in the given Packer template, with the given build name and return the Image ID.
-func buildVaultImage(t *testing.T, packerBuildName string, testDir string) {
+func buildVaultImage(t *testing.T, packerTemplatePath string, packerBuildName string, gcpProjectID string, gcpZone string) string {
+	return buildImageWithDownloadEnv(t, packerTemplatePath, packerBuildName, gcpProjectID, gcpZone, "", "")
+}
+
+func buildImageWithDownloadEnv(t *testing.T, packerTemplatePath string, packerBuildName string, gcpProjectID string, gcpZone string, tlsCert TlsCert, consulDownloadUrl string, vaultDownloadUrl string) string {
 	projectId := gcp.GetGoogleProjectIDFromEnvVar(t)
 	region := gcp.GetRandomRegion(t, projectId, nil, nil)
 	zone := gcp.GetRandomZoneForRegion(t, projectId, region)
@@ -58,6 +61,10 @@ func buildVaultImage(t *testing.T, packerBuildName string, testDir string) {
 			PACKER_VAR_CA_PUBLIC_KEY:   tlsCert.CAPublicKeyPath,
 			PACKER_VAR_TLS_PUBLIC_KEY:  tlsCert.PublicKeyPath,
 			PAKCER_VAR_TLS_PRIVATE_KEY: tlsCert.PrivateKeyPath,
+		},
+		Env: map[string]string{
+			PackerVarConsulDownloadUrl: consulDownloadUrl,
+			PackerVarVaultDownloadUrl:  vaultDownloadUrl,
 		},
 	}
 
