@@ -68,7 +68,7 @@ function assert_either_or {
   local readonly arg1_value="$2"
   local readonly arg2_name="$3"
   local readonly arg2_value="$4"
-   if [[ -z "$arg1_value" && -z "$arg2_value" ]]; then
+  if [[ -z "$arg1_value" && -z "$arg2_value" ]]; then
     log_error "Either the value for '$arg1_name' or '$arg2_name' must be passed, both cannot be empty"
     print_usage
     exit 1
