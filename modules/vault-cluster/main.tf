@@ -61,7 +61,7 @@ resource "google_compute_instance_template" "vault_public" {
   disk {
     boot         = true
     auto_delete  = true
-    source_image = "${var.source_image}"
+    source_image = "${data.google_compute_image.image.self_link}"
     disk_size_gb = "${var.root_volume_disk_size_gb}"
     disk_type    = "${var.root_volume_disk_type}"
   }
@@ -126,7 +126,7 @@ resource "google_compute_instance_template" "vault_private" {
   disk {
     boot         = true
     auto_delete  = true
-    source_image = "${var.source_image}"
+    source_image = "${data.google_compute_image.my_image.self_link}"
     disk_size_gb = "${var.root_volume_disk_size_gb}"
     disk_type    = "${var.root_volume_disk_type}"
   }
@@ -272,4 +272,10 @@ data "template_file" "compute_instance_template_self_link" {
   # - Concat these lists. concat(list-of-1-value, empty-list) == list-of-1-value
   # - Take the first element of list-of-1-value
   template = "${element(concat(google_compute_instance_template.vault_public.*.self_link, google_compute_instance_template.vault_private.*.self_link), 0)}"
+}
+
+# This is a workaround for a provider bug in Terraform v0.11.8. For more information please refer to:
+# https://github.com/terraform-providers/terraform-provider-google/issues/2067.
+data "google_compute_image" "image" {
+  name = "${var.source_image}"
 }
