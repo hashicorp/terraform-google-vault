@@ -57,6 +57,10 @@ variable "vault_auto_unseal_crypto_key" {
   description = ""
 }
 
+variable "example_secret" {
+  description = "Example secret to be written into Vault server"
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
