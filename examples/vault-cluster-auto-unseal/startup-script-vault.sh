@@ -28,3 +28,36 @@ readonly VAULT_TLS_KEY_FILE="/opt/vault/tls/vault.key.pem"
 # We run an nginx server to expose an HTTP endpoint that will be used solely for Vault health checks. This is because
 # Google Cloud only permits HTTP health checks to be associated with the Load Balancer.
 /opt/nginx/bin/run-nginx --port ${web_proxy_port} --proxy-pass-url "https://127.0.0.1:8200/v1/sys/health?standbyok=true"
+
+# Initializes a vault server
+# run-vault is running on the background and we have to wait for it to be done,
+# so in case this fails we retry.
+function retry_init {
+  for i in $(seq 1 20); do
+    echo "Initializing Vault agent..."
+    # The boolean operations with the exit status are there to temporarily circumvent the "set -e" at the
+    # beginning of this script which exits the script immediatelly for error status while not losing the exit status code
+    server_output=$(/opt/vault/bin/vault operator init) && exit_status=0 || exit_status=$?
+    if [[ $exit_status -eq 0 ]]; then
+      return
+    fi
+    echo "Failed to auth initialize Vault. Will sleep for 5 seconds and try again."
+    sleep 5
+  done
+
+  echo "Failed to initialize Vault."
+  exit $exit_status
+}
+
+retry_init
+
+# TODO - add license key to vault
+
+# Normally we would unseal Vault here with the generated keys, however we rely on the Auto Unseal
+# feature (https://www.vaultproject.io/docs/enterprise/auto-unseal/index.html) to do that for us automatically.
+/usr/bin/supervisorctl restart vault
+
+# Writes some secret, this secret is being written by terraform for test purposes
+# Please note that normally we would never pass a secret this way
+# This is just so we can verify that our example instance is authenticating correctly
+/opt/vault/bin/vault write secret/example_gruntwork the_answer=${example_secret}

@@ -5,8 +5,8 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 provider "google" {
-  project     = "${var.gcp_project}"
-  region      = "${var.gcp_region}"
+  project = "${var.gcp_project}"
+  region  = "${var.gcp_region}"
 }
 
 # Use Terraform 0.10.x so that we can take advantage of Terraform GCP functionality as a separate provider via
@@ -27,26 +27,27 @@ module "vault_cluster" {
 
   gcp_zone = "${var.gcp_zone}"
 
-  cluster_name = "${var.vault_cluster_name}"
-  cluster_size = "${var.vault_cluster_size}"
+  cluster_name     = "${var.vault_cluster_name}"
+  cluster_size     = "${var.vault_cluster_size}"
   cluster_tag_name = "${var.vault_cluster_name}"
-  machine_type = "${var.vault_cluster_machine_type}"
+  machine_type     = "${var.vault_cluster_machine_type}"
 
-  source_image = "${var.vault_source_image}"
+  source_image   = "${var.vault_source_image}"
   startup_script = "${data.template_file.startup_script_vault.rendered}"
 
-  gcs_bucket_name = "${var.vault_cluster_name}"
-  gcs_bucket_location = "${var.gcs_bucket_location}"
+  gcs_bucket_name          = "${var.vault_cluster_name}"
+  gcs_bucket_location      = "${var.gcs_bucket_location}"
   gcs_bucket_storage_class = "${var.gcs_bucket_class}"
   gcs_bucket_force_destroy = "${var.gcs_bucket_force_destroy}"
 
   root_volume_disk_size_gb = "${var.root_volume_disk_size_gb}"
-  root_volume_disk_type = "${var.root_volume_disk_type}"
+  root_volume_disk_type    = "${var.root_volume_disk_type}"
 
   # Regrettably, GCE only supports HTTP health checks, not HTTPS Health Checks (https://github.com/terraform-providers/terraform-provider-google/issues/18)
   # But Vault is only configured to listen for HTTPS requests. Therefore, per GCE recommendations, we run a simple HTTP
   # proxy server that forwards all requests to the Vault Health Check URL specified in the startup-script-vault.sh
   enable_web_proxy = true
+
   web_proxy_port = "${var.web_proxy_port}"
 
   # Even when the Vault cluster is pubicly accessible via a Load Balancer, we still make the Vault nodes themselves
@@ -57,6 +58,7 @@ module "vault_cluster" {
   # To enable external access to the Vault Cluster, enter the approved CIDR Blocks or tags below.
   # We enable health checks from the Consul Server cluster to Vault.
   allowed_inbound_cidr_blocks_api = []
+
   allowed_inbound_tags_api = ["${var.consul_server_cluster_name}"]
 
   # This property is only necessary when using a Load Balancer
@@ -71,13 +73,17 @@ data "template_file" "startup_script_vault" {
   template = "${file("${path.module}/startup-script-vault.sh")}"
 
   vars {
-    consul_cluster_tag_name = "${var.consul_server_cluster_name}"
-    vault_cluster_tag_name = "${var.vault_cluster_name}"
+    consul_cluster_tag_name      = "${var.consul_server_cluster_name}"
+    vault_cluster_tag_name       = "${var.vault_cluster_name}"
     vault_auto_unseal_project_id = "${var.vault_auto_unseal_project_id}"
-    vault_auto_unseal_region = "${var.vault_auto_unseal_region}"
-    vault_auto_unseal_key_ring = "${var.vault_auto_unseal_key_ring}"
+    vault_auto_unseal_region     = "${var.vault_auto_unseal_region}"
+    vault_auto_unseal_key_ring   = "${var.vault_auto_unseal_key_ring}"
     vault_auto_unseal_crypto_key = "${var.vault_auto_unseal_crypto_key}"
-    web_proxy_port = "${var.web_proxy_port}"
+    web_proxy_port               = "${var.web_proxy_port}"
+
+    # Please note that normally we would never pass a secret this way
+    # This is just for test purposes so we can verify that our example instance is authenticating correctly
+    example_secret = "${var.example_secret}"
   }
 }
 
@@ -91,7 +97,7 @@ module "vault_load_balancer" {
   # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-lb-regional-ext?ref=v0.0.1"
   source = "../../modules/vault-lb-fr"
 
-  cluster_name = "${var.vault_cluster_name}"
+  cluster_name     = "${var.vault_cluster_name}"
   cluster_tag_name = "${var.vault_cluster_name}"
 
   health_check_path = "/"
@@ -105,10 +111,10 @@ module "vault_load_balancer" {
 module "consul_cluster" {
   source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.0.3"
 
-  gcp_zone = "${var.gcp_zone}"
-  cluster_name = "${var.consul_server_cluster_name}"
+  gcp_zone         = "${var.gcp_zone}"
+  cluster_name     = "${var.consul_server_cluster_name}"
   cluster_tag_name = "${var.consul_server_cluster_name}"
-  cluster_size = "${var.consul_server_cluster_size}"
+  cluster_size     = "${var.consul_server_cluster_size}"
 
   source_image = "${var.consul_server_source_image}"
   machine_type = "${var.consul_server_machine_type}"
@@ -119,7 +125,7 @@ module "consul_cluster" {
   # Note that the only way to reach private nodes via SSH is to first SSH into another node that is not private.
   assign_public_ip_addresses = false
 
-  allowed_inbound_tags_dns = ["${var.vault_cluster_name}"]
+  allowed_inbound_tags_dns      = ["${var.vault_cluster_name}"]
   allowed_inbound_tags_http_api = ["${var.vault_cluster_name}"]
 }
 
@@ -128,6 +134,6 @@ data "template_file" "startup_script_consul" {
   template = "${file("${path.module}/startup-script-consul.sh")}"
 
   vars {
-    cluster_tag_name   = "${var.consul_server_cluster_name}"
+    cluster_tag_name = "${var.consul_server_cluster_name}"
   }
 }
