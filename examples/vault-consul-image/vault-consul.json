@@ -33,11 +33,7 @@
   },{
     "type": "shell",
     "inline": [
-      "if test -n \"{{user `vault_download_url`}}\"; then",
-      " /tmp/terraform-google-vault/modules/install-vault/install-vault --download-url {{user `vault_download_url`}};",
-      "else",
-      " /tmp/terraform-google-vault/modules/install-vault/install-vault --version {{user `vault_version`}};",
-      "fi",
+      "/tmp/terraform-google-vault/modules/install-vault/install-vault --version {{user `vault_version`}}",
       "sudo /tmp/terraform-google-vault/modules/install-nginx/install-nginx --signing-key /tmp/terraform-google-vault/modules/install-nginx/nginx_signing.key"
     ]
   },{
@@ -72,12 +68,8 @@
   },{
     "type": "shell",
     "inline": [
-      "git clone --branch {{user `consul_module_version`}} https://@github.com/hashicorp/terraform-google-consul.git /tmp/terraform-google-consul",
-      "if test -n \"{{user `consul_download_url`}}\"; then",
-      " /tmp/terraform-google-consul/modules/install-consul/install-consul --download-url {{user `consul_download_url`}};",
-      "else",
-      " /tmp/terraform-google-consul/modules/install-consul/install-consul --version {{user `consul_version`}}",
-      "fi",
+      "git clone --branch {{user `consul_module_version`}} https://github.com/hashicorp/terraform-google-consul.git /tmp/terraform-google-consul",
+      "/tmp/terraform-google-consul/modules/install-consul/install-consul --version {{user `consul_version`}}",
       "/tmp/terraform-google-consul/modules/install-dnsmasq/install-dnsmasq"
     ]
   }]
