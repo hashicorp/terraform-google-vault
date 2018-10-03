@@ -18,7 +18,7 @@ terraform {
 # Create the single-zone Managed Instance Group where Vault will run.
 resource "google_compute_instance_group_manager" "vault" {
   name = "${var.cluster_name}-ig"
-  
+
   project = "${var.gcp_project_id}"
 
   base_instance_name = "${var.cluster_name}"
@@ -43,19 +43,19 @@ resource "google_compute_instance_template" "vault_public" {
 
   name_prefix = "${var.cluster_name}"
   description = "${var.cluster_description}"
-  project = "${var.gcp_project_id}"
+  project     = "${var.gcp_project_id}"
 
   instance_description = "${var.cluster_description}"
   machine_type         = "${var.machine_type}"
 
-  tags = "${concat(list(var.cluster_tag_name), var.custom_tags)}"
+  tags                    = "${concat(list(var.cluster_tag_name), var.custom_tags)}"
   metadata_startup_script = "${var.startup_script}"
-  metadata = "${merge(map(var.metadata_key_name_for_cluster_size, var.cluster_size), var.custom_metadata)}"
+  metadata                = "${merge(map(var.metadata_key_name_for_cluster_size, var.cluster_size), var.custom_metadata)}"
 
   scheduling {
     automatic_restart   = true
     on_host_maintenance = "MIGRATE"
-    preemptible = false
+    preemptible         = false
   }
 
   disk {
@@ -68,6 +68,7 @@ resource "google_compute_instance_template" "vault_public" {
 
   network_interface {
     network = "${var.network_name}"
+
     access_config {
       # The presence of this property assigns a public IP address to each Compute Instance. We intentionally leave it
       # blank so that an external IP address is selected automatically.
@@ -77,7 +78,8 @@ resource "google_compute_instance_template" "vault_public" {
 
   # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
   service_account {
-    email  = "${var.service_account_email}"
+    email = "${var.service_account_email}"
+
     scopes = ["${concat(
       list(
         "https://www.googleapis.com/auth/userinfo.email",
@@ -103,19 +105,19 @@ resource "google_compute_instance_template" "vault_private" {
 
   name_prefix = "${var.cluster_name}"
   description = "${var.cluster_description}"
-  project = "${var.gcp_project_id}"
+  project     = "${var.gcp_project_id}"
 
   instance_description = "${var.cluster_description}"
-  machine_type = "${var.machine_type}"
+  machine_type         = "${var.machine_type}"
 
-  tags = ["${concat(list(var.cluster_tag_name), var.custom_tags)}"]
+  tags                    = ["${concat(list(var.cluster_tag_name), var.custom_tags)}"]
   metadata_startup_script = "${var.startup_script}"
-  metadata = "${merge(map(var.metadata_key_name_for_cluster_size, var.cluster_size), var.custom_metadata)}"
+  metadata                = "${merge(map(var.metadata_key_name_for_cluster_size, var.cluster_size), var.custom_metadata)}"
 
   scheduling {
     automatic_restart   = true
     on_host_maintenance = "MIGRATE"
-    preemptible = false
+    preemptible         = false
   }
 
   disk {
@@ -132,7 +134,8 @@ resource "google_compute_instance_template" "vault_private" {
 
   # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
   service_account {
-    email  = "${var.service_account_email}"
+    email = "${var.service_account_email}"
+
     scopes = ["${concat(
       list(
         "https://www.googleapis.com/auth/userinfo.email",
@@ -165,7 +168,8 @@ resource "google_compute_firewall" "allow_intracluster_vault" {
 
   allow {
     protocol = "tcp"
-    ports    = [
+
+    ports = [
       "${var.cluster_port}",
     ]
   }
@@ -188,14 +192,15 @@ resource "google_compute_firewall" "allow_inbound_api" {
 
   allow {
     protocol = "tcp"
-    ports    = [
+
+    ports = [
       "${var.api_port}",
     ]
   }
 
   source_ranges = "${var.allowed_inbound_cidr_blocks_api}"
-  source_tags = ["${var.allowed_inbound_tags_api}"]
-  target_tags = ["${var.cluster_tag_name}"]
+  source_tags   = ["${var.allowed_inbound_tags_api}"]
+  target_tags   = ["${var.cluster_tag_name}"]
 }
 
 # If we require a Load Balancer in front of the Vault cluster, we must specify a Health Check so that the Load Balancer
@@ -211,14 +216,15 @@ resource "google_compute_firewall" "allow_inbound_health_check" {
 
   allow {
     protocol = "tcp"
-    ports    = [
+
+    ports = [
       "${var.web_proxy_port}",
     ]
   }
 
   # Per https://goo.gl/xULu8U, all Google Cloud Health Check requests will be sent from 35.191.0.0/16
   source_ranges = ["35.191.0.0/16"]
-  target_tags = ["${var.cluster_tag_name}"]
+  target_tags   = ["${var.cluster_tag_name}"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -226,10 +232,10 @@ resource "google_compute_firewall" "allow_inbound_health_check" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "google_storage_bucket" "vault_storage_backend" {
-  name = "${var.cluster_name}"
-  location = "${var.gcs_bucket_location}"
+  name          = "${var.cluster_name}"
+  location      = "${var.gcs_bucket_location}"
   storage_class = "${var.gcs_bucket_storage_class}"
-  project = "${var.gcp_project_id}"
+  project       = "${var.gcp_project_id}"
 
   # In prod, the Storage Bucket should NEVER be emptied and deleted via Terraform unless you know exactly what you're doing.
   # However, for testing purposes, it's often convenient to destroy a non-empty Storage Bucket.
@@ -240,9 +246,9 @@ resource "google_storage_bucket" "vault_storage_backend" {
 # does not yet expose a way to attach an IAM Policy to a Google Bucket so we resort to using the Bucket ACL in case users
 # of this module wish to limit Bucket permissions via Terraform.
 resource "google_storage_bucket_acl" "vault_storage_backend" {
-  bucket = "${google_storage_bucket.vault_storage_backend.name}"
+  bucket         = "${google_storage_bucket.vault_storage_backend.name}"
   predefined_acl = "${var.gcs_bucket_predefined_acl}"
-  project = "${var.gcp_project_id}"
+  project        = "${var.gcp_project_id}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
