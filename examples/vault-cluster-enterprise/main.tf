@@ -25,7 +25,8 @@ module "vault_cluster" {
   # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
   source = "../../modules/vault-cluster"
 
-  gcp_zone = "${var.gcp_zone}"
+  gcp_project = "${var.gcp_project}"
+  gcp_zone    = "${var.gcp_zone}"
 
   cluster_name     = "${var.vault_cluster_name}"
   cluster_size     = "${var.vault_cluster_size}"
@@ -109,7 +110,7 @@ module "vault_load_balancer" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "consul_cluster" {
-  source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.0.3"
+  source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.2.1"
 
   gcp_zone         = "${var.gcp_zone}"
   cluster_name     = "${var.consul_server_cluster_name}"

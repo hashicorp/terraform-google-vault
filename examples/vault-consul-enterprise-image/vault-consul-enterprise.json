@@ -4,7 +4,7 @@
     "project_id": null,
     "zone": null,
     "vault_version": "0.10.4",
-    "consul_module_version": "v0.0.3",
+    "consul_module_version": "v0.2.1",
     "consul_version": "1.2.2",
     "consul_download_url": "{{env `CONSUL_DOWNLOAD_URL`}}",
     "vault_download_url": "{{env `VAULT_DOWNLOAD_URL`}}",
