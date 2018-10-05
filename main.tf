@@ -24,7 +24,7 @@ module "vault_cluster" {
   # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
   source = "modules/vault-cluster"
 
-  gcp_project_id = "${var.gcp_project_id}"
+  gcp_project_id     = "${var.gcp_project_id}"
   network_project_id = "${var.network_project_id}"
 
   gcp_zone = "${var.gcp_zone}"
@@ -74,12 +74,12 @@ data "template_file" "startup_script_vault" {
 module "consul_cluster" {
   source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.0.3"
 
-  gcp_project_id   = "${var.gcp_project_id}"
+  gcp_project_id     = "${var.gcp_project_id}"
   network_project_id = "${var.network_project_id}"
-  gcp_zone         = "${var.gcp_zone}"
-  cluster_name     = "${var.consul_server_cluster_name}"
-  cluster_tag_name = "${var.consul_server_cluster_name}"
-  cluster_size     = "${var.consul_server_cluster_size}"
+  gcp_zone           = "${var.gcp_zone}"
+  cluster_name       = "${var.consul_server_cluster_name}"
+  cluster_tag_name   = "${var.consul_server_cluster_name}"
+  cluster_size       = "${var.consul_server_cluster_size}"
 
   source_image = "${var.consul_server_source_image}"
   machine_type = "${var.consul_server_machine_type}"

@@ -67,8 +67,9 @@ resource "google_compute_instance_template" "vault_public" {
   }
 
   network_interface {
-    network    = "${var.subnetwork_name != "" ? "" : var.network_name}"
-    subnetwork = "${var.subnetwork_name != "" ? var.subnetwork_name : ""}"
+    network            = "${var.subnetwork_name != "" ? "" : var.network_name}"
+    subnetwork         = "${var.subnetwork_name != "" ? var.subnetwork_name : ""}"
+    subnetwork_project = "${var.network_project_id}"
 
     access_config {
       # The presence of this property assigns a public IP address to each Compute Instance. We intentionally leave it
@@ -130,8 +131,9 @@ resource "google_compute_instance_template" "vault_private" {
   }
 
   network_interface {
-    network    = "${var.subnetwork_name != "" ? "" : var.network_name}"
-    subnetwork = "${var.subnetwork_name != "" ? var.subnetwork_name : ""}"
+    network            = "${var.subnetwork_name != "" ? "" : var.network_name}"
+    subnetwork         = "${var.subnetwork_name != "" ? var.subnetwork_name : ""}"
+    subnetwork_project = "${var.network_project_id}"
   }
 
   # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
@@ -214,7 +216,8 @@ resource "google_compute_firewall" "allow_inbound_health_check" {
 
   name    = "${var.cluster_name}-rule-health-check"
   network = "${var.network_name}"
-  project = "${var.gcp_project_id}"
+
+  project = "${var.network_project_id}"
 
   allow {
     protocol = "tcp"
