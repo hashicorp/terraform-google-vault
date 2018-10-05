@@ -116,7 +116,7 @@ data "template_file" "startup_script_vault" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "consul_cluster" {
-  source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.2.0"
+  source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.2.1"
 
   subnetwork_name = "${google_compute_subnetwork.private_subnet_with_google_api_access.name}"
 
