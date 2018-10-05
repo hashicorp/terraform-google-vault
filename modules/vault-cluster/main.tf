@@ -166,7 +166,7 @@ resource "google_compute_instance_template" "vault_private" {
 resource "google_compute_firewall" "allow_intracluster_vault" {
   name    = "${var.cluster_name}-rule-cluster"
   network = "${var.network_name}"
-  project = "${var.gcp_project_id}"
+  project = "${var.network_project_id}"
 
   allow {
     protocol = "tcp"
@@ -190,7 +190,7 @@ resource "google_compute_firewall" "allow_inbound_api" {
 
   name    = "${var.cluster_name}-rule-external-api-access"
   network = "${var.network_name}"
-  project = "${var.gcp_project_id}"
+  project = "${var.network_project_id}"
 
   allow {
     protocol = "tcp"

@@ -7,6 +7,10 @@ variable "gcp_project_id" {
   description = "The name of the GCP Project where all resources will be launched."
 }
 
+variable "network_project_id" {
+  description = "The name of the GCP Project where the network is located (used for networks shared across projects)"
+}
+
 variable "gcp_region" {
   description = "The region in which all GCP resources will be launched."
 }

@@ -25,6 +25,7 @@ module "vault_cluster" {
   source = "modules/vault-cluster"
 
   gcp_project_id = "${var.gcp_project_id}"
+  network_project_id = "${var.network_project_id}"
 
   gcp_zone = "${var.gcp_zone}"
 
@@ -74,6 +75,7 @@ module "consul_cluster" {
   source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.0.3"
 
   gcp_project_id   = "${var.gcp_project_id}"
+  network_project_id = "${var.network_project_id}"
   gcp_zone         = "${var.gcp_zone}"
   cluster_name     = "${var.consul_server_cluster_name}"
   cluster_tag_name = "${var.consul_server_cluster_name}"

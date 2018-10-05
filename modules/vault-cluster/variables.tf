@@ -11,6 +11,10 @@ variable "gcp_project_id" {
   description = "The ID of the GCP project to deploy the vault cluster to."
 }
 
+variable "network_project_id" {
+  description = "The ID of the GCP project the network is part of (mainly used for network sharing across projects)"
+}
+
 variable "cluster_name" {
   description = "The name of the Vault cluster (e.g. vault-stage). This variable is used to namespace all resources created by this module."
 }
