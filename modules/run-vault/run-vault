@@ -378,7 +378,8 @@ function run {
   if [[ "$skip_vault_config" == "true" ]]; then
     log_info "The --skip-vault-config flag is set, so will not generate a default Vault config file."
   else
-    generate_vault_config "$tls_cert_file" "$tls_key_file" "$port" "$cluster_port" "$config_dir" "$user" "$gcs_bucket" "$gcp_creds_file" "$enable_auto_unseal" "$auto_unseal_project" "$auto_unseal_region" "$auto_unseal_key_ring" "$auto_unseal_crypto_key"
+    generate_vault_config "$tls_cert_file" "$tls_key_file" "$port" "$cluster_port" "$config_dir" "$user" "$gcs_bucket" "$gcp_creds_file" \
+                          "$enable_auto_unseal" "$auto_unseal_project" "$auto_unseal_region" "$auto_unseal_key_ring" "$auto_unseal_crypto_key"
   fi
 
   generate_supervisor_config "$SUPERVISOR_CONFIG_PATH" "$config_dir" "$bin_dir" "$log_dir" "$log_level" "$user"
