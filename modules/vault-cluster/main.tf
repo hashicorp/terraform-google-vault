@@ -253,7 +253,6 @@ resource "google_storage_bucket" "vault_storage_backend" {
 resource "google_storage_bucket_acl" "vault_storage_backend" {
   bucket         = "${google_storage_bucket.vault_storage_backend.name}"
   predefined_acl = "${var.gcs_bucket_predefined_acl}"
-  project        = "${var.gcp_project_id}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
