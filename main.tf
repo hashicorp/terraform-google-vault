@@ -21,7 +21,7 @@ terraform {
 module "vault_cluster" {
   # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
   # to a specific version of the modules, such as the following example:
-  # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
+  # source = "./modules/vault-cluster?ref=cloudbuy-test"
   source = "modules/vault-cluster"
 
   gcp_project_id     = "${var.gcp_project_id}"
@@ -72,7 +72,7 @@ data "template_file" "startup_script_vault" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "consul_cluster" {
-  source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.0.3"
+  source = "git::https://gitlab.office.ukplc.corp/infrastructure/terraform-modules/terraform-google-consul//modules/consul-cluster?ref=cloudbuy-test"
 
   gcp_project_id     = "${var.gcp_project_id}"
   network_project_id = "${var.network_project_id}"
