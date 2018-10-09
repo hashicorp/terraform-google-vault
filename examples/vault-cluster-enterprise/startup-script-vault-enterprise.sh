@@ -82,8 +82,8 @@ echo "$server_output" | head -n 3 | awk '{ print $4; }' | xargs -l /opt/vault/bi
 # Exports the client token environment variable necessary for running the following vault commands
 export VAULT_TOKEN=$(echo "$server_output" | head -n 7 | tail -n 1 | awk '{ print $4; }')
 
-# Add the Enterprise license key to vault
-/opt/vault/bin/vault write /sys/license "text=$(cat /opt/vault/vault-license.hclic)"
+# Add the Enterprise license key to vault.
+/opt/vault/bin/vault write /sys/license "text=${vault_enterprise_license_key}"
 
 # Writes some secret, this secret is being written by Terraform for test purposes
 # Please note that normally we would never pass a secret this way

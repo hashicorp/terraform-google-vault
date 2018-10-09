@@ -25,8 +25,7 @@ module "vault_cluster" {
   # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
   source = "../../modules/vault-cluster"
 
-  gcp_project = "${var.gcp_project}"
-  gcp_zone    = "${var.gcp_zone}"
+  gcp_zone = "${var.gcp_zone}"
 
   cluster_name     = "${var.vault_cluster_name}"
   cluster_size     = "${var.vault_cluster_size}"
@@ -48,6 +47,12 @@ module "vault_cluster" {
   # But Vault is only configured to listen for HTTPS requests. Therefore, per GCE recommendations, we run a simple HTTP
   # proxy server that forwards all requests to the Vault Health Check URL specified in the startup-script-vault.sh
   enable_web_proxy = true
+
+  # Create a KMS Crypto Key.
+  create_kms_crypto_key          = "${var.create_kms_crypto_key}"
+  kms_crypto_key_name            = "${var.kms_crypto_key_name}"
+  kms_crypto_key_ring_name       = "${var.kms_crypto_key_ring_name}"
+  kms_crypto_key_rotation_period = "${var.kms_crypto_key_rotation_period}"
 
   web_proxy_port = "${var.web_proxy_port}"
 
@@ -71,16 +76,19 @@ module "vault_cluster" {
 
 # Render the Startup Script that will run on each Vault Instance on boot. This script will configure and start Vault.
 data "template_file" "startup_script_vault" {
-  template = "${file("${path.module}/startup-script-vault.sh")}"
+  template = "${file("${path.module}/startup-script-vault-enterprise.sh")}"
 
   vars {
-    consul_cluster_tag_name      = "${var.consul_server_cluster_name}"
-    vault_cluster_tag_name       = "${var.vault_cluster_name}"
+    consul_cluster_tag_name = "${var.consul_server_cluster_name}"
+    vault_cluster_tag_name  = "${var.vault_cluster_name}"
+    web_proxy_port          = "${var.web_proxy_port}"
+
+    # Enable the Vault Enterprise Auto Unseal feature. If using this feature then you must also supply a license key.
     vault_auto_unseal_project_id = "${var.vault_auto_unseal_project_id}"
     vault_auto_unseal_region     = "${var.vault_auto_unseal_region}"
     vault_auto_unseal_key_ring   = "${var.vault_auto_unseal_key_ring}"
     vault_auto_unseal_crypto_key = "${var.vault_auto_unseal_crypto_key}"
-    web_proxy_port               = "${var.web_proxy_port}"
+    vault_enterprise_license_key = "${file("vault-license.hclic")}"
 
     # Please note that normally we would never pass a secret this way
     # This is just for test purposes so we can verify that our example instance is authenticating correctly
@@ -112,7 +120,7 @@ module "vault_load_balancer" {
 module "consul_cluster" {
   source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.2.1"
 
-  gcp_zone         = "${var.gcp_zone}"
+  gcp_region       = "${var.gcp_region}"
   cluster_name     = "${var.consul_server_cluster_name}"
   cluster_tag_name = "${var.consul_server_cluster_name}"
   cluster_size     = "${var.consul_server_cluster_size}"
