@@ -50,40 +50,40 @@ variable "gcs_bucket_storage_class" {
 
 variable "instance_group_target_pools" {
   description = "To use a Load Balancer with the Consul cluster, you must populate this value. Specifically, this is the list of Target Pool URLs to which new Compute Instances in the Instance Group created by this module will be added. Note that updating the Target Pools attribute does not affect existing Compute Instances."
-  type = "list"
-  default = []
+  type        = "list"
+  default     = []
 }
 
 variable "cluster_description" {
   description = "A description of the Vault cluster; it will be added to the Compute Instance Template."
-  default = ""
+  default     = ""
 }
 
 variable "assign_public_ip_addresses" {
   description = "If true, each of the Compute Instances will receive a public IP address and be reachable from the Public Internet (if Firewall rules permit). If false, the Compute Instances will have private IP addresses only. In production, this should be set to false."
-  default = false
+  default     = false
 }
 
 variable "network_name" {
   description = "The name of the VPC Network where all resources should be created."
-  default = "default"
+  default     = "default"
 }
 
 variable "subnetwork_name" {
   description = "The name of the VPC Subnetwork where all resources should be created. Defaults to the default subnetwork for the network and region."
-  default = ""
+  default     = ""
 }
 
 variable "custom_tags" {
   description = "A list of tags that will be added to the Compute Instance Template in addition to the tags automatically added by this module."
-  type = "list"
-  default = []
+  type        = "list"
+  default     = []
 }
 
 variable "service_account_scopes" {
   description = "A list of service account scopes that will be added to the Compute Instance Template in addition to the scopes automatically added by this module."
-  type = "list"
-  default = []
+  type        = "list"
+  default     = []
 }
 
 variable "service_account_email" {
@@ -93,76 +93,98 @@ variable "service_account_email" {
 
 variable "instance_group_update_strategy" {
   description = "The update strategy to be used by the Instance Group. IMPORTANT! When you update almost any cluster setting, under the hood, this module creates a new Instance Group Template. Once that Instance Group Template is created, the value of this variable determines how the new Template will be rolled out across the Instance Group. Unfortunately, as of August 2017, Google only supports the options 'RESTART' (instantly restart all Compute Instances and launch new ones from the new Template) or 'NONE' (do nothing; updates should be handled manually). Google does offer a rolling updates feature that perfectly meets our needs, but this is in Alpha (https://goo.gl/MC3mfc). Therefore, until this module supports a built-in rolling update strategy, we recommend using `NONE` and either using the alpha rolling updates strategy to roll out new Vault versions, or to script this using GCE API calls. If using the alpha feature, be sure you are comfortable with the level of risk you are taking on. For additional detail, see https://goo.gl/hGH6dd."
-  default = "NONE"
+  default     = "NONE"
 }
 
 variable "enable_web_proxy" {
   description = "If true, a Firewall Rule will be created that allows inbound Health Check traffic on var.web_proxy_port."
-  default = false
+  default     = false
 }
 
 # Metadata
 
 variable "metadata_key_name_for_cluster_size" {
   description = "The key name to be used for the custom metadata attribute that represents the size of the Vault cluster."
-  default = "cluster-size"
+  default     = "cluster-size"
 }
 
 variable "custom_metadata" {
   description = "A map of metadata key value pairs to assign to the Compute Instance metadata."
-  type = "map"
-  default = {}
+  type        = "map"
+  default     = {}
 }
 
 # Firewall Ports
 
 variable "api_port" {
   description = "The port used by Vault to handle incoming API requests."
-  default = 8200
+  default     = 8200
 }
 
 variable "cluster_port" {
   description = "The port used by Vault for server-to-server communication."
-  default = 8201
+  default     = 8201
 }
 
 variable "web_proxy_port" {
   description = "The port at which the HTTP proxy server will listen for incoming HTTP requests that will be forwarded to the Vault Health Check URL. We must have an HTTP proxy server to work around the limitation that GCP only permits Health Checks via HTTP, not HTTPS. This value is originally set in the Startup Script that runs Nginx and passes the port value there."
-  default = 8000
+  default     = 8000
 }
 
 variable "allowed_inbound_cidr_blocks_api" {
   description = "A list of CIDR-formatted IP address ranges from which the Compute Instances will allow connections to Vault on the configured TCP Listener (see https://goo.gl/Equ4xP)"
-  type = "list"
-  default = ["0.0.0.0/0"]
+  type        = "list"
+  default     = ["0.0.0.0/0"]
 }
 
 variable "allowed_inbound_tags_api" {
   description = "A list of tags from which the Compute Instances will allow connections to Vault on the configured TCP Listener (see https://goo.gl/Equ4xP)"
-  type = "list"
-  default = []
+  type        = "list"
+  default     = []
 }
 
 # Disk Settings
 
 variable "root_volume_disk_size_gb" {
   description = "The size, in GB, of the root disk volume on each Consul node."
-  default = 30
+  default     = 30
 }
 
 variable "root_volume_disk_type" {
   description = "The GCE disk type. Can be either pd-ssd, local-ssd, or pd-standard"
-  default = "pd-standard"
+  default     = "pd-standard"
 }
 
 # Google Storage Bucket Settings
 
 variable "gcs_bucket_force_destroy" {
   description = "If true, Terraform will delete the Google Cloud Storage Bucket even if it's non-empty. WARNING! Never set this to true in a production setting. We only have this option here to facilitate testing."
-  default = false
+  default     = false
 }
 
 variable "gcs_bucket_predefined_acl" {
   description = "The canned GCS Access Control List (ACL) to apply to the GCS Bucket. For a full list of Predefined ACLs, see https://cloud.google.com/storage/docs/access-control/lists."
-  default = "projectPrivate"
+  default     = "projectPrivate"
+}
+
+# KMS Crypto Key Settings
+
+variable "create_kms_crypto_key" {
+  description = "If true, Terraform will create a Cloud KMS key for use with the Vault Enterprise features."
+  default     = false
+}
+
+variable "kms_crypto_key_name" {
+  description = "The name to use when creating the Cloud KMS key. This parameter is required if var.create_kms_crypto_key is set to true."
+  default     = ""
+}
+
+variable "kms_crypto_key_ring_name" {
+  description = "The name of the KMS key ring to use when creating a new Cloud KMS key. This parameter is required if var.create_kms_crypto_key is set to true."
+  default     = ""
+}
+
+variable "kms_crypto_key_rotation_period" {
+  description = "The time period that specifies how frequently the Cloud KMS key rotates. This parameter is required if var.create_kms_crypto_key is set to true."
+  default     = "100000s"
 }

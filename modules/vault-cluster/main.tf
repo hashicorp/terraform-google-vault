@@ -45,14 +45,14 @@ resource "google_compute_instance_template" "vault_public" {
   instance_description = "${var.cluster_description}"
   machine_type         = "${var.machine_type}"
 
-  tags = "${concat(list(var.cluster_tag_name), var.custom_tags)}"
+  tags                    = "${concat(list(var.cluster_tag_name), var.custom_tags)}"
   metadata_startup_script = "${var.startup_script}"
-  metadata = "${merge(map(var.metadata_key_name_for_cluster_size, var.cluster_size), var.custom_metadata)}"
+  metadata                = "${merge(map(var.metadata_key_name_for_cluster_size, var.cluster_size), var.custom_metadata)}"
 
   scheduling {
     automatic_restart   = true
     on_host_maintenance = "MIGRATE"
-    preemptible = false
+    preemptible         = false
   }
 
   disk {
@@ -64,8 +64,9 @@ resource "google_compute_instance_template" "vault_public" {
   }
 
   network_interface {
-    network = "${var.subnetwork_name != "" ? "" : var.network_name}"
+    network    = "${var.subnetwork_name != "" ? "" : var.network_name}"
     subnetwork = "${var.subnetwork_name != "" ? var.subnetwork_name : ""}"
+
     access_config {
       # The presence of this property assigns a public IP address to each Compute Instance. We intentionally leave it
       # blank so that an external IP address is selected automatically.
@@ -75,7 +76,8 @@ resource "google_compute_instance_template" "vault_public" {
 
   # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
   service_account {
-    email  = "${var.service_account_email}"
+    email = "${var.service_account_email}"
+
     scopes = ["${concat(
       list(
         "https://www.googleapis.com/auth/userinfo.email",
@@ -103,16 +105,16 @@ resource "google_compute_instance_template" "vault_private" {
   description = "${var.cluster_description}"
 
   instance_description = "${var.cluster_description}"
-  machine_type = "${var.machine_type}"
+  machine_type         = "${var.machine_type}"
 
-  tags = ["${concat(list(var.cluster_tag_name), var.custom_tags)}"]
+  tags                    = ["${concat(list(var.cluster_tag_name), var.custom_tags)}"]
   metadata_startup_script = "${var.startup_script}"
-  metadata = "${merge(map(var.metadata_key_name_for_cluster_size, var.cluster_size), var.custom_metadata)}"
+  metadata                = "${merge(map(var.metadata_key_name_for_cluster_size, var.cluster_size), var.custom_metadata)}"
 
   scheduling {
     automatic_restart   = true
     on_host_maintenance = "MIGRATE"
-    preemptible = false
+    preemptible         = false
   }
 
   disk {
@@ -129,7 +131,8 @@ resource "google_compute_instance_template" "vault_private" {
 
   # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
   service_account {
-    email  = "${var.service_account_email}"
+    email = "${var.service_account_email}"
+
     scopes = ["${concat(
       list(
         "https://www.googleapis.com/auth/userinfo.email",
@@ -161,7 +164,8 @@ resource "google_compute_firewall" "allow_intracluster_vault" {
 
   allow {
     protocol = "tcp"
-    ports    = [
+
+    ports = [
       "${var.cluster_port}",
     ]
   }
@@ -183,14 +187,15 @@ resource "google_compute_firewall" "allow_inbound_api" {
 
   allow {
     protocol = "tcp"
-    ports    = [
+
+    ports = [
       "${var.api_port}",
     ]
   }
 
   source_ranges = "${var.allowed_inbound_cidr_blocks_api}"
-  source_tags = ["${var.allowed_inbound_tags_api}"]
-  target_tags = ["${var.cluster_tag_name}"]
+  source_tags   = ["${var.allowed_inbound_tags_api}"]
+  target_tags   = ["${var.cluster_tag_name}"]
 }
 
 # If we require a Load Balancer in front of the Vault cluster, we must specify a Health Check so that the Load Balancer
@@ -205,14 +210,15 @@ resource "google_compute_firewall" "allow_inbound_health_check" {
 
   allow {
     protocol = "tcp"
-    ports    = [
+
+    ports = [
       "${var.web_proxy_port}",
     ]
   }
 
   # Per https://goo.gl/xULu8U, all Google Cloud Health Check requests will be sent from 35.191.0.0/16
   source_ranges = ["35.191.0.0/16"]
-  target_tags = ["${var.cluster_tag_name}"]
+  target_tags   = ["${var.cluster_tag_name}"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -220,8 +226,8 @@ resource "google_compute_firewall" "allow_inbound_health_check" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "google_storage_bucket" "vault_storage_backend" {
-  name = "${var.cluster_name}"
-  location = "${var.gcs_bucket_location}"
+  name          = "${var.cluster_name}"
+  location      = "${var.gcs_bucket_location}"
   storage_class = "${var.gcs_bucket_storage_class}"
 
   # In prod, the Storage Bucket should NEVER be emptied and deleted via Terraform unless you know exactly what you're doing.
@@ -233,8 +239,28 @@ resource "google_storage_bucket" "vault_storage_backend" {
 # does not yet expose a way to attach an IAM Policy to a Google Bucket so we resort to using the Bucket ACL in case users
 # of this module wish to limit Bucket permissions via Terraform.
 resource "google_storage_bucket_acl" "vault_storage_backend" {
-  bucket = "${google_storage_bucket.vault_storage_backend.name}"
+  bucket         = "${google_storage_bucket.vault_storage_backend.name}"
   predefined_acl = "${var.gcs_bucket_predefined_acl}"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATE A GOOGLE CLOUD KKMS KEY FOR USE WITH THE VAULT ENTERPRISE FEATURES.
+# ---------------------------------------------------------------------------------------------------------------------
+
+# Create a Cloud KMS key for use with the Vault Enterprise features.
+resource "google_kms_crypto_key" "crypto_key" {
+  count           = "${var.create_kms_crypto_key}"
+  name            = "${var.kms_crypto_key_name}"
+  key_ring        = "${var.kms_crypto_key_ring_name}"
+  rotation_period = "${var.kms_crypto_key_rotation_period}"
+
+  # Note: Keys cannot be deleted from GCP. Destroying a Terraform managed key will remove it from state and delete all CryptoKeyVersions,
+  # rendering the key unusable, but will not delete the resource on the server. When Terraform destroys these keys, any data previously
+  # encrypted with these keys will be irrecoverable. For this reason, it is strongly recommended that you add lifecycle hooks to the
+  # resource to prevent accidental destruction.
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
