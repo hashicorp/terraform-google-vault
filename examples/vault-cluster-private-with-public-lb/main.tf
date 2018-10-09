@@ -101,8 +101,7 @@ module "vault_load_balancer" {
 module "consul_cluster" {
   source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.2.1"
 
-  gcp_region = "${var.gcp_region}"
-
+  gcp_region       = "${var.gcp_region}"
   cluster_name     = "${var.consul_server_cluster_name}"
   cluster_tag_name = "${var.consul_server_cluster_name}"
   cluster_size     = "${var.consul_server_cluster_size}"
