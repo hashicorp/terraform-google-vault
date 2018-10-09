@@ -63,8 +63,8 @@ func buildImageWithDownloadEnv(t *testing.T, packerTemplatePath string, packerBu
 			PAKCER_VAR_TLS_PRIVATE_KEY: tlsCert.PrivateKeyPath,
 		},
 		Env: map[string]string{
-			PackerVarConsulDownloadUrl: consulDownloadUrl,
-			PackerVarVaultDownloadUrl:  vaultDownloadUrl,
+			//PackerVarConsulDownloadUrl: consulDownloadUrl,
+			PackerVarVaultDownloadUrl: vaultDownloadUrl,
 		},
 	}
 
