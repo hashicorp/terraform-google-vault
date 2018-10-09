@@ -17,7 +17,8 @@ Check out the [vault-cluster-private](https://github.com/hashicorp/terraform-goo
 [vault-cluster-public](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) examples for working sample code. For more info on Vault 
 installation and configuration, check out the [install-vault](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-vault) documentation.
 
-
+You can also use this example Packer template to build a Cloud Image that includes Enterprise versions of both Vault & Consul. See below for more
+information.
 
 ## Quick start
 
@@ -93,3 +94,11 @@ the [Releases Page](https://github.com/hashicorp/terraform-google-vault/releases
 use a fixed, known version of this Module, downloaded from the official Git repo. On the other hand, when you're 
 just experimenting with the Module, it's OK to use a local checkout of the Module, uploaded from your own 
 computer.
+
+## Building an Image with the Enterprise versions installed
+
+To build the Enterprise Vault and Consul Google Image, simply repeat the steps described in the Quick Start, however make sure the following environment
+variables are set:
+
+ - `VAULT_DOWNLOAD_URL`
+ - `CONSUL_DOWNLOAD_URL`
