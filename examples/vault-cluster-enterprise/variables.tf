@@ -42,19 +42,19 @@ variable "consul_server_machine_type" {
 # Vault Auto Unseal Variables
 
 variable "vault_auto_unseal_project_id" {
-  description = ""
+  description = "The GCP Project ID to use for the Auto Unseal feature."
 }
 
 variable "vault_auto_unseal_region" {
-  description = ""
+  description = "The GCP Region to use for the Auto Unseal feature."
 }
 
 variable "vault_auto_unseal_key_ring" {
-  description = ""
+  description = "The GCP Cloud KMS Key Ring to use for the Auto Unseal feature."
 }
 
 variable "vault_auto_unseal_crypto_key" {
-  description = ""
+  description = "The GCP Cloud KMS Crypto Key to use for the Auto Unseal feature. Note: if creating a new key using var.create_kms_crypto_key then use this key."
 }
 
 variable "example_secret" {
