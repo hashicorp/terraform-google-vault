@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------------------------------------------
-# DEPLOY A VAULT CLUSTER IN GOOGLE CLOUD
+# DEPLOY A PRIVATE VAULT CLUSTER WITH A PUBLIC LOAD BALANCER IN GOOGLE CLOUD
 # This is an example of how to use the vault-cluster to deploy a private Vault cluster in GCP with a Load Balancer in
 # front of it. This cluster uses Consul, running in a separate cluster, as its High Availability backend.
 # ---------------------------------------------------------------------------------------------------------------------
