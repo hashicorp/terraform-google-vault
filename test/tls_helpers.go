@@ -38,6 +38,8 @@ const VAR_VALIDITY_PERIOD_HOURS = "validity_period_hours"
 
 // Use the private-tls-cert module to generate a self-signed TLS certificate
 func generateSelfSignedTlsCert(t *testing.T) TlsCert {
+	t.Logf("Generating self-signed TLS certs")
+
 	currentUser, err := user.Current()
 	if err != nil {
 		t.Fatalf("Couldn't get current OS user: %v", err)

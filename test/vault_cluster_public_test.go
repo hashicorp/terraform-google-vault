@@ -62,7 +62,7 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 		image := gcp.FetchImage(t, projectID, imageName)
 		image.DeleteImage(t)
 
-		tlsCert := loadTLSCert(t, exampleDir)
+		tlsCert := loadTLSCert(t, vaultImageDir)
 		cleanupTLSCertFiles(tlsCert)
 	})
 
