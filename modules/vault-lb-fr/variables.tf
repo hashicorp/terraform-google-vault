@@ -26,74 +26,74 @@ variable "health_check_port" {
 
 variable "api_port" {
   description = "The port used by clients to talk to the Vault Server API"
-  default = 8200
+  default     = 8200
 }
 
 variable "network_name" {
   description = "The URL of the VPC Network where all resources should be created. If left blank, we will use the default VPC network."
-  default = ""
+  default     = ""
 }
 
 # Health Check options
 
 variable "health_check_description" {
   description = "A description to add to the Health Check created by this module."
-  default = ""
+  default     = ""
 }
 
 variable "health_check_interval_sec" {
   description = "The number of seconds between each Health Check attempt."
-  default = 15
+  default     = 15
 }
 
 variable "health_check_timeout_sec" {
   description = "The number of seconds to wait before the Health Check declares failure."
-  default = 5
+  default     = 5
 }
 
 variable "health_check_healthy_threshold" {
   description = "The number of consecutive successes required to consider the Compute Instance healthy."
-  default = 2
+  default     = 2
 }
 
 variable "health_check_unhealthy_threshold" {
   description = "The number of consecutive failures required to consider the Compute Instance unhealthy."
-  default = 2
+  default     = 2
 }
 
 # Forwarding Rule Options
 
 variable "forwarding_rule_description" {
   description = "The description added to the Forwarding Rule created by this module."
-  default = ""
+  default     = ""
 }
 
 variable "forwarding_rule_ip_address" {
   description = "The static IP address to assign to the Forwarding Rule. If not set, an ephemeral IP address is used."
-  default = ""
+  default     = ""
 }
 
 # Target Pool Options
 
 variable "target_pool_description" {
   description = "The description added to the Target Pool created by this module."
-  default = ""
+  default     = ""
 }
 
 variable "target_pool_session_affinity" {
   description = "How to distribute load across the Target Pool. Options are NONE (no affinity), CLIENT_IP (hash of the source/dest addresses/ports), and CLIENT_IP_PROTO also includes the protocol."
-  default = "NONE"
+  default     = "NONE"
 }
 
 # Firewall Rule Options
 
 variable "firewall_rule_description" {
   description = "A description to add to the Firewall Rule created by this module."
-  default = ""
+  default     = ""
 }
 
 variable "allow_access_from_cidr_blocks" {
   description = "The list of CIDR-formatted IP address ranges from which access to the Vault load balancer will be allowed."
-  type = "list"
-  default = ["0.0.0.0/0"]
+  type        = "list"
+  default     = ["0.0.0.0/0"]
 }

@@ -17,46 +17,46 @@ terraform {
 
 # A Forwarding Rule receives inbound requests and forwards them to the specified Target Pool
 resource "google_compute_forwarding_rule" "vault" {
-  name = "${var.cluster_name}-fr"
-  description = "${var.forwarding_rule_description}"
-  ip_address = "${var.forwarding_rule_ip_address}"
-  ip_protocol = "TCP"
+  name                  = "${var.cluster_name}-fr"
+  description           = "${var.forwarding_rule_description}"
+  ip_address            = "${var.forwarding_rule_ip_address}"
+  ip_protocol           = "TCP"
   load_balancing_scheme = "EXTERNAL"
-  network = "${var.network_name}"
-  port_range = "${var.api_port}"
-  target = "${google_compute_target_pool.vault.self_link}"
+  network               = "${var.network_name}"
+  port_range            = "${var.api_port}"
+  target                = "${google_compute_target_pool.vault.self_link}"
 }
 
 # The Load Balancer (Forwarding rule) will only forward requests to Compute Instances in the associated Target Pool.
 # Note that this Target Pool is populated by modifying the Instance Group containing the Vault nodes to add its member
 # Instances to this Target Pool.
 resource "google_compute_target_pool" "vault" {
-  name = "${var.cluster_name}-tp"
-  description = "${var.target_pool_description}"
+  name             = "${var.cluster_name}-tp"
+  description      = "${var.target_pool_description}"
   session_affinity = "${var.target_pool_session_affinity}"
-  health_checks = ["${google_compute_http_health_check.vault.name}"]
+  health_checks    = ["${google_compute_http_health_check.vault.name}"]
 }
 
 # Add a Health Check so that the Load Balancer will only route to healthy Compute Instances. Note that this Health
 # Check has no effect on whether GCE will attempt to reboot the Compute Instance. Note also that the Google API will
 # only allow a Target Pool to reference an HTTP Health Check. HTTPS or TCP Health Checks are not yet supported.
 resource "google_compute_http_health_check" "vault" {
-  name = "${var.cluster_name}-hc"
-  description = "${var.health_check_description}"
-  check_interval_sec = "${var.health_check_interval_sec}"
-  timeout_sec = "${var.health_check_timeout_sec}"
-  healthy_threshold = "${var.health_check_healthy_threshold}"
+  name                = "${var.cluster_name}-hc"
+  description         = "${var.health_check_description}"
+  check_interval_sec  = "${var.health_check_interval_sec}"
+  timeout_sec         = "${var.health_check_timeout_sec}"
+  healthy_threshold   = "${var.health_check_healthy_threshold}"
   unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
 
-  port = "${var.health_check_port}"
+  port         = "${var.health_check_port}"
   request_path = "${var.health_check_path}"
 }
 
 # The Load Balancer may need explicit permission to forward traffic to our Vault Cluster.
 resource "google_compute_firewall" "load_balancer" {
-  name    = "${var.cluster_name}-rule-lb"
+  name        = "${var.cluster_name}-rule-lb"
   description = "${var.firewall_rule_description}"
-  network = "${var.network_name == "" ? "default" : var.network_name}"
+  network     = "${var.network_name == "" ? "default" : var.network_name}"
 
   allow {
     protocol = "tcp"
@@ -67,5 +67,6 @@ resource "google_compute_firewall" "load_balancer" {
   # "35.191.0.0/16" - Enable inbound traffic from the Google Cloud Health Checkers (https://goo.gl/xULu8U)
   # "0.0.0.0/0" - Enable any IP address to reach our nodes
   source_ranges = "${concat(list("130.211.0.0/22", "35.191.0.0/16"), var.allow_access_from_cidr_blocks)}"
+
   target_tags = ["${var.cluster_tag_name}"]
 }
