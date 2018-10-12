@@ -26,7 +26,7 @@ module "vault_cluster" {
   # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
   source = "../../modules/vault-cluster"
 
-  gcp_zone = "${var.gcp_zone}"
+  gcp_region = "${var.gcp_region}"
 
   cluster_name = "${var.vault_cluster_name}"
   cluster_size = "${var.vault_cluster_size}"
@@ -60,6 +60,7 @@ data "template_file" "startup_script_vault" {
   vars {
     consul_cluster_tag_name = "${var.consul_server_cluster_name}"
     vault_cluster_tag_name = "${var.vault_cluster_name}"
+    enable_vault_ui = "${var.enable_vault_ui ? "--enable-vault-ui" : ""}"
   }
 }
 
@@ -69,9 +70,10 @@ data "template_file" "startup_script_vault" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "consul_cluster" {
-  source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.0.3"
+  source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.2.0"
 
-  gcp_zone = "${var.gcp_zone}"
+  gcp_region = "${var.gcp_region}"
+
   cluster_name = "${var.consul_server_cluster_name}"
   cluster_tag_name = "${var.consul_server_cluster_name}"
   cluster_size = "${var.consul_server_cluster_size}"

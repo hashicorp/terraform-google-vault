@@ -41,6 +41,7 @@ function print_usage {
   echo -e "  --log-level\t\tThe log verbosity to use with Vault. Default is $DEFAULT_LOG_LEVEL."
   echo -e "  --user\t\tThe user to run Vault as. Default is to use the owner of --config-dir."
   echo -e "  --skip-vault-config\tIf this flag is set, don't generate a Vault configuration file. Default is false."
+  echo -e "  --enable-ui\tIf this flag is set, the Vault UI will be enabled. Default is false."
 
   echo
   echo "Example:"
@@ -128,6 +129,8 @@ function generate_vault_config {
   local readonly user="$6"
   local readonly gcs_bucket="$7"
   local readonly gcp_creds_file="$8"
+  local readonly enable_ui="$9"
+
   local readonly config_path="$config_dir/$VAULT_CONFIG_FILE"
 
   local instance_ip_address
@@ -135,6 +138,8 @@ function generate_vault_config {
 
   log_info "Creating default Vault config file in $config_path"
   cat > "$config_path" <<EOF
+ui = $enable_ui
+
 storage "gcs" {
   bucket = "$gcs_bucket"
   credentials_file = "$gcp_creds_file"
@@ -208,6 +213,7 @@ function run {
   local log_level="$DEFAULT_LOG_LEVEL"
   local user=""
   local skip_vault_config="false"
+  local enable_ui="false"
   local all_args=()
 
   while [[ $# > 0 ]]; do
@@ -261,6 +267,9 @@ function run {
       --skip-vault-config)
         skip_vault_config="true"
         ;;
+      --enable-ui)
+        enable_ui="true"
+        ;;
       --help)
         print_usage
         exit
@@ -305,7 +314,7 @@ function run {
   if [[ "$skip_vault_config" == "true" ]]; then
     log_info "The --skip-vault-config flag is set, so will not generate a default Vault config file."
   else
-    generate_vault_config "$tls_cert_file" "$tls_key_file" "$port" "$cluster_port" "$config_dir" "$user" "$gcs_bucket" "$gcp_creds_file"
+    generate_vault_config "$tls_cert_file" "$tls_key_file" "$port" "$cluster_port" "$config_dir" "$user" "$gcs_bucket" "$gcp_creds_file" "$enable_ui"
   fi
 
   generate_supervisor_config "$SUPERVISOR_CONFIG_PATH" "$config_dir" "$bin_dir" "$log_dir" "$log_level" "$user"

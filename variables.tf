@@ -11,10 +11,6 @@ variable "gcp_region" {
   description = "The region in which all GCP resources will be launched."
 }
 
-variable "gcp_zone" {
-  description = "The region in which all GCP resources will be launched."
-}
-
 variable "vault_cluster_name" {
   description = "The name of the Consul Server cluster. All resources will be namespaced by this value. E.g. consul-server-prod"
 }
@@ -88,5 +84,10 @@ variable "root_volume_disk_size_gb" {
 
 variable "root_volume_disk_type" {
   description = "The GCE disk type. Can be either pd-ssd, local-ssd, or pd-standard"
-  default     = "pd-standard"
+  default = "pd-standard"
+}
+
+variable "enable_vault_ui" {
+  description = "If true, enable the Vault UI"
+  default = true
 }

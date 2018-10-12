@@ -3,8 +3,8 @@
 # You must provide a value for each of these parameters.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "gcp_zone" {
-  description = "All GCP resources will be launched in this Zone."
+variable "gcp_region" {
+  description = "All GCP resources will be launched in this Region."
 }
 
 variable "gcp_project_id" {
