@@ -30,11 +30,14 @@ const TFVAR_NAME_CONSUL_SERVER_CLUSTER_MACHINE_TYPE = "consul_server_machine_typ
 
 func TestIntegrationVaultOpenSourcePublicClusterUbuntu(t *testing.T) {
 	t.Parallel()
+
+	testVaultPublicCluster(t, "ubuntu-16")
 }
 
-func testVaultPublicCluster(t *testing.T, osName string, edition string) {
+func testVaultPublicCluster(t *testing.T, osName string) {
 	exampleDir := test_structure.CopyTerraformFolderToTemp(t, "../", ".")
 	vaultImageDir := filepath.Join(exampleDir, "examples", "vault-consul-image")
+	vaultImagePath := filepath.Join(vaultImageDir, "vault-consul.json")
 
 	test_structure.RunTestStage(t, "build_image", func() {
 		gcpProjectId := gcp.GetGoogleProjectIDFromEnvVar(t)
@@ -48,7 +51,7 @@ func testVaultPublicCluster(t *testing.T, osName string, edition string) {
 		tlsCert := generateSelfSignedTlsCert(t)
 		saveTLSCert(t, vaultImageDir, tlsCert)
 
-		imageID := buildVaultImage(t, vaultImageDir, osName, gcpProjectId, gcpZone, tlsCert)
+		imageID := buildVaultImage(t, vaultImagePath, osName, gcpProjectId, gcpZone, tlsCert)
 		test_structure.SaveArtifactID(t, exampleDir, imageID)
 	})
 

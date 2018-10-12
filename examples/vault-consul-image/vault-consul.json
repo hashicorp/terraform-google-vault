@@ -11,12 +11,13 @@
     "tls_private_key_path": null
   },
   "builders": [{
+    "name": "ubuntu-16",
     "type": "googlecompute",
-    "image_name": "vault-consul-{{isotime \"2006-01-02-030405\"}}",
-    "image_family": "vault-consul",
     "project_id": "{{user `project_id`}}",
     "source_image_family": "ubuntu-1604-lts",
     "zone": "{{user `zone`}}",
+    "image_name": "vault-consul-{{isotime \"2006-01-02-030405\"}}",
+    "image_family": "vault-consul",
     "ssh_username": "ubuntu"
   }],
   "provisioners": [{
