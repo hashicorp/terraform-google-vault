@@ -6,8 +6,8 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 provider "google" {
-  project     = "${var.gcp_project}"
-  region      = "${var.gcp_region}"
+  project = "${var.gcp_project}"
+  region  = "${var.gcp_region}"
 }
 
 # Use Terraform 0.10.x so that we can take advantage of Terraform GCP functionality as a separate provider via
@@ -28,21 +28,21 @@ module "vault_cluster" {
 
   gcp_region = "${var.gcp_region}"
 
-  cluster_name = "${var.vault_cluster_name}"
-  cluster_size = "${var.vault_cluster_size}"
+  cluster_name     = "${var.vault_cluster_name}"
+  cluster_size     = "${var.vault_cluster_size}"
   cluster_tag_name = "${var.vault_cluster_name}"
-  machine_type = "${var.vault_cluster_machine_type}"
+  machine_type     = "${var.vault_cluster_machine_type}"
 
-  source_image = "${var.vault_source_image}"
+  source_image   = "${var.vault_source_image}"
   startup_script = "${data.template_file.startup_script_vault.rendered}"
 
-  gcs_bucket_name = "${var.vault_cluster_name}"
-  gcs_bucket_location = "${var.gcs_bucket_location}"
+  gcs_bucket_name          = "${var.vault_cluster_name}"
+  gcs_bucket_location      = "${var.gcs_bucket_location}"
   gcs_bucket_storage_class = "${var.gcs_bucket_class}"
   gcs_bucket_force_destroy = "${var.gcs_bucket_force_destroy}"
 
   root_volume_disk_size_gb = "${var.root_volume_disk_size_gb}"
-  root_volume_disk_type = "${var.root_volume_disk_type}"
+  root_volume_disk_type    = "${var.root_volume_disk_type}"
 
   # Note that the only way to reach private nodes via SSH is to first SSH into another node that is not private.
   assign_public_ip_addresses = false
@@ -50,6 +50,7 @@ module "vault_cluster" {
   # To enable external access to the Vault Cluster, enter the approved CIDR Blocks or tags below.
   # We enable health checks from the Consul Server cluster to Vault.
   allowed_inbound_cidr_blocks_api = []
+
   allowed_inbound_tags_api = ["${var.consul_server_cluster_name}"]
 }
 
@@ -59,8 +60,8 @@ data "template_file" "startup_script_vault" {
 
   vars {
     consul_cluster_tag_name = "${var.consul_server_cluster_name}"
-    vault_cluster_tag_name = "${var.vault_cluster_name}"
-    enable_vault_ui = "${var.enable_vault_ui ? "--enable-vault-ui" : ""}"
+    vault_cluster_tag_name  = "${var.vault_cluster_name}"
+    enable_vault_ui         = "${var.enable_vault_ui ? "--enable-vault-ui" : ""}"
   }
 }
 
@@ -74,9 +75,9 @@ module "consul_cluster" {
 
   gcp_region = "${var.gcp_region}"
 
-  cluster_name = "${var.consul_server_cluster_name}"
+  cluster_name     = "${var.consul_server_cluster_name}"
   cluster_tag_name = "${var.consul_server_cluster_name}"
-  cluster_size = "${var.consul_server_cluster_size}"
+  cluster_size     = "${var.consul_server_cluster_size}"
 
   source_image = "${var.consul_server_source_image}"
   machine_type = "${var.consul_server_machine_type}"
@@ -86,7 +87,7 @@ module "consul_cluster" {
   # Note that the only way to reach private nodes via SSH is to first SSH into another node that is not private.
   assign_public_ip_addresses = false
 
-  allowed_inbound_tags_dns = ["${var.vault_cluster_name}"]
+  allowed_inbound_tags_dns      = ["${var.vault_cluster_name}"]
   allowed_inbound_tags_http_api = ["${var.vault_cluster_name}"]
 }
 
@@ -95,6 +96,6 @@ data "template_file" "startup_script_consul" {
   template = "${file("${path.module}/startup-script-consul.sh")}"
 
   vars {
-    cluster_tag_name   = "${var.consul_server_cluster_name}"
+    cluster_tag_name = "${var.consul_server_cluster_name}"
   }
 }

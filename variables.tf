@@ -34,7 +34,7 @@ variable "consul_server_source_image" {
 
 variable "network_project_id" {
   description = "The name of the GCP Project where the network is located. Useful when using networks shared between projects. If empty, var.gcp_project_id will be used."
-  default = ""
+  default     = ""
 }
 
 variable "vault_cluster_machine_type" {
@@ -84,10 +84,10 @@ variable "root_volume_disk_size_gb" {
 
 variable "root_volume_disk_type" {
   description = "The GCE disk type. Can be either pd-ssd, local-ssd, or pd-standard"
-  default = "pd-standard"
+  default     = "pd-standard"
 }
 
 variable "enable_vault_ui" {
   description = "If true, enable the Vault UI"
-  default = true
+  default     = true
 }

@@ -62,7 +62,7 @@ data "template_file" "startup_script_vault" {
 
   vars {
     consul_cluster_tag_name = "${var.consul_server_cluster_name}"
-    vault_cluster_tag_name = "${var.vault_cluster_name}"
+    vault_cluster_tag_name  = "${var.vault_cluster_name}"
 
     enable_vault_ui = "${var.enable_vault_ui ? "--enable-vault-ui" : ""}"
   }
@@ -75,12 +75,12 @@ data "template_file" "startup_script_vault" {
 module "consul_cluster" {
   source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.3.0"
 
-  gcp_project_id     = "${var.gcp_project_id}"
-  gcp_region         = "${var.gcp_region}"
+  gcp_project_id = "${var.gcp_project_id}"
+  gcp_region     = "${var.gcp_region}"
 
-  cluster_name       = "${var.consul_server_cluster_name}"
-  cluster_tag_name   = "${var.consul_server_cluster_name}"
-  cluster_size       = "${var.consul_server_cluster_size}"
+  cluster_name     = "${var.consul_server_cluster_name}"
+  cluster_tag_name = "${var.consul_server_cluster_name}"
+  cluster_size     = "${var.consul_server_cluster_size}"
 
   source_image = "${var.consul_server_source_image}"
   machine_type = "${var.consul_server_machine_type}"
