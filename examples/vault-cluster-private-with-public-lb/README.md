@@ -1,4 +1,4 @@
-# Public Vault Cluster Example 
+# Private Vault Cluster with Public Load Balancer Example
 
 This example deploys a publicly accessible [Vault](https://www.vaultproject.io/) cluster in [GCP](https://cloud.google.com/)
 fronted by a Regional External Load Balancer using the [vault-cluster](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-cluster) and [vault-lb-fr](
