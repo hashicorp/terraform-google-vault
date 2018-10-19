@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gruntwork-io/terratest/modules/gcp"
 	"github.com/gruntwork-io/terratest/modules/random"
+	"github.com/gruntwork-io/terratest/modules/ssh"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/test-structure"
 	"path/filepath"
@@ -15,6 +16,8 @@ import (
 const SAVED_GCP_PROJECT_ID = "GcpProjectId"
 const SAVED_GCP_REGION_NAME = "GcpRegionName"
 const SAVED_GCP_ZONE_NAME = "GcpZoneName"
+const SAVED_CONSUL_CLUSTER_NAME = "ConsulClusterName"
+const SAVED_VAULT_CLUSTER_NAME = "VaultClusterName"
 
 // Terraform module vars
 const TFVAR_NAME_GCP_PROJECT_ID = "gcp_project_id"
@@ -40,18 +43,18 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 	vaultImagePath := filepath.Join(vaultImageDir, "vault-consul.json")
 
 	test_structure.RunTestStage(t, "build_image", func() {
-		gcpProjectId := gcp.GetGoogleProjectIDFromEnvVar(t)
-		gcpRegion := gcp.GetRandomRegion(t, gcpProjectId, nil, nil)
-		gcpZone := gcp.GetRandomZoneForRegion(t, gcpProjectId, gcpRegion)
+		projectId := gcp.GetGoogleProjectIDFromEnvVar(t)
+		region := gcp.GetRandomRegion(t, projectId, nil, nil)
+		zone := gcp.GetRandomZoneForRegion(t, projectId, region)
 
-		test_structure.SaveString(t, exampleDir, SAVED_GCP_PROJECT_ID, gcpProjectId)
-		test_structure.SaveString(t, exampleDir, SAVED_GCP_REGION_NAME, gcpRegion)
-		test_structure.SaveString(t, exampleDir, SAVED_GCP_ZONE_NAME, gcpZone)
+		test_structure.SaveString(t, exampleDir, SAVED_GCP_PROJECT_ID, projectId)
+		test_structure.SaveString(t, exampleDir, SAVED_GCP_REGION_NAME, region)
+		test_structure.SaveString(t, exampleDir, SAVED_GCP_ZONE_NAME, zone)
 
 		tlsCert := generateSelfSignedTlsCert(t)
 		saveTLSCert(t, vaultImageDir, tlsCert)
 
-		imageID := buildVaultImage(t, vaultImagePath, osName, gcpProjectId, gcpZone, tlsCert)
+		imageID := buildVaultImage(t, vaultImagePath, osName, projectId, zone, tlsCert)
 		test_structure.SaveArtifactID(t, exampleDir, imageID)
 	})
 
@@ -67,24 +70,30 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 	})
 
 	test_structure.RunTestStage(t, "deploy", func() {
-		gcpProjectId := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
-		gcpRegion := test_structure.LoadString(t, exampleDir, SAVED_GCP_REGION_NAME)
+		projectId := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
+		region := test_structure.LoadString(t, exampleDir, SAVED_GCP_REGION_NAME)
+		imageID := test_structure.LoadArtifactID(t, exampleDir)
 
 		// GCP only supports lowercase names for some resources
 		uniqueID := strings.ToLower(random.UniqueId())
-		imageID := test_structure.LoadArtifactID(t, exampleDir)
+
+		consulClusterName := fmt.Sprintf("consul-test-%s", uniqueID)
+		vaultClusterName := fmt.Sprintf("vault-test-%s", uniqueID)
+
+		test_structure.SaveString(t, exampleDir, SAVED_CONSUL_CLUSTER_NAME, consulClusterName)
+		test_structure.SaveString(t, exampleDir, SAVED_VAULT_CLUSTER_NAME, vaultClusterName)
 
 		terraformOptions := &terraform.Options{
 			TerraformDir: exampleDir,
 			Vars: map[string]interface{}{
-				TFVAR_NAME_GCP_PROJECT_ID:                     gcpProjectId,
-				TFVAR_NAME_GCP_REGION:                         gcpRegion,
-				TFVAR_NAME_VAULT_CLUSTER_NAME:                 fmt.Sprintf("vault-test-%s", uniqueID),
-				TFVAR_NAME_VAULT_SOURCE_IMAGE:                 imageID,
-				TFVAR_NAME_VAULT_CLUSTER_MACHINE_TYPE:         "g1-small",
-				TFVAR_NAME_CONSUL_SERVER_CLUSTER_NAME:         fmt.Sprintf("consul-test-%s", uniqueID),
+				TFVAR_NAME_GCP_PROJECT_ID:                     projectId,
+				TFVAR_NAME_GCP_REGION:                         region,
+				TFVAR_NAME_CONSUL_SERVER_CLUSTER_NAME:         consulClusterName,
 				TFVAR_NAME_CONSUL_SOURCE_IMAGE:                imageID,
 				TFVAR_NAME_CONSUL_SERVER_CLUSTER_MACHINE_TYPE: "g1-small",
+				TFVAR_NAME_VAULT_CLUSTER_NAME:                 vaultClusterName,
+				TFVAR_NAME_VAULT_SOURCE_IMAGE:                 imageID,
+				TFVAR_NAME_VAULT_CLUSTER_MACHINE_TYPE:         "g1-small",
 			},
 		}
 		test_structure.SaveTerraformOptions(t, exampleDir, terraformOptions)
@@ -93,6 +102,21 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 	})
 
 	test_structure.RunTestStage(t, "validate", func() {
-		// TODO: Fill this in.
+		projectId := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
+		region := test_structure.LoadString(t, exampleDir, SAVED_GCP_REGION_NAME)
+		vaultClusterName := test_structure.LoadString(t, exampleDir, SAVED_VAULT_CLUSTER_NAME)
+
+		sshUserName := "terratest"
+		keyPair := ssh.GenerateRSAKeyPair(t, 2048)
+
+		instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, vaultClusterName)
+		instances := instanceGroup.GetInstances(t, projectId)
+
+		for _, instance := range instances {
+			instance.AddSshKey(t, sshUserName, keyPair.PublicKey)
+		}
+
+		initializeAndUnsealVaultCluster(t, projectId, region, vaultClusterName, sshUserName, keyPair)
+		testVault(t, instances[0].GetPublicIp(t))
 	})
 }
