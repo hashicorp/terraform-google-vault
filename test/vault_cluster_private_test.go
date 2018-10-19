@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gruntwork-io/terratest/modules/gcp"
 	"github.com/gruntwork-io/terratest/modules/random"
-	"github.com/gruntwork-io/terratest/modules/ssh"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/test-structure"
 	"path/filepath"
@@ -12,33 +11,14 @@ import (
 	"testing"
 )
 
-// Terratest saved value names
-const SAVED_GCP_PROJECT_ID = "GcpProjectId"
-const SAVED_GCP_REGION_NAME = "GcpRegionName"
-const SAVED_GCP_ZONE_NAME = "GcpZoneName"
-const SAVED_CONSUL_CLUSTER_NAME = "ConsulClusterName"
-const SAVED_VAULT_CLUSTER_NAME = "VaultClusterName"
-
-// Terraform module vars
-const TFVAR_NAME_GCP_PROJECT_ID = "gcp_project_id"
-const TFVAR_NAME_GCP_REGION = "gcp_region"
-
-const TFVAR_NAME_VAULT_CLUSTER_NAME = "vault_cluster_name"
-const TFVAR_NAME_VAULT_SOURCE_IMAGE = "vault_source_image"
-const TFVAR_NAME_VAULT_CLUSTER_MACHINE_TYPE = "vault_cluster_machine_type"
-
-const TFVAR_NAME_CONSUL_SOURCE_IMAGE = "consul_server_source_image"
-const TFVAR_NAME_CONSUL_SERVER_CLUSTER_NAME = "consul_server_cluster_name"
-const TFVAR_NAME_CONSUL_SERVER_CLUSTER_MACHINE_TYPE = "consul_server_machine_type"
-
-func TestIntegrationVaultOpenSourcePublicClusterUbuntu(t *testing.T) {
+func TestIntegrationVaultOpenSourcePrivateClusterUbuntu(t *testing.T) {
 	t.Parallel()
 
-	testVaultPublicCluster(t, "ubuntu-16")
+	testVaultPrivateCluster(t, "ubuntu-16")
 }
 
-func testVaultPublicCluster(t *testing.T, osName string) {
-	exampleDir := test_structure.CopyTerraformFolderToTemp(t, "../", ".")
+func testVaultPrivateCluster(t *testing.T, osName string) {
+	exampleDir := test_structure.CopyTerraformFolderToTemp(t, "../", "examples/vault-cluster-private")
 	vaultImageDir := filepath.Join(exampleDir, "examples", "vault-consul-image")
 	vaultImagePath := filepath.Join(vaultImageDir, "vault-consul.json")
 
@@ -102,22 +82,6 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 		terraform.InitAndApply(t, terraformOptions)
 	})
 
-	test_structure.RunTestStage(t, "validate", func() {
-		projectId := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
-		region := test_structure.LoadString(t, exampleDir, SAVED_GCP_REGION_NAME)
-		vaultClusterName := test_structure.LoadString(t, exampleDir, SAVED_VAULT_CLUSTER_NAME)
-
-		sshUserName := "terratest"
-		keyPair := ssh.GenerateRSAKeyPair(t, 2048)
-
-		instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, vaultClusterName)
-		instances := instanceGroup.GetInstances(t, projectId)
-
-		for _, instance := range instances {
-			instance.AddSshKey(t, sshUserName, keyPair.PublicKey)
-		}
-
-		initializeAndUnsealVaultCluster(t, projectId, region, vaultClusterName, sshUserName, keyPair)
-		testVault(t, instances[0].GetPublicIp(t))
-	})
+	// We skip the validation stage for now because, by design, we have no way of reaching this cluster.
+	// TODO: Add a test that launches a "Bastion Host" that allows us to reach the Vault cluster
 }
