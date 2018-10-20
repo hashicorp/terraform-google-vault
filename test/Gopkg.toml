@@ -27,7 +27,9 @@
 
 [[constraint]]
   name = "github.com/gruntwork-io/terratest"
-  version = "0.13.4"
+  branch = "symlinks"
+  # TODO: Update to newest Terratest release
+  #version = "0.13.4"
 
 [prune]
   go-tests = true
