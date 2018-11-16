@@ -68,10 +68,15 @@ func initializeAndUnsealVaultCluster(t *testing.T, projectId string, region stri
 func findVaultClusterNodes(t *testing.T, projectId string, region string, instanceGroupId string, sshUserName string, sshKeyPair *ssh.KeyPair) *VaultCluster {
 	vaultInstanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
 
-	publicIps := vaultInstanceGroup.GetPublicIps(t, projectId)
-	if len(publicIps) != 3 {
-		t.Fatalf("Expected to get three IP addresses for Vault cluster, but got %d: %v", len(publicIps), publicIps)
-	}
+	publicIps := []string{}
+	retry.DoWithRetry(t, "Getting public ips of instances in instance group", 10, 10*time.Second, func() (string, error) {
+		publicIps = vaultInstanceGroup.GetPublicIps(t, projectId)
+
+		if len(publicIps) != 3 {
+			return "", fmt.Errorf("Expected to get three IP addresses for Vault cluster, but got %d: %v", len(publicIps), publicIps)
+		}
+		return "", nil
+	})
 
 	return &VaultCluster{
 		Leader: ssh.Host{
