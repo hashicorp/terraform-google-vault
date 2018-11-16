@@ -2,22 +2,20 @@ package test
 
 import (
 	"fmt"
+	"strings"
+	"testing"
+
 	"github.com/gruntwork-io/terratest/modules/gcp"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/ssh"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/test-structure"
-	"path/filepath"
-	"strings"
-	"testing"
 )
 
 // Terratest saved value names
 const SAVED_GCP_PROJECT_ID = "GcpProjectId"
 const SAVED_GCP_REGION_NAME = "GcpRegionName"
 const SAVED_GCP_ZONE_NAME = "GcpZoneName"
-const SAVED_CONSUL_CLUSTER_NAME = "ConsulClusterName"
-const SAVED_VAULT_CLUSTER_NAME = "VaultClusterName"
 
 // Terraform module vars
 const TFVAR_NAME_GCP_PROJECT_ID = "gcp_project_id"
@@ -39,8 +37,6 @@ func TestIntegrationVaultOpenSourcePublicClusterUbuntu(t *testing.T) {
 
 func testVaultPublicCluster(t *testing.T, osName string) {
 	exampleDir := test_structure.CopyTerraformFolderToTemp(t, "../", ".")
-	vaultImageDir := filepath.Join(exampleDir, "examples", "vault-consul-image")
-	vaultImagePath := filepath.Join(vaultImageDir, "vault-consul.json")
 
 	test_structure.RunTestStage(t, "build_image", func() {
 		projectId := gcp.GetGoogleProjectIDFromEnvVar(t)
@@ -52,20 +48,25 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 		test_structure.SaveString(t, exampleDir, SAVED_GCP_ZONE_NAME, zone)
 
 		tlsCert := generateSelfSignedTlsCert(t)
-		saveTLSCert(t, vaultImageDir, tlsCert)
+		saveTLSCert(t, exampleDir, tlsCert)
 
-		imageID := buildVaultImage(t, vaultImagePath, osName, projectId, zone, tlsCert)
+		imageID := buildVaultImage(t, PACKER_TEMPLATE_PATH, osName, projectId, zone, tlsCert)
 		test_structure.SaveArtifactID(t, exampleDir, imageID)
 	})
 
 	defer test_structure.RunTestStage(t, "teardown", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, exampleDir)
+		terraform.Destroy(t, terraformOptions)
+	})
+
+	defer test_structure.RunTestStage(t, "delete_image", func() {
 		projectID := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
 		imageName := test_structure.LoadArtifactID(t, exampleDir)
 
 		image := gcp.FetchImage(t, projectID, imageName)
 		image.DeleteImage(t)
 
-		tlsCert := loadTLSCert(t, vaultImageDir)
+		tlsCert := loadTLSCert(t, exampleDir)
 		cleanupTLSCertFiles(tlsCert)
 	})
 
@@ -79,9 +80,6 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 
 		consulClusterName := fmt.Sprintf("consul-test-%s", uniqueID)
 		vaultClusterName := fmt.Sprintf("vault-test-%s", uniqueID)
-
-		test_structure.SaveString(t, exampleDir, SAVED_CONSUL_CLUSTER_NAME, consulClusterName)
-		test_structure.SaveString(t, exampleDir, SAVED_VAULT_CLUSTER_NAME, vaultClusterName)
 
 		terraformOptions := &terraform.Options{
 			TerraformDir: exampleDir,
