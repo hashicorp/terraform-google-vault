@@ -29,6 +29,9 @@ const TFVAR_NAME_CONSUL_SOURCE_IMAGE = "consul_server_source_image"
 const TFVAR_NAME_CONSUL_SERVER_CLUSTER_NAME = "consul_server_cluster_name"
 const TFVAR_NAME_CONSUL_SERVER_CLUSTER_MACHINE_TYPE = "consul_server_machine_type"
 
+// Terraform Outputs
+const TFOUT_INSTANCE_GROUP_ID = "instance_group_id"
+
 func TestIntegrationVaultOpenSourcePublicClusterUbuntu(t *testing.T) {
 	t.Parallel()
 
@@ -101,21 +104,22 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 	})
 
 	test_structure.RunTestStage(t, "validate", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, exampleDir)
 		projectId := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
 		region := test_structure.LoadString(t, exampleDir, SAVED_GCP_REGION_NAME)
-		vaultClusterName := test_structure.LoadString(t, exampleDir, SAVED_VAULT_CLUSTER_NAME)
+		instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
 
 		sshUserName := "terratest"
 		keyPair := ssh.GenerateRSAKeyPair(t, 2048)
 
-		instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, vaultClusterName)
+		instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
 		instances := instanceGroup.GetInstances(t, projectId)
 
 		for _, instance := range instances {
 			instance.AddSshKey(t, sshUserName, keyPair.PublicKey)
 		}
 
-		initializeAndUnsealVaultCluster(t, projectId, region, vaultClusterName, sshUserName, keyPair)
+		initializeAndUnsealVaultCluster(t, projectId, region, instanceGroupId, sshUserName, keyPair)
 		testVault(t, instances[0].GetPublicIp(t))
 	})
 }

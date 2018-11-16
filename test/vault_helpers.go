@@ -42,8 +42,8 @@ const (
 // self-signed TLS certificate is properly configured on each server so when you're on that server, you don't
 // get errors about the certificate being signed by an unknown party.
 // Adapted from https://github.com/hashicorp/terraform-aws-vault/blob/141f57642215820ff758200fe63b3a52d7017061/test/vault_helpers.go#L507
-func initializeAndUnsealVaultCluster(t *testing.T, projectId string, region string, vaultClusterName string, sshUserName string, sshKeyPair *ssh.KeyPair) *VaultCluster {
-	cluster := findVaultClusterNodes(t, projectId, region, vaultClusterName, sshUserName, sshKeyPair)
+func initializeAndUnsealVaultCluster(t *testing.T, projectId string, region string, instanceGroupId string, sshUserName string, sshKeyPair *ssh.KeyPair) *VaultCluster {
+	cluster := findVaultClusterNodes(t, projectId, region, instanceGroupId, sshUserName, sshKeyPair)
 
 	verifyCanSsh(t, cluster)
 	assertAllNodesBooted(t, cluster)
@@ -65,10 +65,10 @@ func initializeAndUnsealVaultCluster(t *testing.T, projectId string, region stri
 }
 
 // Find the nodes in the given Vault Instance Group and return them in a VaultCluster struct
-func findVaultClusterNodes(t *testing.T, projectId string, region string, vaultClusterName string, sshUserName string, sshKeyPair *ssh.KeyPair) *VaultCluster {
-	vaultInstanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, vaultClusterName)
-	publicIps := vaultInstanceGroup.GetPublicIps(t, projectId)
+func findVaultClusterNodes(t *testing.T, projectId string, region string, instanceGroupId string, sshUserName string, sshKeyPair *ssh.KeyPair) *VaultCluster {
+	vaultInstanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
 
+	publicIps := vaultInstanceGroup.GetPublicIps(t, projectId)
 	if len(publicIps) != 3 {
 		t.Fatalf("Expected to get three IP addresses for Vault cluster, but got %d: %v", len(publicIps), publicIps)
 	}
