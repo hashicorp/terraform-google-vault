@@ -6,7 +6,7 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 provider "google" {
-  project = "${var.gcp_project}"
+  project = "${var.gcp_project_id}"
   region  = "${var.gcp_region}"
 }
 
@@ -26,7 +26,8 @@ module "vault_cluster" {
   # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
   source = "../../modules/vault-cluster"
 
-  gcp_region = "${var.gcp_region}"
+  gcp_project_id = "${var.gcp_project_id}"
+  gcp_region     = "${var.gcp_region}"
 
   cluster_name     = "${var.vault_cluster_name}"
   cluster_size     = "${var.vault_cluster_size}"
