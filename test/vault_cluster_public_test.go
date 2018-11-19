@@ -5,12 +5,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/files"
 	"github.com/gruntwork-io/terratest/modules/gcp"
-	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/ssh"
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -80,11 +78,7 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 
 	defer test_structure.RunTestStage(t, "log", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, exampleDir)
-
-		var keyPair ssh.KeyPair
-		keyPairPath := test_structure.FormatTestDataPath(exampleDir, "KeyPair")
-		test_structure.LoadTestData(t, keyPairPath, &keyPair)
-
+		keyPair := loadKeyPair(t, exampleDir)
 		projectId := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
 		region := test_structure.LoadString(t, exampleDir, SAVED_GCP_REGION_NAME)
 		instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
@@ -146,41 +140,11 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 
 		sshUserName := "terratest"
 		keyPair := ssh.GenerateRSAKeyPair(t, 2048)
-		keyPairPath := test_structure.FormatTestDataPath(exampleDir, "KeyPair")
-		test_structure.SaveTestData(t, keyPairPath, keyPair)
+		saveKeyPair(t, exampleDir, keyPair)
 
-		instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
-		instances := instanceGroup.GetInstances(t, projectId)
-
-		for _, instance := range instances {
-			instance.AddSshKey(t, sshUserName, keyPair.PublicKey)
-		}
+		instances := addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupId, keyPair, sshUserName)
 
 		initializeAndUnsealVaultCluster(t, projectId, region, instanceGroupId, sshUserName, keyPair)
 		testVault(t, instances[0].GetPublicIp(t))
 	})
-}
-
-func getFilesFromInstance(t *testing.T, instance *gcp.Instance, keyPair *ssh.KeyPair, filePaths ...string) map[string]string {
-	publicIp := instance.GetPublicIp(t)
-
-	host := ssh.Host{
-		SshUserName: "terratest",
-		SshKeyPair:  keyPair,
-		Hostname:    publicIp,
-	}
-
-	useSudo := true
-
-	return ssh.FetchContentsOfFiles(t, host, useSudo, filePaths...)
-}
-
-func writeLogFile(t *testing.T, buffer string, destination string) {
-	file, err := os.Create(destination)
-	if err != nil {
-		logger.Logf(t, fmt.Sprintf("Error creating log file on disk: %s", err.Error()))
-	}
-	defer file.Close()
-
-	file.WriteString(buffer)
 }
