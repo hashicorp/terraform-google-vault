@@ -77,9 +77,13 @@ func getFilesFromInstance(t *testing.T, instance *gcp.Instance, keyPair *ssh.Key
 		Hostname:    publicIp,
 	}
 
-	useSudo := true
+	useSudo := false
+	filesFromtInstance, err := ssh.FetchContentsOfFilesE(t, host, useSudo, filePaths...)
+	if err != nil {
+		logger.Logf(t, fmt.Sprintf("Error getting log file from instance: %s", err.Error()))
+	}
 
-	return ssh.FetchContentsOfFiles(t, host, useSudo, filePaths...)
+	return filesFromtInstance
 }
 
 func writeLogFile(t *testing.T, buffer string, destination string) {

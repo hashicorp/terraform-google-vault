@@ -87,18 +87,20 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 
 		vaultStdOutLogFilePath := "/opt/vault/log/vault-stdout.log"
 		vaultStdErrLogFilePath := "/opt/vault/log/vault-error.log"
+		sysLogFilePath := "/var/log/syslog"
 
 		instanceIdToLogs := map[string]map[string]string{}
 		for _, instance := range instances {
-			instanceId := string(instance.Id)
-			instanceIdToLogs[instanceId] = getFilesFromInstance(t, instance, &keyPair, vaultStdOutLogFilePath, vaultStdErrLogFilePath)
+			instanceName := instance.Name
+			instanceIdToLogs[instanceName] = getFilesFromInstance(t, instance, &keyPair, vaultStdOutLogFilePath, vaultStdErrLogFilePath, sysLogFilePath)
 
-			localDestDir := filepath.Join("/tmp/logs/", "vaultClusterPublic", instanceId)
+			localDestDir := filepath.Join("/tmp/logs/", "vaultClusterPublic", instanceName)
 			if !files.FileExists(localDestDir) {
 				os.MkdirAll(localDestDir, 0755)
 			}
-			writeLogFile(t, instanceIdToLogs[instanceId][vaultStdOutLogFilePath], filepath.Join(localDestDir, "vaultStdOut.log"))
-			writeLogFile(t, instanceIdToLogs[instanceId][vaultStdErrLogFilePath], filepath.Join(localDestDir, "vaultStdErr.log"))
+			writeLogFile(t, instanceIdToLogs[instanceName][vaultStdOutLogFilePath], filepath.Join(localDestDir, "vault-stdout.log"))
+			writeLogFile(t, instanceIdToLogs[instanceName][vaultStdErrLogFilePath], filepath.Join(localDestDir, "vault-error.log"))
+			writeLogFile(t, instanceIdToLogs[instanceName][sysLogFilePath], filepath.Join(localDestDir, "syslog"))
 		}
 	})
 
