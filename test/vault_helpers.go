@@ -16,6 +16,8 @@ import (
 	"github.com/hashicorp/vault/api"
 )
 
+const VAULT_PORT = 8200
+
 type VaultCluster struct {
 	Leader     ssh.Host
 	Standby1   ssh.Host
@@ -223,7 +225,7 @@ func testVault(t *testing.T, domainName string) {
 
 	maxRetries := 30
 	sleepBetweenRetries := 10 * time.Second
-	description := fmt.Sprintf("Testing Vault at domain name %s", domainName)
+	description := fmt.Sprintf("Testing Vault at domain name %s and port %d", domainName, VAULT_PORT)
 
 	vaultClient := createVaultClient(t, domainName)
 
@@ -245,9 +247,9 @@ func testVault(t *testing.T, domainName string) {
 // Create a Vault client configured to talk to Vault running at the given domain name
 func createVaultClient(t *testing.T, domainName string) *api.Client {
 	config := api.DefaultConfig()
-	config.Address = fmt.Sprintf("https://%s", domainName)
+	config.Address = fmt.Sprintf("https://%s:%d", domainName, VAULT_PORT)
 
-	// The TLS cert we are using in this test does not have the ELB DNS name in it, so disable the TLS check
+	// The TLS cert we are using in this test does not have the instance DNS name in it, so disable the TLS check
 	clientTLSConfig := config.HttpClient.Transport.(*http.Transport).TLSClientConfig
 	clientTLSConfig.InsecureSkipVerify = true
 
