@@ -2,10 +2,15 @@ package test
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
+
 	"testing"
 
+	"github.com/gruntwork-io/terratest/modules/files"
 	"github.com/gruntwork-io/terratest/modules/gcp"
+	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/ssh"
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -73,6 +78,36 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 		cleanupTLSCertFiles(tlsCert)
 	})
 
+	defer test_structure.RunTestStage(t, "log", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, exampleDir)
+
+		var keyPair ssh.KeyPair
+		keyPairPath := test_structure.FormatTestDataPath(exampleDir, "KeyPair")
+		test_structure.LoadTestData(t, keyPairPath, &keyPair)
+
+		projectId := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
+		region := test_structure.LoadString(t, exampleDir, SAVED_GCP_REGION_NAME)
+		instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
+		instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
+		instances := instanceGroup.GetInstances(t, projectId)
+
+		vaultStdOutLogFilePath := "/opt/vault/log/vault-stdout.log"
+		vaultStdErrLogFilePath := "/opt/vault/log/vault-error.log"
+
+		instanceIdToLogs := map[string]map[string]string{}
+		for _, instance := range instances {
+			instanceId := string(instance.Id)
+			instanceIdToLogs[instanceId] = getFilesFromInstance(t, instance, &keyPair, vaultStdOutLogFilePath, vaultStdErrLogFilePath)
+
+			localDestDir := filepath.Join("/tmp/logs/", "vaultClusterPublic", instanceId)
+			if !files.FileExists(localDestDir) {
+				os.MkdirAll(localDestDir, 0755)
+			}
+			writeLogFile(t, instanceIdToLogs[instanceId][vaultStdOutLogFilePath], filepath.Join(localDestDir, "vaultStdOut.log"))
+			writeLogFile(t, instanceIdToLogs[instanceId][vaultStdErrLogFilePath], filepath.Join(localDestDir, "vaultStdErr.log"))
+		}
+	})
+
 	test_structure.RunTestStage(t, "deploy", func() {
 		projectId := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
 		region := test_structure.LoadString(t, exampleDir, SAVED_GCP_REGION_NAME)
@@ -111,6 +146,8 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 
 		sshUserName := "terratest"
 		keyPair := ssh.GenerateRSAKeyPair(t, 2048)
+		keyPairPath := test_structure.FormatTestDataPath(exampleDir, "KeyPair")
+		test_structure.SaveTestData(t, keyPairPath, keyPair)
 
 		instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
 		instances := instanceGroup.GetInstances(t, projectId)
@@ -122,4 +159,28 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 		initializeAndUnsealVaultCluster(t, projectId, region, instanceGroupId, sshUserName, keyPair)
 		testVault(t, instances[0].GetPublicIp(t))
 	})
+}
+
+func getFilesFromInstance(t *testing.T, instance *gcp.Instance, keyPair *ssh.KeyPair, filePaths ...string) map[string]string {
+	publicIp := instance.GetPublicIp(t)
+
+	host := ssh.Host{
+		SshUserName: "terratest",
+		SshKeyPair:  keyPair,
+		Hostname:    publicIp,
+	}
+
+	useSudo := true
+
+	return ssh.FetchContentsOfFiles(t, host, useSudo, filePaths...)
+}
+
+func writeLogFile(t *testing.T, buffer string, destination string) {
+	file, err := os.Create(destination)
+	if err != nil {
+		logger.Logf(t, fmt.Sprintf("Error creating log file on disk: %s", err.Error()))
+	}
+	defer file.Close()
+
+	file.WriteString(buffer)
 }
