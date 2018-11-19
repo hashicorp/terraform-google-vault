@@ -143,10 +143,9 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 		sshUserName := "terratest"
 		keyPair := ssh.GenerateRSAKeyPair(t, 2048)
 		saveKeyPair(t, exampleDir, keyPair)
+		addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupId, keyPair, sshUserName)
 
-		instances := addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupId, keyPair, sshUserName)
-
-		initializeAndUnsealVaultCluster(t, projectId, region, instanceGroupId, sshUserName, keyPair)
-		testVault(t, instances[0].GetPublicIp(t))
+		cluster := initializeAndUnsealVaultCluster(t, projectId, region, instanceGroupId, sshUserName, keyPair)
+		testVault(t, cluster.Leader.Hostname)
 	})
 }
