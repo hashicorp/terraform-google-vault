@@ -87,6 +87,7 @@ func getFilesFromInstance(t *testing.T, instance *gcp.Instance, keyPair *ssh.Key
 }
 
 func writeLogFile(t *testing.T, buffer string, destination string) {
+	logger.Logf(t, fmt.Sprintf("Writing log file to %s", destination))
 	file, err := os.Create(destination)
 	if err != nil {
 		logger.Logf(t, fmt.Sprintf("Error creating log file on disk: %s", err.Error()))
