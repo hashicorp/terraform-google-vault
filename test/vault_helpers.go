@@ -281,8 +281,8 @@ func writeVaultLogs(t *testing.T, testName string, testDir string) {
 	projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
 	region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
 	instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
-	instanceGroup := gcp.FetchRegionalInstanceGroup(t, testDir, region, instanceGroupId)
-	instances := instanceGroup.GetInstances(t, projectId)
+	instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
+	instances := getInstancesFromGroup(t, projectId, instanceGroup)
 
 	vaultStdOutLogFilePath := "/opt/vault/log/vault-stdout.log"
 	vaultStdErrLogFilePath := "/opt/vault/log/vault-error.log"
