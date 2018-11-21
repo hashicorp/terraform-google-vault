@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/random"
+	"github.com/gruntwork-io/terratest/modules/ssh"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/test-structure"
 )
@@ -19,7 +20,7 @@ func runVaultPrivateClusterTest(t *testing.T, osName string) {
 	})
 
 	defer test_structure.RunTestStage(t, "log", func() {
-		//writeVaultLogs(t, "vaultPublicCluster", exampleDir)
+		writeVaultLogs(t, "vaultPublicCluster", exampleDir)
 	})
 
 	test_structure.RunTestStage(t, "deploy", func() {
@@ -52,6 +53,18 @@ func runVaultPrivateClusterTest(t *testing.T, osName string) {
 		terraform.InitAndApply(t, terraformOptions)
 	})
 
-	// We skip the validation stage for now because, by design, we have no way of reaching this cluster.
-	// TODO: Add a test that launches a "Bastion Host" that allows us to reach the Vault cluster
+	test_structure.RunTestStage(t, "validate", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, exampleDir)
+		projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
+		region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
+		instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
+
+		sshUserName := "terratest"
+		keyPair := ssh.GenerateRSAKeyPair(t, 2048)
+		saveKeyPair(t, exampleDir, keyPair)
+		addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupId, keyPair, sshUserName)
+
+		cluster := initializeAndUnsealVaultCluster(t, projectId, region, instanceGroupId, sshUserName, keyPair)
+		testVaultUsesConsulForDns(t, cluster)
+	})
 }
