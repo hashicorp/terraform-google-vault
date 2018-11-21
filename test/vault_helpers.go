@@ -139,9 +139,11 @@ func assertAllNodesBooted(t *testing.T, cluster *VaultCluster) {
 
 // Initialize the Vault cluster, filling in the unseal keys in the given vaultCluster struct
 func initializeVault(t *testing.T, vaultCluster *VaultCluster) {
-	logger.Logf(t, "Initializing the cluster")
-	output := ssh.CheckSshCommand(t, vaultCluster.Leader, "vault operator init")
+	output := retry.DoWithRetry(t, "Initializing the cluster", 10, 10*time.Second, func() (string, error) {
+		return ssh.CheckSshCommandE(t, vaultCluster.Leader, "vault operator init")
+	})
 	vaultCluster.UnsealKeys = parseUnsealKeysFromVaultInitResponse(t, output)
+
 }
 
 // Unseal the given Vault host using the given unseal keys
@@ -152,9 +154,10 @@ func unsealNode(t *testing.T, host ssh.Host, unsealKeys []string) {
 	}
 
 	unsealCommand := strings.Join(unsealCommands, " && ")
-
-	logger.Logf(t, "Unsealing Vault on host %s", host.Hostname)
-	ssh.CheckSshCommand(t, host, unsealCommand)
+	description := fmt.Sprintf("Unsealing Vault on host %s", host.Hostname)
+	retry.DoWithRetryE(t, description, 10, 10*time.Second, func() (string, error) {
+		return ssh.CheckSshCommandE(t, host, unsealCommand)
+	})
 }
 
 // Parse an unseal key from a single line of the stdout of the vault init command, which should be of the format:
