@@ -14,6 +14,11 @@ import (
 	"github.com/gruntwork-io/terratest/modules/test-structure"
 )
 
+// Terratest saved value names
+const SAVED_GCP_PROJECT_ID = "GcpProjectId"
+const SAVED_GCP_REGION_NAME = "GcpRegionName"
+const SAVED_GCP_ZONE_NAME = "GcpZoneName"
+
 // PACKER_VAR_GCP_PROJECT_ID represents the Project ID variable in the Packer template
 const PACKER_VAR_GCP_PROJECT_ID = "project_id"
 
@@ -32,20 +37,43 @@ const SAVED_TLS_CERT = "TlsCert"
 const SAVED_KEYPAIR = "KeyPair"
 
 // Use Packer to build the Image in the given Packer template, with the given build name and return the Image ID.
-func buildVaultImage(t *testing.T, packerTemplatePath string, packerBuildName string, gcpProjectID string, gcpZone string, tlsCert TlsCert) string {
+func buildVaultImage(t *testing.T, packerBuildName string, testDir string) {
+	projectId := gcp.GetGoogleProjectIDFromEnvVar(t)
+	region := gcp.GetRandomRegion(t, projectId, nil, nil)
+	zone := gcp.GetRandomZoneForRegion(t, projectId, region)
+
+	test_structure.SaveString(t, testDir, SAVED_GCP_PROJECT_ID, projectId)
+	test_structure.SaveString(t, testDir, SAVED_GCP_REGION_NAME, region)
+	test_structure.SaveString(t, testDir, SAVED_GCP_ZONE_NAME, zone)
+
+	tlsCert := generateSelfSignedTlsCert(t)
+	saveTLSCert(t, testDir, tlsCert)
+
 	options := &packer.Options{
-		Template: packerTemplatePath,
+		Template: PACKER_TEMPLATE_PATH,
 		Only:     packerBuildName,
 		Vars: map[string]string{
-			PACKER_VAR_GCP_PROJECT_ID:  gcpProjectID,
-			PACKER_VAR_GCP_ZONE:        gcpZone,
+			PACKER_VAR_GCP_PROJECT_ID:  projectId,
+			PACKER_VAR_GCP_ZONE:        zone,
 			PACKER_VAR_CA_PUBLIC_KEY:   tlsCert.CAPublicKeyPath,
 			PACKER_VAR_TLS_PUBLIC_KEY:  tlsCert.PublicKeyPath,
 			PAKCER_VAR_TLS_PRIVATE_KEY: tlsCert.PrivateKeyPath,
 		},
 	}
 
-	return packer.BuildArtifact(t, options)
+	imageID := packer.BuildArtifact(t, options)
+	test_structure.SaveArtifactID(t, testDir, imageID)
+}
+
+func deleteVaultImage(t *testing.T, testDir string) {
+	projectID := test_structure.LoadString(t, testDir, SAVED_GCP_PROJECT_ID)
+	imageName := test_structure.LoadArtifactID(t, testDir)
+
+	image := gcp.FetchImage(t, projectID, imageName)
+	image.DeleteImage(t)
+
+	tlsCert := loadTLSCert(t, testDir)
+	cleanupTLSCertFiles(tlsCert)
 }
 
 func saveTLSCert(t *testing.T, testFolder string, tlsCert TlsCert) {

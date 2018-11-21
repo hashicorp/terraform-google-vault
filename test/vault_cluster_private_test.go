@@ -5,57 +5,27 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gruntwork-io/terratest/modules/gcp"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/test-structure"
 )
 
-func TestIntegrationVaultOpenSourcePrivateClusterUbuntu(t *testing.T) {
-	t.Parallel()
-
-	testVaultPrivateCluster(t, "ubuntu-16")
-}
-
-func testVaultPrivateCluster(t *testing.T, osName string) {
+func runVaultPrivateClusterTest(t *testing.T, osName string) {
 	exampleDir := test_structure.CopyTerraformFolderToTemp(t, "../", "examples/vault-cluster-private")
-
-	test_structure.RunTestStage(t, "build_image", func() {
-		projectId := gcp.GetGoogleProjectIDFromEnvVar(t)
-		region := gcp.GetRandomRegion(t, projectId, nil, nil)
-		zone := gcp.GetRandomZoneForRegion(t, projectId, region)
-
-		test_structure.SaveString(t, exampleDir, SAVED_GCP_PROJECT_ID, projectId)
-		test_structure.SaveString(t, exampleDir, SAVED_GCP_REGION_NAME, region)
-		test_structure.SaveString(t, exampleDir, SAVED_GCP_ZONE_NAME, zone)
-
-		tlsCert := generateSelfSignedTlsCert(t)
-		saveTLSCert(t, exampleDir, tlsCert)
-
-		imageID := buildVaultImage(t, PACKER_TEMPLATE_PATH, osName, projectId, zone, tlsCert)
-		test_structure.SaveArtifactID(t, exampleDir, imageID)
-	})
 
 	defer test_structure.RunTestStage(t, "teardown", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, exampleDir)
 		terraform.Destroy(t, terraformOptions)
 	})
 
-	defer test_structure.RunTestStage(t, "delete_image", func() {
-		projectID := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
-		imageName := test_structure.LoadArtifactID(t, exampleDir)
-
-		image := gcp.FetchImage(t, projectID, imageName)
-		image.DeleteImage(t)
-
-		tlsCert := loadTLSCert(t, exampleDir)
-		cleanupTLSCertFiles(tlsCert)
+	defer test_structure.RunTestStage(t, "log", func() {
+		//writeVaultLogs(t, "vaultPublicCluster", exampleDir)
 	})
 
 	test_structure.RunTestStage(t, "deploy", func() {
-		projectId := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
-		region := test_structure.LoadString(t, exampleDir, SAVED_GCP_REGION_NAME)
-		imageID := test_structure.LoadArtifactID(t, exampleDir)
+		projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
+		region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
+		imageID := test_structure.LoadArtifactID(t, WORK_DIR)
 
 		// GCP only supports lowercase names for some resources
 		uniqueID := strings.ToLower(random.UniqueId())

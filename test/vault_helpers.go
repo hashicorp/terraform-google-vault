@@ -3,20 +3,29 @@ package test
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/gruntwork-io/terratest/modules/files"
 	"github.com/gruntwork-io/terratest/modules/gcp"
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/retry"
 	"github.com/gruntwork-io/terratest/modules/ssh"
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/hashicorp/vault/api"
 )
 
+const LOGS_STORAGE_PATH = "/tmp/logs/"
 const VAULT_PORT = 8200
+
+// Terraform Outputs
+const TFOUT_INSTANCE_GROUP_ID = "instance_group_id"
 
 type VaultCluster struct {
 	Leader     ssh.Host
@@ -259,4 +268,34 @@ func createVaultClient(t *testing.T, domainName string) *api.Client {
 	}
 
 	return client
+}
+
+// Gets Vault logs and syslog written to disk, so it is exposed on circle ci artifacts
+func writeVaultLogs(t *testing.T, testName string, testDir string) {
+	terraformOptions := test_structure.LoadTerraformOptions(t, testDir)
+
+	keyPair := loadKeyPair(t, testDir)
+	projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
+	region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
+	instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
+	instanceGroup := gcp.FetchRegionalInstanceGroup(t, testDir, region, instanceGroupId)
+	instances := instanceGroup.GetInstances(t, projectId)
+
+	vaultStdOutLogFilePath := "/opt/vault/log/vault-stdout.log"
+	vaultStdErrLogFilePath := "/opt/vault/log/vault-error.log"
+	sysLogFilePath := "/var/log/syslog"
+
+	instanceIdToLogs := map[string]map[string]string{}
+	for _, instance := range instances {
+		instanceName := instance.Name
+		instanceIdToLogs[instanceName] = getFilesFromInstance(t, instance, &keyPair, vaultStdOutLogFilePath, vaultStdErrLogFilePath, sysLogFilePath)
+
+		localDestDir := filepath.Join(LOGS_STORAGE_PATH, testName, instanceName)
+		if !files.FileExists(localDestDir) {
+			os.MkdirAll(localDestDir, 0755)
+		}
+		writeLogFile(t, instanceIdToLogs[instanceName][vaultStdOutLogFilePath], filepath.Join(localDestDir, "vault-stdout.log"))
+		writeLogFile(t, instanceIdToLogs[instanceName][vaultStdErrLogFilePath], filepath.Join(localDestDir, "vault-error.log"))
+		writeLogFile(t, instanceIdToLogs[instanceName][sysLogFilePath], filepath.Join(localDestDir, "syslog"))
+	}
 }

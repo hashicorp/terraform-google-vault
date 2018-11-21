@@ -2,23 +2,14 @@ package test
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/gruntwork-io/terratest/modules/files"
-	"github.com/gruntwork-io/terratest/modules/gcp"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/ssh"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/test-structure"
 )
-
-// Terratest saved value names
-const SAVED_GCP_PROJECT_ID = "GcpProjectId"
-const SAVED_GCP_REGION_NAME = "GcpRegionName"
-const SAVED_GCP_ZONE_NAME = "GcpZoneName"
 
 // Terraform module vars
 const TFVAR_NAME_GCP_PROJECT_ID = "gcp_project_id"
@@ -32,82 +23,22 @@ const TFVAR_NAME_CONSUL_SOURCE_IMAGE = "consul_server_source_image"
 const TFVAR_NAME_CONSUL_SERVER_CLUSTER_NAME = "consul_server_cluster_name"
 const TFVAR_NAME_CONSUL_SERVER_CLUSTER_MACHINE_TYPE = "consul_server_machine_type"
 
-// Terraform Outputs
-const TFOUT_INSTANCE_GROUP_ID = "instance_group_id"
-
-func TestIntegrationVaultOpenSourcePublicClusterUbuntu(t *testing.T) {
-	t.Parallel()
-
-	testVaultPublicCluster(t, "ubuntu-16")
-}
-
-func testVaultPublicCluster(t *testing.T, osName string) {
+func runVaultPublicClusterTest(t *testing.T, osName string) {
 	exampleDir := test_structure.CopyTerraformFolderToTemp(t, "../", ".")
-
-	test_structure.RunTestStage(t, "build_image", func() {
-		projectId := gcp.GetGoogleProjectIDFromEnvVar(t)
-		region := gcp.GetRandomRegion(t, projectId, nil, nil)
-		zone := gcp.GetRandomZoneForRegion(t, projectId, region)
-
-		test_structure.SaveString(t, exampleDir, SAVED_GCP_PROJECT_ID, projectId)
-		test_structure.SaveString(t, exampleDir, SAVED_GCP_REGION_NAME, region)
-		test_structure.SaveString(t, exampleDir, SAVED_GCP_ZONE_NAME, zone)
-
-		tlsCert := generateSelfSignedTlsCert(t)
-		saveTLSCert(t, exampleDir, tlsCert)
-
-		imageID := buildVaultImage(t, PACKER_TEMPLATE_PATH, osName, projectId, zone, tlsCert)
-		test_structure.SaveArtifactID(t, exampleDir, imageID)
-	})
 
 	defer test_structure.RunTestStage(t, "teardown", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, exampleDir)
 		terraform.Destroy(t, terraformOptions)
 	})
 
-	defer test_structure.RunTestStage(t, "delete_image", func() {
-		projectID := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
-		imageName := test_structure.LoadArtifactID(t, exampleDir)
-
-		image := gcp.FetchImage(t, projectID, imageName)
-		image.DeleteImage(t)
-
-		tlsCert := loadTLSCert(t, exampleDir)
-		cleanupTLSCertFiles(tlsCert)
-	})
-
 	defer test_structure.RunTestStage(t, "log", func() {
-		terraformOptions := test_structure.LoadTerraformOptions(t, exampleDir)
-		keyPair := loadKeyPair(t, exampleDir)
-		projectId := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
-		region := test_structure.LoadString(t, exampleDir, SAVED_GCP_REGION_NAME)
-		instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
-		instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
-		instances := instanceGroup.GetInstances(t, projectId)
-
-		vaultStdOutLogFilePath := "/opt/vault/log/vault-stdout.log"
-		vaultStdErrLogFilePath := "/opt/vault/log/vault-error.log"
-		sysLogFilePath := "/var/log/syslog"
-
-		instanceIdToLogs := map[string]map[string]string{}
-		for _, instance := range instances {
-			instanceName := instance.Name
-			instanceIdToLogs[instanceName] = getFilesFromInstance(t, instance, &keyPair, vaultStdOutLogFilePath, vaultStdErrLogFilePath, sysLogFilePath)
-
-			localDestDir := filepath.Join("/tmp/logs/", "vaultClusterPublic", instanceName)
-			if !files.FileExists(localDestDir) {
-				os.MkdirAll(localDestDir, 0755)
-			}
-			writeLogFile(t, instanceIdToLogs[instanceName][vaultStdOutLogFilePath], filepath.Join(localDestDir, "vault-stdout.log"))
-			writeLogFile(t, instanceIdToLogs[instanceName][vaultStdErrLogFilePath], filepath.Join(localDestDir, "vault-error.log"))
-			writeLogFile(t, instanceIdToLogs[instanceName][sysLogFilePath], filepath.Join(localDestDir, "syslog"))
-		}
+		writeVaultLogs(t, "vaultPublicCluster", exampleDir)
 	})
 
 	test_structure.RunTestStage(t, "deploy", func() {
-		projectId := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
-		region := test_structure.LoadString(t, exampleDir, SAVED_GCP_REGION_NAME)
-		imageID := test_structure.LoadArtifactID(t, exampleDir)
+		projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
+		region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
+		imageID := test_structure.LoadArtifactID(t, WORK_DIR)
 
 		// GCP only supports lowercase names for some resources
 		uniqueID := strings.ToLower(random.UniqueId())
@@ -136,8 +67,8 @@ func testVaultPublicCluster(t *testing.T, osName string) {
 
 	test_structure.RunTestStage(t, "validate", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, exampleDir)
-		projectId := test_structure.LoadString(t, exampleDir, SAVED_GCP_PROJECT_ID)
-		region := test_structure.LoadString(t, exampleDir, SAVED_GCP_REGION_NAME)
+		projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
+		region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
 		instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
 
 		sshUserName := "terratest"
