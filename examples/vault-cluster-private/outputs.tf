@@ -14,6 +14,10 @@ output "cluster_tag_name" {
   value = "${module.vault_cluster.cluster_tag_name}"
 }
 
+output "bastion_server_name" {
+  value = "${var.bastion_server_name}"
+}
+
 output "instance_group_id" {
   value = "${module.vault_cluster.instance_group_id}"
 }

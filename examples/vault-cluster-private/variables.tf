@@ -11,6 +11,10 @@ variable "gcp_region" {
   description = "The Region in which all GCP resources will be launched."
 }
 
+variable "bastion_server_name" {
+  description = "The name of the bastion server that can reach the private vault cluster"
+}
+
 variable "vault_cluster_name" {
   description = "The name of the Consul Server cluster. All resources will be namespaced by this value. E.g. consul-server-prod"
 }
@@ -78,4 +82,9 @@ variable "root_volume_disk_type" {
 variable "enable_vault_ui" {
   description = "If true, enable the Vault UI"
   default     = true
+}
+
+variable "network_name" {
+  description = "The name of the VPC Network where all resources should be created."
+  default     = "default"
 }
