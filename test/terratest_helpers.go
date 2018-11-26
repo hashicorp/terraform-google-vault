@@ -149,3 +149,10 @@ func getInstancesFromGroup(t *testing.T, projectId string, instanceGroup *gcp.Re
 
 	return instances
 }
+
+func runCommand(t *testing.T, bastionHost *ssh.Host, targetHost *ssh.Host, command string) (string, error) {
+	if bastionHost == nil {
+		return ssh.CheckSshCommandE(t, *targetHost, command)
+	}
+	return ssh.CheckPrivateSshConnectionE(t, *bastionHost, *targetHost, command)
+}

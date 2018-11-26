@@ -53,65 +53,77 @@ const (
 // self-signed TLS certificate is properly configured on each server so when you're on that server, you don't
 // get errors about the certificate being signed by an unknown party.
 // Adapted from https://github.com/hashicorp/terraform-aws-vault/blob/141f57642215820ff758200fe63b3a52d7017061/test/vault_helpers.go#L507
-func initializeAndUnsealVaultCluster(t *testing.T, projectId string, region string, instanceGroupId string, sshUserName string, sshKeyPair *ssh.KeyPair) *VaultCluster {
-	cluster := findVaultClusterNodes(t, projectId, region, instanceGroupId, sshUserName, sshKeyPair)
+func initializeAndUnsealVaultCluster(t *testing.T, projectId string, region string, instanceGroupId string, sshUserName string, sshKeyPair *ssh.KeyPair, bastionHost *ssh.Host) *VaultCluster {
+	cluster := findVaultClusterNodes(t, projectId, region, instanceGroupId, sshUserName, sshKeyPair, bastionHost)
 
-	verifyCanSsh(t, cluster)
-	assertAllNodesBooted(t, cluster)
-	initializeVault(t, cluster)
+	verifyCanSsh(t, cluster, bastionHost)
+	assertAllNodesBooted(t, cluster, bastionHost)
+	initializeVault(t, cluster, bastionHost)
 
-	assertNodeStatus(t, cluster.Leader, Sealed)
-	unsealNode(t, cluster.Leader, cluster.UnsealKeys)
-	assertNodeStatus(t, cluster.Leader, Leader)
+	assertNodeStatus(t, cluster.Leader, bastionHost, Sealed)
+	unsealNode(t, cluster.Leader, bastionHost, cluster.UnsealKeys)
+	assertNodeStatus(t, cluster.Leader, bastionHost, Leader)
 
-	assertNodeStatus(t, cluster.Standby1, Sealed)
-	unsealNode(t, cluster.Standby1, cluster.UnsealKeys)
-	assertNodeStatus(t, cluster.Standby1, Standby)
+	assertNodeStatus(t, cluster.Standby1, bastionHost, Sealed)
+	unsealNode(t, cluster.Standby1, bastionHost, cluster.UnsealKeys)
+	assertNodeStatus(t, cluster.Standby1, bastionHost, Standby)
 
-	assertNodeStatus(t, cluster.Standby2, Sealed)
-	unsealNode(t, cluster.Standby2, cluster.UnsealKeys)
-	assertNodeStatus(t, cluster.Standby2, Standby)
+	assertNodeStatus(t, cluster.Standby2, bastionHost, Sealed)
+	unsealNode(t, cluster.Standby2, bastionHost, cluster.UnsealKeys)
+	assertNodeStatus(t, cluster.Standby2, bastionHost, Standby)
 
 	return cluster
 }
 
 // Find the nodes in the given Vault Instance Group and return them in a VaultCluster struct
-func findVaultClusterNodes(t *testing.T, projectId string, region string, instanceGroupId string, sshUserName string, sshKeyPair *ssh.KeyPair) *VaultCluster {
+func findVaultClusterNodes(t *testing.T, projectId string, region string, instanceGroupId string, sshUserName string, sshKeyPair *ssh.KeyPair, bastionHost *ssh.Host) *VaultCluster {
 	vaultInstanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
-
-	publicIps := []string{}
-	retry.DoWithRetry(t, "Getting public ips of instances in instance group", 10, 10*time.Second, func() (string, error) {
-		publicIps = vaultInstanceGroup.GetPublicIps(t, projectId)
-
-		if len(publicIps) != 3 {
-			return "", fmt.Errorf("Expected to get three IP addresses for Vault cluster, but got %d: %v", len(publicIps), publicIps)
-		}
-		return "", nil
-	})
+	hostnames := getClusterHostnames(t, projectId, vaultInstanceGroup, bastionHost)
 
 	return &VaultCluster{
 		Leader: ssh.Host{
-			Hostname:    publicIps[0],
+			Hostname:    hostnames[0],
 			SshUserName: sshUserName,
 			SshKeyPair:  sshKeyPair,
 		},
 
 		Standby1: ssh.Host{
-			Hostname:    publicIps[1],
+			Hostname:    hostnames[1],
 			SshUserName: sshUserName,
 			SshKeyPair:  sshKeyPair,
 		},
 
 		Standby2: ssh.Host{
-			Hostname:    publicIps[2],
+			Hostname:    hostnames[2],
 			SshUserName: sshUserName,
 			SshKeyPair:  sshKeyPair,
 		},
 	}
 }
 
-// Wait until we can connect to each of the Vault cluster EC2 Instances
-func verifyCanSsh(t *testing.T, cluster *VaultCluster) {
+// Returns list of public ips of vault cluster or, if using bastion host + private instances, instance names
+func getClusterHostnames(t *testing.T, projectId string, vaultInstanceGroup *gcp.RegionalInstanceGroup, bastionHost *ssh.Host) []string {
+	hostnames := []string{}
+	if bastionHost != nil {
+		instances := getInstancesFromGroup(t, projectId, vaultInstanceGroup)
+		for _, instance := range instances {
+			hostnames = append(hostnames, instance.Name)
+		}
+	} else {
+		retry.DoWithRetry(t, "Getting public ips of instances in instance group", 10, 10*time.Second, func() (string, error) {
+			hostnames = vaultInstanceGroup.GetPublicIps(t, projectId)
+
+			if len(hostnames) != 3 {
+				return "", fmt.Errorf("Expected to get three IP addresses for Vault cluster, but got %d: %v", len(hostnames), hostnames)
+			}
+			return "", nil
+		})
+	}
+	return hostnames
+}
+
+// Wait until we can connect to each of the Vault cluster Instances
+func verifyCanSsh(t *testing.T, cluster *VaultCluster, bastionHost *ssh.Host) {
 	for _, host := range cluster.GetSshHosts() {
 		if host.Hostname != "" {
 
@@ -120,7 +132,7 @@ func verifyCanSsh(t *testing.T, cluster *VaultCluster) {
 			description := fmt.Sprintf("Attempting SSH connection to %s\n", host.Hostname)
 
 			retry.DoWithRetry(t, description, maxRetries, sleepBetweenRetries, func() (string, error) {
-				return "", ssh.CheckSshConnectionE(t, host)
+				return runCommand(t, bastionHost, &host, "exit")
 			})
 		}
 	}
@@ -128,26 +140,25 @@ func verifyCanSsh(t *testing.T, cluster *VaultCluster) {
 
 // Wait until the Vault servers are booted the very first time on the Compute Instances. As a simple solution, we simply
 // wait for the leader to boot and assume if it's up, the other nodes will be, too.
-func assertAllNodesBooted(t *testing.T, cluster *VaultCluster) {
+func assertAllNodesBooted(t *testing.T, cluster *VaultCluster, bastionHost *ssh.Host) {
 	for _, node := range cluster.GetSshHosts() {
 		if node.Hostname != "" {
 			logger.Logf(t, "Waiting for Vault to boot the first time on host %s. Expecting it to be in uninitialized status (%d).", node.Hostname, int(Uninitialized))
-			assertNodeStatus(t, node, Uninitialized)
+			assertNodeStatus(t, node, bastionHost, Uninitialized)
 		}
 	}
 }
 
 // Initialize the Vault cluster, filling in the unseal keys in the given vaultCluster struct
-func initializeVault(t *testing.T, vaultCluster *VaultCluster) {
+func initializeVault(t *testing.T, vaultCluster *VaultCluster, bastionHost *ssh.Host) {
 	output := retry.DoWithRetry(t, "Initializing the cluster", 10, 10*time.Second, func() (string, error) {
-		return ssh.CheckSshCommandE(t, vaultCluster.Leader, "vault operator init")
+		return runCommand(t, bastionHost, &vaultCluster.Leader, "vault operator init")
 	})
 	vaultCluster.UnsealKeys = parseUnsealKeysFromVaultInitResponse(t, output)
-
 }
 
 // Unseal the given Vault host using the given unseal keys
-func unsealNode(t *testing.T, host ssh.Host, unsealKeys []string) {
+func unsealNode(t *testing.T, host ssh.Host, bastionHost *ssh.Host, unsealKeys []string) {
 	unsealCommands := []string{}
 	for _, unsealKey := range unsealKeys {
 		unsealCommands = append(unsealCommands, fmt.Sprintf("vault operator unseal %s", unsealKey))
@@ -156,7 +167,7 @@ func unsealNode(t *testing.T, host ssh.Host, unsealKeys []string) {
 	unsealCommand := strings.Join(unsealCommands, " && ")
 	description := fmt.Sprintf("Unsealing Vault on host %s", host.Hostname)
 	retry.DoWithRetryE(t, description, 10, 10*time.Second, func() (string, error) {
-		return ssh.CheckSshCommandE(t, host, unsealCommand)
+		return runCommand(t, bastionHost, &host, unsealCommand)
 	})
 }
 
@@ -196,14 +207,14 @@ func parseUnsealKeysFromVaultInitResponse(t *testing.T, vaultInitResponse string
 }
 
 // Check that the given Vault node has the given status
-func assertNodeStatus(t *testing.T, host ssh.Host, expectedStatus VaultStatus) {
+func assertNodeStatus(t *testing.T, host ssh.Host, bastionHost *ssh.Host, expectedStatus VaultStatus) {
 
 	maxRetries := 30
 	sleepBetweenRetries := 10 * time.Second
 	description := fmt.Sprintf("Check that the Vault node %s has status %d", host.Hostname, int(expectedStatus))
 
 	out := retry.DoWithRetry(t, description, maxRetries, sleepBetweenRetries, func() (string, error) {
-		return checkStatus(t, host, expectedStatus)
+		return checkStatus(t, host, bastionHost, expectedStatus)
 	})
 
 	logger.Logf(t, out)
@@ -211,11 +222,11 @@ func assertNodeStatus(t *testing.T, host ssh.Host, expectedStatus VaultStatus) {
 
 // Check the status of the given Vault node and ensure it matches the expected status. Note that we use curl to do the
 // status check so we can ensure that TLS certificates work for curl (and not just the Vault client).
-func checkStatus(t *testing.T, host ssh.Host, expectedStatus VaultStatus) (string, error) {
+func checkStatus(t *testing.T, host ssh.Host, bastionHost *ssh.Host, expectedStatus VaultStatus) (string, error) {
 	curlCommand := "curl -s -o /dev/null -w '%{http_code}' https://127.0.0.1:8200/v1/sys/health"
 	logger.Logf(t, "Using curl to check status of Vault server %s: %s", host.Hostname, curlCommand)
 
-	output, err := ssh.CheckSshCommandE(t, host, curlCommand)
+	output, err := runCommand(t, bastionHost, &host, curlCommand)
 	if err != nil {
 		return "", err
 	}
@@ -271,29 +282,6 @@ func createVaultClient(t *testing.T, domainName string) *api.Client {
 	}
 
 	return client
-}
-
-// SSH to a Vault node and make sure that is properly configured to use Consul for DNS so that the vault.service.consul
-// domain name works.
-func testVaultUsesConsulForDns(t *testing.T, cluster *VaultCluster) {
-	// Pick any host, it shouldn't matter
-	host := cluster.Standby1
-
-	command := "vault status -address=https://vault.service.consul:8200"
-	description := fmt.Sprintf("Checking that the Vault server at %s is properly configured to use Consul for DNS: %s", host.Hostname, command)
-	logger.Logf(t, description)
-
-	maxRetries := 30
-	sleepBetweenRetries := 10 * time.Second
-
-	out, err := retry.DoWithRetryE(t, description, maxRetries, sleepBetweenRetries, func() (string, error) {
-		return ssh.CheckSshCommandE(t, host, command)
-	})
-
-	logger.Logf(t, "Output from command vault status call to vault.service.consul: %s", out)
-	if err != nil {
-		t.Fatalf("Failed to run vault command with vault.service.consul URL due to error: %v", err)
-	}
 }
 
 // Gets Vault logs and syslog written to disk, so it is exposed on circle ci artifacts

@@ -76,7 +76,7 @@ func runVaultPublicClusterTest(t *testing.T, osName string) {
 		saveKeyPair(t, exampleDir, keyPair)
 		addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupId, keyPair, sshUserName)
 
-		cluster := initializeAndUnsealVaultCluster(t, projectId, region, instanceGroupId, sshUserName, keyPair)
+		cluster := initializeAndUnsealVaultCluster(t, projectId, region, instanceGroupId, sshUserName, keyPair, nil)
 		testVault(t, cluster.Leader.Hostname)
 	})
 }
