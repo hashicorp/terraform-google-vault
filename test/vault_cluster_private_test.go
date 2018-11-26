@@ -26,6 +26,8 @@ func runVaultPrivateClusterTest(t *testing.T, osName string) {
 	})
 
 	defer test_structure.RunTestStage(t, "log", func() {
+		//ToDo: Modify log retrieval to go through bastion host
+		//      Requires adding feature to terratest
 		//writeVaultLogs(t, "vaultPublicCluster", exampleDir)
 	})
 
