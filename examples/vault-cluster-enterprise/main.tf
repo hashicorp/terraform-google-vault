@@ -5,7 +5,7 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 provider "google" {
-  project = "${var.gcp_project}"
+  project = "${var.gcp_project_id}"
   region  = "${var.gcp_region}"
 }
 
@@ -13,6 +13,48 @@ provider "google" {
 # https://github.com/terraform-providers/terraform-provider-google
 terraform {
   required_version = ">= 0.10.3"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATES A SUBNETWORK WITH GOOGLE API ACCESS
+# Necessary because the private cluster doesn't have internet access
+# But consul needs to make requests to the Google API
+# ---------------------------------------------------------------------------------------------------------------------
+
+resource "google_compute_subnetwork" "private_subnet_with_google_api_access" {
+  name                     = "${var.vault_cluster_name}-private-subnet-with-google-api-access"
+  private_ip_google_access = true
+  network                  = "${var.network_name}"
+  ip_cidr_range            = "10.1.0.0/16"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# DEPLOY A BASTION HOST THAT CAN REACH THE CLUSTER
+# We can't ssh directly to the cluster because they don't have an external IP
+# address, but we can ssh to a bastion host inside the same subnet and then
+# access the cluster
+# ---------------------------------------------------------------------------------------------------------------------
+
+data "google_compute_zones" "available" {}
+
+resource "google_compute_instance" "bastion" {
+  name         = "${var.bastion_server_name}"
+  zone         = "${data.google_compute_zones.available.names[0]}"
+  machine_type = "g1-small"
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-1810-cosmic-v20181114"
+    }
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.private_subnet_with_google_api_access.self_link}"
+
+    access_config {
+      // Ephemeral IP - leaving this block empty will generate a new external IP and assign it to the machine
+    }
+  }
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -25,7 +67,10 @@ module "vault_cluster" {
   # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
   source = "../../modules/vault-cluster"
 
-  gcp_zone = "${var.gcp_zone}"
+  subnetwork_name = "${google_compute_subnetwork.private_subnet_with_google_api_access.name}"
+
+  gcp_project_id = "${var.gcp_project_id}"
+  gcp_region     = "${var.gcp_region}"
 
   cluster_name     = "${var.vault_cluster_name}"
   cluster_size     = "${var.vault_cluster_size}"
@@ -48,12 +93,6 @@ module "vault_cluster" {
   # proxy server that forwards all requests to the Vault Health Check URL specified in the startup-script-vault.sh
   enable_web_proxy = true
 
-  # Create a KMS Crypto Key.
-  create_kms_crypto_key          = "${var.create_kms_crypto_key}"
-  kms_crypto_key_name            = "${var.kms_crypto_key_name}"
-  kms_crypto_key_ring_name       = "${var.kms_crypto_key_ring_name}"
-  kms_crypto_key_rotation_period = "${var.kms_crypto_key_rotation_period}"
-
   web_proxy_port = "${var.web_proxy_port}"
 
   # Even when the Vault cluster is pubicly accessible via a Load Balancer, we still make the Vault nodes themselves
@@ -61,11 +100,14 @@ module "vault_cluster" {
   # SSH into another node that is not private.
   assign_public_ip_addresses = false
 
-  # To enable external access to the Vault Cluster, enter the approved CIDR Blocks or tags below.
-  # We enable health checks from the Consul Server cluster to Vault.
-  allowed_inbound_cidr_blocks_api = []
+  # To enable external access to the Vault Cluster, enter the approved CIDR Blocks below.
+  # Allowing from all for test purposes, do NOT use this value for production
+  allowed_inbound_cidr_blocks_api = ["0.0.0.0/0"]
 
-  allowed_inbound_tags_api = ["${var.consul_server_cluster_name}"]
+  # To access to the Vault Cluster from other resources inside Google Cloud,
+  # add their tags below, along with the Consul Server, which needs to send
+  # health checks to the Vault cluster.
+  allowed_inbound_tags_api = ["${concat(var.consul_server_cluster_name, var.additional_allowed_inbound_tags_api)}"]
 
   # This property is only necessary when using a Load Balancer
   instance_group_target_pools = ["${module.vault_load_balancer.target_pool_url}"]
@@ -120,7 +162,11 @@ module "vault_load_balancer" {
 module "consul_cluster" {
   source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.2.1"
 
-  gcp_region       = "${var.gcp_region}"
+  subnetwork_name = "${google_compute_subnetwork.private_subnet_with_google_api_access.name}"
+
+  gcp_project_id = "${var.gcp_project_id}"
+  gcp_region     = "${var.gcp_region}"
+
   cluster_name     = "${var.consul_server_cluster_name}"
   cluster_tag_name = "${var.consul_server_cluster_name}"
   cluster_size     = "${var.consul_server_cluster_size}"

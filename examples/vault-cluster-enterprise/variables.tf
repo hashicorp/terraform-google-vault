@@ -3,7 +3,7 @@
 # These parameters must be supplied when consuming this module.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "gcp_project" {
+variable "gcp_project_id" {
   description = "The name of the GCP Project where all resources will be launched."
 }
 
@@ -66,9 +66,10 @@ variable "example_secret" {
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "create_kms_crypto_key" {
-  description = "If set to true, then a Google Cloud KMS key will be created."
-  default     = true
+variable "additional_allowed_inbound_tags_api" {
+   type = "list"
+   description = "A list of additional tags that GCP project resources can have to be permitted access to the Vault API."
+   default  = []
 }
 
 variable "kms_crypto_key_name" {
