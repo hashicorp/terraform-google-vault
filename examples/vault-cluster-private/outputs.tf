@@ -1,5 +1,5 @@
-output "gcp_project" {
-  value = "${var.gcp_project}"
+output "gcp_project_id" {
+  value = "${var.gcp_project_id}"
 }
 
 output "gcp_region" {
@@ -12,6 +12,10 @@ output "vault_cluster_size" {
 
 output "cluster_tag_name" {
   value = "${module.vault_cluster.cluster_tag_name}"
+}
+
+output "bastion_server_name" {
+  value = "${var.bastion_server_name}"
 }
 
 output "instance_group_id" {

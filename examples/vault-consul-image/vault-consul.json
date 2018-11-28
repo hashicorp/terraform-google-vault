@@ -3,9 +3,9 @@
   "variables": {
     "project_id": null,
     "zone": null,
-    "vault_version": "0.11.1",
-    "consul_module_version": "v0.2.0",
-    "consul_version": "1.2.2",
+    "vault_version": "0.11.5",
+    "consul_module_version": "v0.3.1",
+    "consul_version": "1.3.1",
     "ca_public_key_path": null,
     "tls_public_key_path": null,
     "tls_private_key_path": null
@@ -21,9 +21,12 @@
     "ssh_username": "ubuntu"
   }],
   "provisioners": [{
+    "type": "shell",
+    "inline": ["mkdir -p /tmp/terraform-google-vault/modules"]
+  },{
     "type": "file",
-    "source": "{{template_dir}}/../../../terraform-google-vault",
-    "destination": "/tmp",
+    "source": "{{template_dir}}/../../modules/",
+    "destination": "/tmp/terraform-google-vault/modules",
     "pause_before": "30s"
   },{
     "type": "shell",

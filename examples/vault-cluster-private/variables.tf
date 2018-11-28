@@ -3,12 +3,16 @@
 # These parameters must be supplied when consuming this module.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "gcp_project" {
+variable "gcp_project_id" {
   description = "The name of the GCP Project where all resources will be launched."
 }
 
 variable "gcp_region" {
   description = "The Region in which all GCP resources will be launched."
+}
+
+variable "bastion_server_name" {
+  description = "The name of the bastion server that can reach the private vault cluster"
 }
 
 variable "vault_cluster_name" {
@@ -78,4 +82,9 @@ variable "root_volume_disk_type" {
 variable "enable_vault_ui" {
   description = "If true, enable the Vault UI"
   default     = true
+}
+
+variable "network_name" {
+  description = "The name of the VPC Network where all resources should be created."
+  default     = "default"
 }

@@ -6,7 +6,7 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 provider "google" {
-  project = "${var.gcp_project}"
+  project = "${var.gcp_project_id}"
   region  = "${var.gcp_region}"
 }
 
@@ -14,6 +14,48 @@ provider "google" {
 # https://github.com/terraform-providers/terraform-provider-google
 terraform {
   required_version = ">= 0.10.3"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATES A SUBNETWORK WITH GOOGLE API ACCESS
+# Necessary because the private cluster doesn't have internet access
+# But consul needs to make requests to the Google API
+# ---------------------------------------------------------------------------------------------------------------------
+
+resource "google_compute_subnetwork" "private_subnet_with_google_api_access" {
+  name                     = "${var.vault_cluster_name}-private-subnet-with-google-api-access"
+  private_ip_google_access = true
+  network                  = "${var.network_name}"
+  ip_cidr_range            = "10.1.0.0/16"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# DEPLOY A BASTION HOST THAT CAN REACH THE CLUSTER
+# We can't ssh directly to the cluster because they don't have an external IP
+# address, but we can ssh to a bastion host inside the same subnet and then
+# access the cluster
+# ---------------------------------------------------------------------------------------------------------------------
+
+data "google_compute_zones" "available" {}
+
+resource "google_compute_instance" "bastion" {
+  name         = "${var.bastion_server_name}"
+  zone         = "${data.google_compute_zones.available.names[0]}"
+  machine_type = "g1-small"
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-1810-cosmic-v20181114"
+    }
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.private_subnet_with_google_api_access.self_link}"
+
+    access_config {
+      // Ephemeral IP - leaving this block empty will generate a new external IP and assign it to the machine
+    }
+  }
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -26,7 +68,10 @@ module "vault_cluster" {
   # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
   source = "../../modules/vault-cluster"
 
-  gcp_region = "${var.gcp_region}"
+  subnetwork_name = "${google_compute_subnetwork.private_subnet_with_google_api_access.name}"
+
+  gcp_project_id = "${var.gcp_project_id}"
+  gcp_region     = "${var.gcp_region}"
 
   cluster_name     = "${var.vault_cluster_name}"
   cluster_size     = "${var.vault_cluster_size}"
@@ -61,7 +106,7 @@ data "template_file" "startup_script_vault" {
   vars {
     consul_cluster_tag_name = "${var.consul_server_cluster_name}"
     vault_cluster_tag_name  = "${var.vault_cluster_name}"
-    enable_vault_ui         = "${var.enable_vault_ui ? "--enable-vault-ui" : ""}"
+    enable_vault_ui         = "${var.enable_vault_ui ? "--enable-ui" : ""}"
   }
 }
 
@@ -72,6 +117,8 @@ data "template_file" "startup_script_vault" {
 
 module "consul_cluster" {
   source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.2.0"
+
+  subnetwork_name = "${google_compute_subnetwork.private_subnet_with_google_api_access.name}"
 
   gcp_region = "${var.gcp_region}"
 

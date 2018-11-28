@@ -24,9 +24,8 @@ module "vault_cluster" {
   # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
   source = "modules/vault-cluster"
 
-  gcp_project_id     = "${var.gcp_project_id}"
-  network_project_id = "${var.network_project_id}"
-  gcp_region         = "${var.gcp_region}"
+  gcp_project_id = "${var.gcp_project_id}"
+  gcp_region     = "${var.gcp_region}"
 
   cluster_name     = "${var.vault_cluster_name}"
   cluster_size     = "${var.vault_cluster_size}"
@@ -64,7 +63,7 @@ data "template_file" "startup_script_vault" {
     consul_cluster_tag_name = "${var.consul_server_cluster_name}"
     vault_cluster_tag_name  = "${var.vault_cluster_name}"
 
-    enable_vault_ui = "${var.enable_vault_ui ? "--enable-vault-ui" : ""}"
+    enable_vault_ui = "${var.enable_vault_ui ? "--enable-ui" : ""}"
   }
 }
 
