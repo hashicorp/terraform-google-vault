@@ -4,12 +4,18 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/gruntwork-io/terratest/modules/gcp"
+	"github.com/gruntwork-io/terratest/modules/packer"
 	"github.com/gruntwork-io/terratest/modules/test-structure"
 )
 
-const IMAGE_EXAMPLE_PATH = "../examples/vault-consul-ami/vault-consul.json"
-const WORK_DIR = "./"
-const PACKER_BUILD_NAME = "ubuntu-16"
+const (
+	IMAGE_EXAMPLE_PATH            = "../examples/vault-consul-ami/vault-consul.json"
+	WORK_DIR                      = "./"
+	PACKER_BUILD_NAME             = "ubuntu-16"
+	SAVED_OPEN_SOURCE_VAULT_IMAGE = "ImageOpenSourceVault"
+	SAVED_ENTERPRISE_VAULT_IMAGE  = "ImageEnterpriseVault"
+)
 
 type testCase struct {
 	Name string                   // Name of the test
@@ -25,23 +31,52 @@ var testCases = []testCase{
 		"TestVaultPublicCluster",
 		runVaultPublicClusterTest,
 	},
+	// {
+	// 	"TestVaultEnterpriseClusterAutoUnseal",
+	// 	runVaultPublicClusterTest,
+	// },
 }
 
 func TestMainVaultCluster(t *testing.T) {
 	t.Parallel()
 
-	test_structure.RunTestStage(t, "setup_image", func() {
-		buildVaultImage(t, PACKER_BUILD_NAME, WORK_DIR)
+	test_structure.RunTestStage(t, "build_images", func() {
+		vaultDownloadUrl := getUrlFromEnv(t, "VAULT_PACKER_TEMPLATE_VAR_VAULT_DOWNLOAD_URL")
+
+		projectId := gcp.GetGoogleProjectIDFromEnvVar(t)
+		region := gcp.GetRandomRegion(t, projectId, nil, nil)
+		zone := gcp.GetRandomZoneForRegion(t, projectId, region)
+
+		test_structure.SaveString(t, WORK_DIR, SAVED_GCP_PROJECT_ID, projectId)
+		test_structure.SaveString(t, WORK_DIR, SAVED_GCP_REGION_NAME, region)
+		test_structure.SaveString(t, WORK_DIR, SAVED_GCP_ZONE_NAME, zone)
+
+		tlsCert := generateSelfSignedTlsCert(t)
+		saveTLSCert(t, WORK_DIR, tlsCert)
+
+		packerImageOptions := map[string]*packer.Options{
+			SAVED_OPEN_SOURCE_VAULT_IMAGE: composeImageOptions(t, PACKER_BUILD_NAME, WORK_DIR, ""),
+			SAVED_ENTERPRISE_VAULT_IMAGE:  composeImageOptions(t, PACKER_BUILD_NAME, WORK_DIR, vaultDownloadUrl),
+		}
+
+		imageIds := packer.BuildArtifacts(t, packerImageOptions)
+		test_structure.SaveString(t, WORK_DIR, SAVED_OPEN_SOURCE_VAULT_IMAGE, imageIds[SAVED_OPEN_SOURCE_VAULT_IMAGE])
+		test_structure.SaveString(t, WORK_DIR, SAVED_ENTERPRISE_VAULT_IMAGE, imageIds[SAVED_ENTERPRISE_VAULT_IMAGE])
 	})
 
-	defer test_structure.RunTestStage(t, "delete_image", func() {
-		deleteVaultImage(t, WORK_DIR)
+	defer test_structure.RunTestStage(t, "delete_images", func() {
+		projectID := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
+
+		deleteVaultImage(t, WORK_DIR, projectID, SAVED_OPEN_SOURCE_VAULT_IMAGE)
+		deleteVaultImage(t, WORK_DIR, projectID, SAVED_ENTERPRISE_VAULT_IMAGE)
+
+		tlsCert := loadTLSCert(t, WORK_DIR)
+		cleanupTLSCertFiles(tlsCert)
 	})
 
 	t.Run("group", func(t *testing.T) {
 		runAllTests(t)
 	})
-
 }
 
 func runAllTests(t *testing.T) {

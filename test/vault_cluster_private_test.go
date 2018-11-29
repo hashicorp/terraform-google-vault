@@ -34,7 +34,7 @@ func runVaultPrivateClusterTest(t *testing.T, osName string) {
 	test_structure.RunTestStage(t, "deploy", func() {
 		projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
 		region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
-		imageID := test_structure.LoadArtifactID(t, WORK_DIR)
+		imageID := test_structure.LoadString(t, WORK_DIR, SAVED_OPEN_SOURCE_VAULT_IMAGE)
 
 		// GCP only supports lowercase names for some resources
 		uniqueID := strings.ToLower(random.UniqueId())

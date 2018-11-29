@@ -18,7 +18,7 @@
     "project_id": "{{user `project_id`}}",
     "source_image_family": "ubuntu-1604-lts",
     "zone": "{{user `zone`}}",
-    "image_name": "vault-consul-{{isotime \"2006-01-02-030405\"}}",
+    "image_name": "vault-consul-{{uuid | clean_image_name}}",
     "image_family": "vault-consul",
     "ssh_username": "ubuntu"
   }],
