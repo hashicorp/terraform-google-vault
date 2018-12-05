@@ -29,8 +29,25 @@ resource "google_compute_subnetwork" "private_subnet_with_google_api_access" {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# DEPLOY A BASTION HOST THAT CAN REACH THE CLUSTER
-# We can't ssh directly to the cluster because they don't have an external IP
+# ALLOW SERVICE ACCOUNT TO USE THE CRYPTOGRAPHIC KEY FROM CLOUD KMS
+# ---------------------------------------------------------------------------------------------------------------------
+
+data "google_service_account" "vault_test" {
+  account_id = "${var.service_account_name}"
+}
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key" {
+  crypto_key_id = "${var.vault_auto_unseal_key_project_id}/${var.vault_auto_unseal_key_region}/${var.vault_auto_unseal_key_ring}/${var.vault_auto_unseal_crypto_key_name}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    "serviceAccount:${data.google_service_account.vault_test.email}",
+  ]
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# DEPLOYS A BASTION HOST THAT CAN REACH THE CLUSTER
+# We can't ssh directly to the clusters because they don't have an external IP
 # address, but we can ssh to a bastion host inside the same subnet and then
 # access the cluster
 # ---------------------------------------------------------------------------------------------------------------------
@@ -107,13 +124,14 @@ module "vault_cluster" {
   # To access to the Vault Cluster from other resources inside Google Cloud,
   # add their tags below, along with the Consul Server, which needs to send
   # health checks to the Vault cluster.
-  allowed_inbound_tags_api = ["${concat(var.consul_server_cluster_name, var.additional_allowed_inbound_tags_api)}"]
+  allowed_inbound_tags_api = ["${concat(list(var.consul_server_cluster_name), var.additional_allowed_inbound_tags_api)}"]
 
   # This property is only necessary when using a Load Balancer
   instance_group_target_pools = ["${module.vault_load_balancer.target_pool_url}"]
 
   # Ensure the cluster can access the Cloud KMS resources
-  service_account_scopes = ["${var.cloud_kms_scope}"]
+  service_account_email  = "${data.google_service_account.vault_test.email}"
+  service_account_scopes = ["cloud-platform"]
 }
 
 # Render the Startup Script that will run on each Vault Instance on boot. This script will configure and start Vault.
@@ -159,8 +177,7 @@ module "consul_cluster" {
 
   subnetwork_name = "${google_compute_subnetwork.private_subnet_with_google_api_access.name}"
 
-  gcp_project_id = "${var.gcp_project_id}"
-  gcp_region     = "${var.gcp_region}"
+  gcp_region = "${var.gcp_region}"
 
   cluster_name     = "${var.consul_server_cluster_name}"
   cluster_tag_name = "${var.consul_server_cluster_name}"
