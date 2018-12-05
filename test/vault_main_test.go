@@ -18,8 +18,8 @@ const (
 )
 
 type testCase struct {
-	Name string                   // Name of the test
-	Func func(*testing.T, string) // Function that runs test. Receives(t, packerOsName)
+	Name string           // Name of the test
+	Func func(*testing.T) // Function that runs the test
 }
 
 var testCases = []testCase{

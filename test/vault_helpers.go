@@ -286,6 +286,30 @@ func createVaultClient(t *testing.T, domainName string) *api.Client {
 	return client
 }
 
+// SSH to a Vault node and make sure that is properly configured to use Consul for DNS so that the vault.service.consul
+// domain name works.
+func testVaultUsesConsulForDns(t *testing.T, cluster *VaultCluster, bastionHost *ssh.Host) {
+	// Pick any host, it shouldn't matter
+	host := cluster.Standby1
+
+	command := "vault status -address=https://vault.service.consul:8200"
+	description := fmt.Sprintf("Checking that the Vault server at %s is properly configured to use Consul for DNS: %s", host.Hostname, command)
+	logger.Logf(t, description)
+
+	maxRetries := 10
+	sleepBetweenRetries := 5 * time.Second
+
+	_, err := retry.DoWithRetryE(t, description, maxRetries, sleepBetweenRetries, func() (string, error) {
+		o, e := runCommand(t, bastionHost, &host, command)
+		logger.Logf(t, "Output from command vault status call to vault.service.consul: %s", o)
+		return o, e
+	})
+
+	if err != nil {
+		t.Fatalf("Failed to run vault command with vault.service.consul URL due to error: %v", err)
+	}
+}
+
 // Gets Vault logs and syslog written to disk, so it is exposed on circle ci artifacts
 func writeVaultLogs(t *testing.T, testName string, testDir string) {
 	terraformOptions := test_structure.LoadTerraformOptions(t, testDir)
