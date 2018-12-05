@@ -46,10 +46,10 @@ function print_usage {
   echo "Optional Arguments for enabling the GCP Cloud KMS seal:"
   echo
   echo -e "  --enable-auto-unseal\tIf this flag is set, enable the GCP Cloud KMS Auto-unseal feature. This feature requires Vault Enterprise. Default is false."
-  echo -e "  --auto-unseal-project\t"
-  echo -e "  --auto-unseal-region\t"
+  echo -e "  --auto-unseal-key-project-id\t"
+  echo -e "  --auto-unseal-key-region\t"
   echo -e "  --auto-unseal-key-ring\t"
-  echo -e "  --auto-unseal-crypto-key\t"
+  echo -e "  --auto-unseal-crypto-key-name\t"
   echo
   echo "Example:"
   echo
@@ -165,7 +165,6 @@ ha_storage "consul" {
 }
 
 seal "gcpckms" {
-  credentials = "$gcp_creds_file"
   project     = "$auto_unseal_project"
   region      = "$auto_unseal_region"
   key_ring    = "$auto_unseal_key_ring"
@@ -328,11 +327,11 @@ function run {
       --enable-auto-unseal)
         enable_auto_unseal="true"
         ;;
-      --auto-unseal-project)
+      --auto-unseal-key-project-id)
         auto_unseal_project="$2"
         shift
         ;;
-      --auto-unseal-region)
+      --auto-unseal-key-region)
         auto_unseal_region="$2"
         shift
         ;;
@@ -340,7 +339,7 @@ function run {
         auto_unseal_key_ring="$2"
         shift
         ;;
-      --auto-unseal-crypto-key)
+      --auto-unseal-crypto-key-name)
         auto_unseal_crypto_key="$2"
         shift
         ;;

@@ -125,16 +125,11 @@ data "template_file" "startup_script_vault" {
     vault_cluster_tag_name  = "${var.vault_cluster_name}"
     web_proxy_port          = "${var.web_proxy_port}"
 
-    # Enable the Vault Enterprise Auto Unseal feature. If using this feature then you must also supply a license key.
-    vault_auto_unseal_project_id = "${var.vault_auto_unseal_project_id}"
-    vault_auto_unseal_region     = "${var.vault_auto_unseal_region}"
-    vault_auto_unseal_key_ring   = "${var.vault_auto_unseal_key_ring}"
-    vault_auto_unseal_crypto_key = "${var.vault_auto_unseal_crypto_key}"
-    vault_enterprise_license_key = "${file("vault-license.hclic")}"
-
-    # Please note that normally we would never pass a secret this way
-    # This is just for test purposes so we can verify that our example instance is authenticating correctly
-    example_secret = "${var.example_secret}"
+    # Enable the Vault Enterprise Auto Unseal feature.
+    vault_auto_unseal_key_project_id  = "${var.vault_auto_unseal_key_project_id}"
+    vault_auto_unseal_key_region      = "${var.vault_auto_unseal_key_region}"
+    vault_auto_unseal_key_ring        = "${var.vault_auto_unseal_key_ring}"
+    vault_auto_unseal_crypto_key_name = "${var.vault_auto_unseal_crypto_key_name}"
   }
 }
 
