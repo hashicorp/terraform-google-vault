@@ -58,7 +58,8 @@ func initializeAndUnsealVaultCluster(t *testing.T, projectId string, region stri
 
 	verifyCanSsh(t, cluster, bastionHost)
 	assertAllNodesBooted(t, cluster, bastionHost)
-	initializeVault(t, cluster, bastionHost)
+	initOutput := initializeVault(t, cluster, bastionHost)
+	cluster.UnsealKeys = parseUnsealKeysFromVaultInitResponse(t, initOutput)
 
 	assertNodeStatus(t, cluster.Leader, bastionHost, Sealed)
 	unsealNode(t, cluster.Leader, bastionHost, cluster.UnsealKeys)
@@ -150,11 +151,12 @@ func assertAllNodesBooted(t *testing.T, cluster *VaultCluster, bastionHost *ssh.
 }
 
 // Initialize the Vault cluster, filling in the unseal keys in the given vaultCluster struct
-func initializeVault(t *testing.T, vaultCluster *VaultCluster, bastionHost *ssh.Host) {
-	output := retry.DoWithRetry(t, "Initializing the cluster", 10, 10*time.Second, func() (string, error) {
-		return runCommand(t, bastionHost, &vaultCluster.Leader, "vault operator init")
+func initializeVault(t *testing.T, vaultCluster *VaultCluster, bastionHost *ssh.Host) string {
+	return retry.DoWithRetry(t, "Initializing the cluster", 5, 5*time.Second, func() (string, error) {
+		output, err := runCommand(t, bastionHost, &vaultCluster.Leader, "vault operator init")
+		logger.Logf(t, "Vault init output: %s", output)
+		return output, err
 	})
-	vaultCluster.UnsealKeys = parseUnsealKeysFromVaultInitResponse(t, output)
 }
 
 // Unseal the given Vault host using the given unseal keys
