@@ -1,13 +1,17 @@
-output "gcp_project" {
-  value = "${var.gcp_project}"
+output "gcp_project_id" {
+  value = "${var.gcp_project_id}"
 }
 
-output "gcp_zone" {
-  value = "${var.gcp_zone}"
+output "region" {
+  value = "${var.gcp_region}"
 }
 
 output "vault_cluster_size" {
   value = "${var.vault_cluster_size}"
+}
+
+output "bastion_server_name" {
+  value = "${var.bastion_server_name}"
 }
 
 output "cluster_tag_name" {

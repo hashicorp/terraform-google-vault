@@ -6,7 +6,7 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/gcp"
 	"github.com/gruntwork-io/terratest/modules/packer"
-	"github.com/gruntwork-io/terratest/modules/test-structure"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 )
 
 const (
@@ -31,12 +31,15 @@ var testCases = []testCase{
 		"TestVaultPublicCluster",
 		runVaultPublicClusterTest,
 	},
-	// {
-	// 	"TestVaultEnterpriseClusterAutoUnseal",
-	// 	runVaultPublicClusterTest,
-	// },
+	{
+		"TestVaultEnterpriseClusterAutoUnseal",
+		runVaultEnterpriseClusterTest,
+	},
 }
 
+// To test this on CircleCI you need two URLs set a environment variables(VAULT_PACKER_TEMPLATE_VAR_VAULT_DOWNLOAD_URL)
+// so the Vault Enterprise versions can be downloaded. You would also need to set these two variables locally to run the
+// tests. The reason behind this is to prevent the actual url from being visible in the code and logs.
 func TestMainVaultCluster(t *testing.T) {
 	t.Parallel()
 
@@ -91,7 +94,7 @@ func runAllTests(t *testing.T) {
 		testCase := testCase
 		t.Run(fmt.Sprintf("%sWithUbuntu", testCase.Name), func(t *testing.T) {
 			t.Parallel()
-			testCase.Func(t, PACKER_BUILD_NAME)
+			testCase.Func(t)
 		})
 	}
 }

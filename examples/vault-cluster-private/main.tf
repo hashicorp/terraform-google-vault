@@ -120,7 +120,7 @@ module "consul_cluster" {
 
   subnetwork_name = "${google_compute_subnetwork.private_subnet_with_google_api_access.name}"
 
-  gcp_region = "${var.gcp_region}"
+  gcp_region       = "${var.gcp_region}"
   cluster_name     = "${var.consul_server_cluster_name}"
   cluster_tag_name = "${var.consul_server_cluster_name}"
   cluster_size     = "${var.consul_server_cluster_size}"

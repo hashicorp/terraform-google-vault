@@ -23,7 +23,7 @@ const TFVAR_NAME_CONSUL_SOURCE_IMAGE = "consul_server_source_image"
 const TFVAR_NAME_CONSUL_SERVER_CLUSTER_NAME = "consul_server_cluster_name"
 const TFVAR_NAME_CONSUL_SERVER_CLUSTER_MACHINE_TYPE = "consul_server_machine_type"
 
-func runVaultPublicClusterTest(t *testing.T, osName string) {
+func runVaultPublicClusterTest(t *testing.T) {
 	exampleDir := test_structure.CopyTerraformFolderToTemp(t, "../", ".")
 
 	defer test_structure.RunTestStage(t, "teardown", func() {

@@ -230,7 +230,7 @@ func checkStatus(t *testing.T, host ssh.Host, bastionHost *ssh.Host, expectedSta
 
 	output, err := runCommand(t, bastionHost, &host, curlCommand)
 	if err != nil {
-		return "", err
+		return output, err
 	}
 	status, err := strconv.Atoi(output)
 	if err != nil {

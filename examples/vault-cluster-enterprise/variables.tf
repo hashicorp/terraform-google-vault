@@ -8,11 +8,15 @@ variable "gcp_project_id" {
 }
 
 variable "gcp_region" {
-  description = "The region in which all GCP resources will be launched."
+  description = "The Region in which all GCP resources will be launched."
 }
 
-variable "gcp_zone" {
-  description = "The region in which all GCP resources will be launched."
+variable "bastion_server_name" {
+  description = "The name of the bastion server that can reach the private vault cluster"
+}
+
+variable "service_account_name" {
+  description = "The name of the service account for the instance templace and Cloud KMS access"
 }
 
 variable "vault_cluster_name" {
@@ -41,11 +45,11 @@ variable "consul_server_machine_type" {
 
 # Vault Auto Unseal Variables
 
-variable "vault_auto_unseal_project_id" {
+variable "vault_auto_unseal_key_project_id" {
   description = "The GCP Project ID to use for the Auto Unseal feature."
 }
 
-variable "vault_auto_unseal_region" {
+variable "vault_auto_unseal_key_region" {
   description = "The GCP Region to use for the Auto Unseal feature."
 }
 
@@ -111,4 +115,9 @@ variable "root_volume_disk_size_gb" {
 variable "root_volume_disk_type" {
   description = "The GCE disk type. Can be either pd-ssd, local-ssd, or pd-standard"
   default     = "pd-standard"
+}
+
+variable "enable_vault_ui" {
+  description = "If true, enable the Vault UI"
+  default     = true
 }
