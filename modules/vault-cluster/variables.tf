@@ -175,25 +175,3 @@ variable "gcs_bucket_predefined_acl" {
   description = "The canned GCS Access Control List (ACL) to apply to the GCS Bucket. For a full list of Predefined ACLs, see https://cloud.google.com/storage/docs/access-control/lists."
   default     = "projectPrivate"
 }
-
-# KMS Crypto Key Settings
-
-variable "create_kms_crypto_key" {
-  description = "If true, Terraform will create a Cloud KMS key for use with the Vault Enterprise features."
-  default     = false
-}
-
-variable "kms_crypto_key_name" {
-  description = "The name to use when creating the Cloud KMS key. This parameter is required if var.create_kms_crypto_key is set to true."
-  default     = ""
-}
-
-variable "kms_crypto_key_ring_name" {
-  description = "The name of the KMS key ring to use when creating a new Cloud KMS key. This parameter is required if var.create_kms_crypto_key is set to true."
-  default     = ""
-}
-
-variable "kms_crypto_key_rotation_period" {
-  description = "The time period that specifies how frequently the Cloud KMS key rotates. This parameter is required if var.create_kms_crypto_key is set to true."
-  default     = "100000s"
-}

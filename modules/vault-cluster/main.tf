@@ -256,24 +256,17 @@ resource "google_storage_bucket_acl" "vault_storage_backend" {
   predefined_acl = "${var.gcs_bucket_predefined_acl}"
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# CREATE A GOOGLE CLOUD KKMS KEY FOR USE WITH THE VAULT ENTERPRISE FEATURES.
-# ---------------------------------------------------------------------------------------------------------------------
+# Allows a proviced service account to create and read objects from the storage
+resource "google_storage_bucket_iam_binding" "service_acc_binding" {
+  count  = "${var.service_account_email != "" ? 1 : 0}"
+  bucket = "${var.cluster_name}"
+  role   = "roles/storage.objectAdmin"
 
-# Create a Cloud KMS key for use with the Vault Enterprise features.
-resource "google_kms_crypto_key" "crypto_key" {
-  count           = "${var.create_kms_crypto_key}"
-  name            = "${var.kms_crypto_key_name}"
-  key_ring        = "${var.kms_crypto_key_ring_name}"
-  rotation_period = "${var.kms_crypto_key_rotation_period}"
+  members = [
+    "serviceAccount:${var.service_account_email}",
+  ]
 
-  # Note: Keys cannot be deleted from GCP. Destroying a Terraform managed key will remove it from state and delete all CryptoKeyVersions,
-  # rendering the key unusable, but will not delete the resource on the server. When Terraform destroys these keys, any data previously
-  # encrypted with these keys will be irrecoverable. For this reason, it is strongly recommended that you add lifecycle hooks to the
-  # resource to prevent accidental destruction.
-  lifecycle {
-    prevent_destroy = true
-  }
+  depends_on = ["google_storage_bucket.vault_storage_backend"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
