@@ -20,12 +20,10 @@ const (
 	TFVAR_NAME_AUTOUNSEAL_KEY_REGION      = "vault_auto_unseal_key_region"
 	TFVAR_NAME_AUTOUNSEAL_KEY_RING_NAME   = "vault_auto_unseal_key_ring"
 	TFVAR_NAME_AUTOUNSEAL_CRYPTO_KEY_NAME = "vault_auto_unseal_crypto_key_name"
-	TFVAR_NAME_SERVICE_ACCOUNT_NAME       = "service_account_name"
 
 	AUTOUNSEAL_KEY_REGION      = "global"
 	AUTOUNSEAL_KEY_RING_NAME   = "vault-cluster-automated-tests"
 	AUTOUNSEAL_CRYPTO_KEY_NAME = "circle-ci"
-	SERVICE_ACCOUNT_NAME       = "circle-ci"
 )
 
 // Test the Vault enterprise cluster example by:
@@ -79,7 +77,6 @@ func runVaultEnterpriseClusterTest(t *testing.T) {
 				TFVAR_NAME_AUTOUNSEAL_KEY_REGION:              AUTOUNSEAL_KEY_REGION,
 				TFVAR_NAME_AUTOUNSEAL_KEY_RING_NAME:           AUTOUNSEAL_KEY_RING_NAME,
 				TFVAR_NAME_AUTOUNSEAL_CRYPTO_KEY_NAME:         AUTOUNSEAL_CRYPTO_KEY_NAME,
-				TFVAR_NAME_SERVICE_ACCOUNT_NAME:               SERVICE_ACCOUNT_NAME,
 			},
 		}
 		test_structure.SaveTerraformOptions(t, exampleDir, terraformOptions)

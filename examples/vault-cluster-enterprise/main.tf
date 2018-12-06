@@ -30,18 +30,17 @@ resource "google_compute_subnetwork" "private_subnet_with_google_api_access" {
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ALLOW SERVICE ACCOUNT TO USE THE CRYPTOGRAPHIC KEY FROM CLOUD KMS
+# In this example we are using the default project service account
 # ---------------------------------------------------------------------------------------------------------------------
 
-data "google_service_account" "vault_test" {
-  account_id = "${var.service_account_name}"
-}
+data "google_compute_default_service_account" "vault_test" { }
 
 resource "google_kms_crypto_key_iam_binding" "crypto_key" {
   crypto_key_id = "${var.vault_auto_unseal_key_project_id}/${var.vault_auto_unseal_key_region}/${var.vault_auto_unseal_key_ring}/${var.vault_auto_unseal_crypto_key_name}"
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
   members = [
-    "serviceAccount:${data.google_service_account.vault_test.email}",
+    "serviceAccount:${data.google_compute_default_service_account.vault_test.email}",
   ]
 }
 
@@ -130,7 +129,7 @@ module "vault_cluster" {
   instance_group_target_pools = ["${module.vault_load_balancer.target_pool_url}"]
 
   # Ensure the cluster can access the Cloud KMS resources
-  service_account_email  = "${data.google_service_account.vault_test.email}"
+  service_account_email  = "${data.google_compute_default_service_account.vault_test.email}"
   service_account_scopes = ["cloud-platform"]
 }
 

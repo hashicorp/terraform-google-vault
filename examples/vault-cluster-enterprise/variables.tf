@@ -15,10 +15,6 @@ variable "bastion_server_name" {
   description = "The name of the bastion server that can reach the private vault cluster"
 }
 
-variable "service_account_name" {
-  description = "The name of the service account for the instance templace and Cloud KMS access"
-}
-
 variable "vault_cluster_name" {
   description = "The name of the Vault Server cluster. All resources will be namespaced by this value. E.g. vault-server-prod"
 }
