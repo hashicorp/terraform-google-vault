@@ -134,8 +134,8 @@
     "modules/terraform",
     "modules/test-structure"
   ]
-  revision = "41439c5e9e1d0fa4a07f9bbc6b38e8f0ef7e93ef"
-  version = "v0.13.13"
+  revision = "98d88f765d58ca34fbb8ac24cf20ff31a42d9667"
+  version = "v0.13.14"
 
 [[projects]]
   name = "github.com/hashicorp/errwrap"
@@ -423,6 +423,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "63d189e94dc76f2cb249104cb62382512098e19ec10cb7e733c95d4e8c14911f"
+  inputs-digest = "92872d2209baa8c07b057bcb05a44d4c11327d5417e7bc244523bd34a9724e28"
   solver-name = "gps-cdcl"
   solver-version = 1
