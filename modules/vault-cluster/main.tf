@@ -266,7 +266,7 @@ resource "google_storage_bucket_iam_binding" "service_acc_binding" {
     "serviceAccount:${var.service_account_email}",
   ]
 
-  depends_on = ["google_storage_bucket.vault_storage_backend"]
+  depends_on = ["google_storage_bucket.vault_storage_backend", "google_storage_bucket_acl.vault_storage_backend"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
