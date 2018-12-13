@@ -95,9 +95,19 @@ variable "service_account_scopes" {
   default     = []
 }
 
+variable "use_external_service_account" {
+  description = "Allows using a pre-defined service account for the instance template."
+  default     = false
+}
+
 variable "service_account_email" {
-  description = "The email of the service account for the instance template. If none is provided the google cloud provider project service account is used."
+  description = "The email of a service account for the instance template. use_external_service_account must be set to true. If none is provided and create_service_account is set to false, the default google cloud provider project service account is used."
   default     = ""
+}
+
+variable "create_service_account" {
+  description = "Creates a service account to operate Vault. If set to false and service_account_email is not provided, the default google cloud provider project service account is used"
+  default     = false
 }
 
 variable "instance_group_update_strategy" {

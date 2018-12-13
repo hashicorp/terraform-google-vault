@@ -9,6 +9,41 @@ terraform {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
+# CREATES A SERVICE ACCOUNT TO OPERATE THE VAULT CLUSTER
+# The default project service account will be used if create_service_account
+# is set to false and no service_account_email is provided.
+# ---------------------------------------------------------------------------------------------------------------------
+
+resource "google_service_account" "vault_cluster_admin" {
+  count        = "${var.create_service_account}"
+  account_id   = "${var.cluster_name}-admin-sa"
+  display_name = "Vault Server Admin"
+  project      = "${var.gcp_project_id}"
+}
+
+# Create a service account key
+resource "google_service_account_key" "vault" {
+  count              = "${var.create_service_account}"
+  service_account_id = "${google_service_account.vault_cluster_admin.name}"
+}
+
+# Add viewer role to service account on project
+resource "google_project_iam_member" "vault_cluster_admin_sa_view_project" {
+  count   = "${var.create_service_account}"
+  project = "${var.gcp_project_id}"
+  role    = "roles/viewer"
+  member  = "serviceAccount:${google_service_account.vault_cluster_admin.email}"
+}
+
+# Does the same in case we're using a service account that has been previously created
+resource "google_project_iam_member" "other_sa_view_project" {
+  count   = "${var.use_external_service_account}"
+  project = "${var.gcp_project_id}"
+  role    = "roles/viewer"
+  member  = "serviceAccount:${var.service_account_email}"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
 # CREATE A GCE MANAGED INSTANCE GROUP TO RUN VAULT
 # Ideally, we would run a "regional" Managed Instance Group that spans many Zones, but the Terraform GCP provider has
 # not yet implemented https://github.com/terraform-providers/terraform-provider-google/issues/45, so we settle for a
@@ -258,14 +293,27 @@ resource "google_storage_bucket_acl" "vault_storage_backend" {
   predefined_acl = "${var.gcs_bucket_predefined_acl}"
 }
 
-# Allows a proviced service account to create and read objects from the storage
-resource "google_storage_bucket_iam_binding" "service_acc_binding" {
-  count  = "${var.service_account_email != "" ? 1 : 0}"
+# Allows a provided service account to create and read objects from the storage
+resource "google_storage_bucket_iam_binding" "external_service_acc_binding" {
+  count  = "${var.use_external_service_account}"
   bucket = "${var.cluster_name}"
   role   = "roles/storage.objectAdmin"
 
   members = [
     "serviceAccount:${var.service_account_email}",
+  ]
+
+  depends_on = ["google_storage_bucket.vault_storage_backend", "google_storage_bucket_acl.vault_storage_backend"]
+}
+
+# Allows a provided service account to create and read objects from the storage
+resource "google_storage_bucket_iam_binding" "vault_cluster_admin_service_acc_binding" {
+  count  = "${var.create_service_account}"
+  bucket = "${var.cluster_name}"
+  role   = "roles/storage.objectAdmin"
+
+  members = [
+    "serviceAccount:${google_service_account.vault_cluster_admin.email}",
   ]
 
   depends_on = ["google_storage_bucket.vault_storage_backend", "google_storage_bucket_acl.vault_storage_backend"]
