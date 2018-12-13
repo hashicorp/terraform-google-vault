@@ -116,7 +116,7 @@ resource "google_compute_instance_template" "vault_public" {
 
   # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
   service_account {
-    email = "${var.service_account_email}"
+    email = "${local.service_account_email}"
 
     scopes = ["${concat(
       list(
@@ -175,7 +175,7 @@ resource "google_compute_instance_template" "vault_private" {
 
   # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
   service_account {
-    email = "${var.service_account_email}"
+    email = "${local.service_account_email}"
 
     scopes = ["${concat(
       list(
@@ -341,4 +341,10 @@ data "template_file" "compute_instance_template_self_link" {
 # https://github.com/terraform-providers/terraform-provider-google/issues/2067.
 data "google_compute_image" "image" {
   name = "${var.source_image}"
+}
+
+# This is a work around so we don't have yet another combination of google_compute_instance_template
+# with counts that depend on yet another flag
+locals {
+  service_account_email = "${var.create_service_account == 1 ? element(concat(google_service_account.vault_cluster_admin.*.email, list("")), 0)  : var.service_account_email}"
 }
