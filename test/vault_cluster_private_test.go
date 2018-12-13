@@ -68,7 +68,7 @@ func runVaultPrivateClusterTest(t *testing.T) {
 		sshUserName := "terratest"
 		keyPair := ssh.GenerateRSAKeyPair(t, 2048)
 		saveKeyPair(t, exampleDir, keyPair)
-		addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupId, keyPair, sshUserName)
+		addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupId, keyPair, sshUserName, 3)
 
 		bastionName := terraform.OutputRequired(t, terraformOptions, TFVAR_NAME_BASTION_SERVER_NAME)
 		bastionInstance := gcp.FetchInstance(t, projectId, bastionName)

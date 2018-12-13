@@ -121,9 +121,9 @@ func writeLogFile(t *testing.T, buffer string, destination string) {
 	file.WriteString(buffer)
 }
 
-func addKeyPairToInstancesInGroup(t *testing.T, projectId string, region string, instanceGroupId string, keyPair *ssh.KeyPair, sshUserName string) []*gcp.Instance {
+func addKeyPairToInstancesInGroup(t *testing.T, projectId string, region string, instanceGroupId string, keyPair *ssh.KeyPair, sshUserName string, expectedInstances int) []*gcp.Instance {
 	instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
-	instances := getInstancesFromGroup(t, projectId, instanceGroup)
+	instances := getInstancesFromGroup(t, projectId, instanceGroup, expectedInstances)
 
 	for _, instance := range instances {
 		instance.AddSshKey(t, sshUserName, keyPair.PublicKey)
@@ -131,14 +131,14 @@ func addKeyPairToInstancesInGroup(t *testing.T, projectId string, region string,
 	return instances
 }
 
-func getInstancesFromGroup(t *testing.T, projectId string, instanceGroup *gcp.RegionalInstanceGroup) []*gcp.Instance {
+func getInstancesFromGroup(t *testing.T, projectId string, instanceGroup *gcp.RegionalInstanceGroup, expectedInstances int) []*gcp.Instance {
 	instances := []*gcp.Instance{}
 
-	retry.DoWithRetry(t, "Getting instances", 10, 10*time.Second, func() (string, error) {
+	retry.DoWithRetry(t, "Getting instances", 30, 10*time.Second, func() (string, error) {
 		instances = instanceGroup.GetInstances(t, projectId)
 
-		if len(instances) != 3 {
-			return "", fmt.Errorf("Expected to get three instances, but got %d: %v", len(instances), instances)
+		if len(instances) != expectedInstances {
+			return "", fmt.Errorf("Expected to get %d instances, but got %d: %v", expectedInstances, len(instances), instances)
 		}
 		return "", nil
 	})
