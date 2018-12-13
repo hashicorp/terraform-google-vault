@@ -33,7 +33,7 @@ resource "google_compute_subnetwork" "private_subnet_with_google_api_access" {
 # In this example we are using the default project service account
 # ---------------------------------------------------------------------------------------------------------------------
 
-data "google_compute_default_service_account" "vault_test" { }
+data "google_compute_default_service_account" "vault_test" {}
 
 resource "google_kms_crypto_key_iam_binding" "crypto_key" {
   crypto_key_id = "${var.vault_auto_unseal_key_project_id}/${var.vault_auto_unseal_key_region}/${var.vault_auto_unseal_key_ring}/${var.vault_auto_unseal_crypto_key_name}"
@@ -48,7 +48,7 @@ resource "google_kms_crypto_key_iam_binding" "crypto_key" {
 # DEPLOYS A BASTION HOST THAT CAN REACH THE CLUSTER
 # We can't ssh directly to the clusters because they don't have an external IP
 # address, but we can ssh to a bastion host inside the same subnet and then
-# access the cluster
+# access the cluster from there
 # ---------------------------------------------------------------------------------------------------------------------
 
 data "google_compute_zones" "available" {}
