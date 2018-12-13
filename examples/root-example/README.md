@@ -27,7 +27,7 @@ To deploy a Vault Cluster:
    for instructions. Make sure to note down the ID of the Google Image.
 1. Install [Terraform](https://www.terraform.io/).
 1. Make sure you local environment is authenticated to Google Cloud.
-1. Open `variables.tf` and fill in any variables that don't have a default, including putting your Goolge Image ID into
+1. Open `variables.tf` and fill in any variables that don't have a default, including putting your Google Image ID into
    the `vault_source_image` and `consul_server_source_image` variables.
 1. Run `terraform init`.
 1. Run `terraform plan`.

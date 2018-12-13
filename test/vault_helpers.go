@@ -58,7 +58,8 @@ func initializeAndUnsealVaultCluster(t *testing.T, projectId string, region stri
 
 	verifyCanSsh(t, cluster, bastionHost)
 	assertAllNodesBooted(t, cluster, bastionHost)
-	initializeVault(t, cluster, bastionHost)
+	initOutput := initializeVault(t, cluster, bastionHost)
+	cluster.UnsealKeys = parseUnsealKeysFromVaultInitResponse(t, initOutput)
 
 	assertNodeStatus(t, cluster.Leader, bastionHost, Sealed)
 	unsealNode(t, cluster.Leader, bastionHost, cluster.UnsealKeys)
@@ -150,11 +151,12 @@ func assertAllNodesBooted(t *testing.T, cluster *VaultCluster, bastionHost *ssh.
 }
 
 // Initialize the Vault cluster, filling in the unseal keys in the given vaultCluster struct
-func initializeVault(t *testing.T, vaultCluster *VaultCluster, bastionHost *ssh.Host) {
-	output := retry.DoWithRetry(t, "Initializing the cluster", 10, 10*time.Second, func() (string, error) {
-		return runCommand(t, bastionHost, &vaultCluster.Leader, "vault operator init")
+func initializeVault(t *testing.T, vaultCluster *VaultCluster, bastionHost *ssh.Host) string {
+	return retry.DoWithRetry(t, "Initializing the cluster", 5, 5*time.Second, func() (string, error) {
+		output, err := runCommand(t, bastionHost, &vaultCluster.Leader, "vault operator init")
+		logger.Logf(t, "Vault init output: %s", output)
+		return output, err
 	})
-	vaultCluster.UnsealKeys = parseUnsealKeysFromVaultInitResponse(t, output)
 }
 
 // Unseal the given Vault host using the given unseal keys
@@ -228,7 +230,7 @@ func checkStatus(t *testing.T, host ssh.Host, bastionHost *ssh.Host, expectedSta
 
 	output, err := runCommand(t, bastionHost, &host, curlCommand)
 	if err != nil {
-		return "", err
+		return output, err
 	}
 	status, err := strconv.Atoi(output)
 	if err != nil {
@@ -282,6 +284,30 @@ func createVaultClient(t *testing.T, domainName string) *api.Client {
 	}
 
 	return client
+}
+
+// SSH to a Vault node and make sure that is properly configured to use Consul for DNS so that the vault.service.consul
+// domain name works.
+func testVaultUsesConsulForDns(t *testing.T, cluster *VaultCluster, bastionHost *ssh.Host) {
+	// Pick any host, it shouldn't matter
+	host := cluster.Standby1
+
+	command := "vault status -address=https://vault.service.consul:8200"
+	description := fmt.Sprintf("Checking that the Vault server at %s is properly configured to use Consul for DNS: %s", host.Hostname, command)
+	logger.Logf(t, description)
+
+	maxRetries := 10
+	sleepBetweenRetries := 5 * time.Second
+
+	_, err := retry.DoWithRetryE(t, description, maxRetries, sleepBetweenRetries, func() (string, error) {
+		o, e := runCommand(t, bastionHost, &host, command)
+		logger.Logf(t, "Output from command vault status call to vault.service.consul: %s", o)
+		return o, e
+	})
+
+	if err != nil {
+		t.Fatalf("Failed to run vault command with vault.service.consul URL due to error: %v", err)
+	}
 }
 
 // Gets Vault logs and syslog written to disk, so it is exposed on circle ci artifacts

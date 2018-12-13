@@ -1,6 +1,7 @@
+
 # Gopkg.toml example
 #
-# Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
+# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
 # for detailed Gopkg.toml documentation.
 #
 # required = ["github.com/user/thing/cmd/thing"]
@@ -18,16 +19,12 @@
 # [[override]]
 #   name = "github.com/x/y"
 #   version = "2.4.0"
-#
-# [prune]
-#   non-go = false
-#   go-tests = true
-#   unused-packages = true
+
 
 
 [[constraint]]
   name = "github.com/gruntwork-io/terratest"
-  version = "0.13.13"
+  version = "0.13.14"
 
 [prune]
   go-tests = true

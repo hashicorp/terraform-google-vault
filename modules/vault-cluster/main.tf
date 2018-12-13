@@ -61,7 +61,7 @@ resource "google_compute_instance_template" "vault_public" {
   disk {
     boot         = true
     auto_delete  = true
-    source_image = "${var.source_image}"
+    source_image = "${data.google_compute_image.image.self_link}"
     disk_size_gb = "${var.root_volume_disk_size_gb}"
     disk_type    = "${var.root_volume_disk_type}"
   }
@@ -126,7 +126,7 @@ resource "google_compute_instance_template" "vault_private" {
   disk {
     boot         = true
     auto_delete  = true
-    source_image = "${var.source_image}"
+    source_image = "${data.google_compute_image.image.self_link}"
     disk_size_gb = "${var.root_volume_disk_size_gb}"
     disk_type    = "${var.root_volume_disk_type}"
   }
@@ -256,6 +256,19 @@ resource "google_storage_bucket_acl" "vault_storage_backend" {
   predefined_acl = "${var.gcs_bucket_predefined_acl}"
 }
 
+# Allows a proviced service account to create and read objects from the storage
+resource "google_storage_bucket_iam_binding" "service_acc_binding" {
+  count  = "${var.service_account_email != "" ? 1 : 0}"
+  bucket = "${var.cluster_name}"
+  role   = "roles/storage.objectAdmin"
+
+  members = [
+    "serviceAccount:${var.service_account_email}",
+  ]
+
+  depends_on = ["google_storage_bucket.vault_storage_backend"]
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # CONVENIENCE VARIABLES
 # Because we've got some conditional logic in this template, some values will depend on our properties. This section
@@ -272,4 +285,10 @@ data "template_file" "compute_instance_template_self_link" {
   # - Concat these lists. concat(list-of-1-value, empty-list) == list-of-1-value
   # - Take the first element of list-of-1-value
   template = "${element(concat(google_compute_instance_template.vault_public.*.self_link, google_compute_instance_template.vault_private.*.self_link), 0)}"
+}
+
+# This is a workaround for a provider bug in Terraform v0.11.8. For more information please refer to:
+# https://github.com/terraform-providers/terraform-provider-google/issues/2067.
+data "google_compute_image" "image" {
+  name = "${var.source_image}"
 }

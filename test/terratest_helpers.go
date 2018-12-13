@@ -28,7 +28,6 @@ const PACKER_VAR_GCP_ZONE = "zone"
 const PACKER_VAR_CA_PUBLIC_KEY = "ca_public_key_path"
 const PACKER_VAR_TLS_PUBLIC_KEY = "tls_public_key_path"
 const PAKCER_VAR_TLS_PRIVATE_KEY = "tls_private_key_path"
-const PACKER_VAR_CONSUL_DOWNLOAD_URL = "CONSUL_DOWNLOAD_URL"
 const PACKER_VAR_VAULT_DOWNLOAD_URL = "VAULT_DOWNLOAD_URL"
 
 const PACKER_TEMPLATE_PATH = "../examples/vault-consul-image/vault-consul.json"
@@ -36,20 +35,22 @@ const PACKER_TEMPLATE_PATH = "../examples/vault-consul-image/vault-consul.json"
 const SAVED_TLS_CERT = "TlsCert"
 const SAVED_KEYPAIR = "KeyPair"
 
-// Use Packer to build the Image in the given Packer template, with the given build name and return the Image ID.
-func buildVaultImage(t *testing.T, packerBuildName string, testDir string) {
-	projectId := gcp.GetGoogleProjectIDFromEnvVar(t)
-	region := gcp.GetRandomRegion(t, projectId, nil, nil)
-	zone := gcp.GetRandomZoneForRegion(t, projectId, region)
+// Checks if a required environment variable is set
+func getUrlFromEnv(t *testing.T, key string) string {
+	url := os.Getenv(key)
+	if url == "" {
+		t.Fatalf("Please set the environment variable: %s\n", key)
+	}
+	return url
+}
 
-	test_structure.SaveString(t, testDir, SAVED_GCP_PROJECT_ID, projectId)
-	test_structure.SaveString(t, testDir, SAVED_GCP_REGION_NAME, region)
-	test_structure.SaveString(t, testDir, SAVED_GCP_ZONE_NAME, zone)
+// Compose packer image options
+func composeImageOptions(t *testing.T, packerBuildName string, testDir string, vaultDownloadUrl string) *packer.Options {
+	projectId := test_structure.LoadString(t, testDir, SAVED_GCP_PROJECT_ID)
+	zone := test_structure.LoadString(t, testDir, SAVED_GCP_ZONE_NAME)
+	tlsCert := loadTLSCert(t, WORK_DIR)
 
-	tlsCert := generateSelfSignedTlsCert(t)
-	saveTLSCert(t, testDir, tlsCert)
-
-	options := &packer.Options{
+	return &packer.Options{
 		Template: PACKER_TEMPLATE_PATH,
 		Only:     packerBuildName,
 		Vars: map[string]string{
@@ -59,21 +60,16 @@ func buildVaultImage(t *testing.T, packerBuildName string, testDir string) {
 			PACKER_VAR_TLS_PUBLIC_KEY:  tlsCert.PublicKeyPath,
 			PAKCER_VAR_TLS_PRIVATE_KEY: tlsCert.PrivateKeyPath,
 		},
+		Env: map[string]string{
+			PACKER_VAR_VAULT_DOWNLOAD_URL: vaultDownloadUrl,
+		},
 	}
-
-	imageID := packer.BuildArtifact(t, options)
-	test_structure.SaveArtifactID(t, testDir, imageID)
 }
 
-func deleteVaultImage(t *testing.T, testDir string) {
-	projectID := test_structure.LoadString(t, testDir, SAVED_GCP_PROJECT_ID)
-	imageName := test_structure.LoadArtifactID(t, testDir)
-
-	image := gcp.FetchImage(t, projectID, imageName)
+func deleteVaultImage(t *testing.T, testDir string, projectId string, imageFileName string) {
+	imageName := test_structure.LoadString(t, testDir, imageFileName)
+	image := gcp.FetchImage(t, projectId, imageName)
 	image.DeleteImage(t)
-
-	tlsCert := loadTLSCert(t, testDir)
-	cleanupTLSCertFiles(tlsCert)
 }
 
 func saveTLSCert(t *testing.T, testFolder string, tlsCert TlsCert) {

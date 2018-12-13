@@ -1,11 +1,11 @@
 # ---------------------------------------------------------------------------------------------------------------------
-# DEPLOY A PRIVATE VAULT CLUSTER WITH A PUBLIC LOAD BALANCER IN GOOGLE CLOUD
+# DEPLOY A VAULT CLUSTER IN GOOGLE CLOUD
 # This is an example of how to use the vault-cluster to deploy a private Vault cluster in GCP with a Load Balancer in
 # front of it. This cluster uses Consul, running in a separate cluster, as its High Availability backend.
 # ---------------------------------------------------------------------------------------------------------------------
 
 provider "google" {
-  project = "${var.gcp_project}"
+  project = "${var.gcp_project_id}"
   region  = "${var.gcp_region}"
 }
 
@@ -13,6 +13,64 @@ provider "google" {
 # https://github.com/terraform-providers/terraform-provider-google
 terraform {
   required_version = ">= 0.10.3"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATES A SUBNETWORK WITH GOOGLE API ACCESS
+# Necessary because the private cluster doesn't have internet access
+# But consul needs to make requests to the Google API
+# ---------------------------------------------------------------------------------------------------------------------
+
+resource "google_compute_subnetwork" "private_subnet_with_google_api_access" {
+  name                     = "${var.vault_cluster_name}-private-subnet-with-google-api-access"
+  private_ip_google_access = true
+  network                  = "${var.network_name}"
+  ip_cidr_range            = "10.2.0.0/16"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# ALLOW SERVICE ACCOUNT TO USE THE CRYPTOGRAPHIC KEY FROM CLOUD KMS
+# In this example we are using the default project service account
+# ---------------------------------------------------------------------------------------------------------------------
+
+data "google_compute_default_service_account" "vault_test" { }
+
+resource "google_kms_crypto_key_iam_binding" "crypto_key" {
+  crypto_key_id = "${var.vault_auto_unseal_key_project_id}/${var.vault_auto_unseal_key_region}/${var.vault_auto_unseal_key_ring}/${var.vault_auto_unseal_crypto_key_name}"
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  members = [
+    "serviceAccount:${data.google_compute_default_service_account.vault_test.email}",
+  ]
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# DEPLOYS A BASTION HOST THAT CAN REACH THE CLUSTER
+# We can't ssh directly to the clusters because they don't have an external IP
+# address, but we can ssh to a bastion host inside the same subnet and then
+# access the cluster
+# ---------------------------------------------------------------------------------------------------------------------
+
+data "google_compute_zones" "available" {}
+
+resource "google_compute_instance" "bastion" {
+  name         = "${var.bastion_server_name}"
+  zone         = "${data.google_compute_zones.available.names[0]}"
+  machine_type = "g1-small"
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-1810-cosmic-v20181114"
+    }
+  }
+
+  network_interface {
+    subnetwork = "${google_compute_subnetwork.private_subnet_with_google_api_access.self_link}"
+
+    access_config {
+      // Ephemeral IP - leaving this block empty will generate a new external IP and assign it to the machine
+    }
+  }
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -25,7 +83,10 @@ module "vault_cluster" {
   # source = "git::git@github.com:hashicorp/terraform-google-vault.git//modules/vault-cluster?ref=v0.0.1"
   source = "../../modules/vault-cluster"
 
-  gcp_region = "${var.gcp_region}"
+  subnetwork_name = "${google_compute_subnetwork.private_subnet_with_google_api_access.name}"
+
+  gcp_project_id = "${var.gcp_project_id}"
+  gcp_region     = "${var.gcp_region}"
 
   cluster_name     = "${var.vault_cluster_name}"
   cluster_size     = "${var.vault_cluster_size}"
@@ -55,25 +116,37 @@ module "vault_cluster" {
   # SSH into another node that is not private.
   assign_public_ip_addresses = false
 
-  # To enable external access to the Vault Cluster, enter the approved CIDR Blocks or tags below.
-  # We enable health checks from the Consul Server cluster to Vault.
-  allowed_inbound_cidr_blocks_api = []
+  # To enable external access to the Vault Cluster, enter the approved CIDR Blocks below.
+  # Allowing from all for test purposes, do NOT use this value for production
+  allowed_inbound_cidr_blocks_api = ["0.0.0.0/0"]
 
-  allowed_inbound_tags_api = ["${var.consul_server_cluster_name}"]
+  # To access to the Vault Cluster from other resources inside Google Cloud,
+  # add their tags below, along with the Consul Server, which needs to send
+  # health checks to the Vault cluster.
+  allowed_inbound_tags_api = ["${concat(list(var.consul_server_cluster_name), var.additional_allowed_inbound_tags_api)}"]
 
   # This property is only necessary when using a Load Balancer
   instance_group_target_pools = ["${module.vault_load_balancer.target_pool_url}"]
+
+  # Ensure the cluster can access the Cloud KMS resources
+  service_account_email  = "${data.google_compute_default_service_account.vault_test.email}"
+  service_account_scopes = ["cloud-platform"]
 }
 
 # Render the Startup Script that will run on each Vault Instance on boot. This script will configure and start Vault.
 data "template_file" "startup_script_vault" {
-  template = "${file("${path.module}/startup-script-vault.sh")}"
+  template = "${file("${path.module}/startup-script-vault-enterprise.sh")}"
 
   vars {
     consul_cluster_tag_name = "${var.consul_server_cluster_name}"
     vault_cluster_tag_name  = "${var.vault_cluster_name}"
     web_proxy_port          = "${var.web_proxy_port}"
-    enable_vault_ui         = "${var.enable_vault_ui ? "--enable-ui" : ""}"
+
+    # Enable the Vault Enterprise Auto Unseal feature.
+    vault_auto_unseal_key_project_id  = "${var.vault_auto_unseal_key_project_id}"
+    vault_auto_unseal_key_region      = "${var.vault_auto_unseal_key_region}"
+    vault_auto_unseal_key_ring        = "${var.vault_auto_unseal_key_ring}"
+    vault_auto_unseal_crypto_key_name = "${var.vault_auto_unseal_crypto_key_name}"
   }
 }
 
@@ -101,7 +174,10 @@ module "vault_load_balancer" {
 module "consul_cluster" {
   source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.2.1"
 
-  gcp_region       = "${var.gcp_region}"
+  subnetwork_name = "${google_compute_subnetwork.private_subnet_with_google_api_access.name}"
+
+  gcp_region = "${var.gcp_region}"
+
   cluster_name     = "${var.consul_server_cluster_name}"
   cluster_tag_name = "${var.consul_server_cluster_name}"
   cluster_size     = "${var.consul_server_cluster_size}"

@@ -10,7 +10,7 @@ readonly EMPTY_VAL="__EMPTY__"
 
 readonly DEFAULT_INSTALL_PATH="/opt/vault"
 readonly DEFAULT_VAULT_USER="vault"
-readonly DEFAULT_VAULT_DOWNLOAD_OPEN_SOURCE_URL="https://releases.hashicorp.com/vault/<version>/vault_<version>_linux_amd64.zip"
+readonly DOWNLOAD_PACKAGE_PATH="/tmp/vault.zip"
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly SYSTEM_BIN_DIR="/usr/local/bin"
@@ -28,13 +28,13 @@ function print_usage {
   echo
   echo "Required Params:"
   echo
-  echo -e "  --version\t\tThe version of Vault to install."
+  echo -e "  --version\t\tThe version of Vault to install. Optional if download-url is provided."
+  echo -e "  --download-url\t\tUrl to exact Vault package to be installed. Optional if version is provided."
   echo
   echo "Optional Params:"
   echo
   echo -e "  --path\t\tThe path where Vault should be installed. Default: $DEFAULT_INSTALL_PATH."
   echo -e "  --user\t\tThe user who will own the Vault install directories. Default: $DEFAULT_VAULT_USER."
-  echo -e "  --download-url\tThe URL from which the Vault binary will be downloaded. Default: $DEFAULT_VAULT_DOWNLOAD_OPEN_SOURCE_URL."
   echo
   echo "Example:"
   echo
@@ -63,12 +63,13 @@ function log_error {
   log "ERROR" "$message"
 }
 
-function assert_not_empty {
-  local readonly arg_name="$1"
-  local readonly arg_value="$2"
-
-  if [[ -z "$arg_value" ]]; then
-    log_error "The value for '$arg_name' cannot be empty"
+function assert_either_or {
+  local readonly arg1_name="$1"
+  local readonly arg1_value="$2"
+  local readonly arg2_name="$3"
+  local readonly arg2_value="$4"
+  if [[ -z "$arg1_value" && -z "$arg2_value" ]]; then
+    log_error "Either the value for '$arg1_name' or '$arg2_name' must be passed, both cannot be empty"
     print_usage
     exit 1
   fi
@@ -152,20 +153,27 @@ function create_vault_install_paths {
   sudo chown -R "$username:$username" "$path"
 }
 
-function install_binaries {
+function fetch_binary {
   local readonly version="$1"
-  local readonly path="$2"
-  local readonly username="$3"
-  local readonly url="$4"
+  local download_url="$2"
 
-  local readonly download_path="/tmp/vault_${version}_linux_amd64.zip"
-  local readonly bin_dir="$path/bin"
+  if [[ -z "$download_url" && -n "$version" ]];  then
+    download_url="https://releases.hashicorp.com/vault/${version}/vault_${version}_linux_amd64.zip"
+  fi
+
+  log_info "Downloading Vault to $DOWNLOAD_PACKAGE_PATH"
+  curl -o "$DOWNLOAD_PACKAGE_PATH" "$download_url" --location --silent --fail --show-error
+}
+
+function install_binary {
+  local readonly install_path="$1"
+  local readonly username="$2"
+
+  local readonly bin_dir="$install_path/bin"
   local readonly vault_dest_path="$bin_dir/vault"
   local readonly run_vault_dest_path="$bin_dir/run-vault"
 
-  log_info "Downloading Vault from $url to $download_path"
-  curl -o "$download_path" "$url"
-  unzip -d /tmp "$download_path"
+  unzip -d /tmp "$DOWNLOAD_PACKAGE_PATH"
 
   log_info "Moving Vault binary to $vault_dest_path"
   sudo mv "/tmp/vault" "$vault_dest_path"
@@ -232,7 +240,7 @@ function install {
     shift
   done
 
-  assert_not_empty "--version" "$version"
+  assert_either_or "--version" "$version" "--download-url" "$download_url"
 
   log_info "Starting Vault install"
 
@@ -243,10 +251,16 @@ function install {
   install_dependencies
   create_vault_user "$user"
   create_vault_install_paths "$path" "$user"
-  install_binaries "$version" "$path" "$user" "$download_url"
+  fetch_binary "$version" "$download_url"
+  install_binary "$path" "$user"
   configure_mlock
 
-  log_info "Vault install complete!"
+  if command -v vault; then
+    log_info "Vault install complete!"
+  else
+    log_info "Could not find vault command. Aborting.";
+    exit 1;
+  fi
 }
 
 install "$@"
