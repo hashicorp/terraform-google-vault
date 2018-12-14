@@ -91,3 +91,8 @@ variable "enable_vault_ui" {
   description = "If true, enable the Vault UI"
   default     = true
 }
+
+variable "image_project_id" {
+  description = "The name of the GCP Project where the image is located. Useful when using a separate project for custom images. If empty, var.gcp_project_id will be used."
+  default     = ""
+}

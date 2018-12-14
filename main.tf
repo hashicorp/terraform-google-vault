@@ -33,8 +33,9 @@ module "vault_cluster" {
   cluster_tag_name = "${var.vault_cluster_name}"
   machine_type     = "${var.vault_cluster_machine_type}"
 
-  source_image   = "${var.vault_source_image}"
-  startup_script = "${data.template_file.startup_script_vault.rendered}"
+  image_project_id = "${var.image_project_id}"
+  source_image     = "${var.vault_source_image}"
+  startup_script   = "${data.template_file.startup_script_vault.rendered}"
 
   gcs_bucket_name          = "${var.vault_cluster_name}"
   gcs_bucket_location      = "${var.gcs_bucket_location}"
