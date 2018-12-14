@@ -26,7 +26,7 @@ resource "google_compute_subnetwork" "private_subnet_with_google_api_access" {
   name                     = "${var.vault_cluster_name}-private-subnet-with-google-api-access"
   private_ip_google_access = true
   network                  = "${var.network_name}"
-  ip_cidr_range            = "10.1.0.0/16"
+  ip_cidr_range            = "${var.subnet_ip_cidr_range}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

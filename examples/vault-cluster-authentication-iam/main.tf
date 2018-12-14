@@ -26,7 +26,7 @@ resource "google_compute_subnetwork" "private_subnet_with_google_api_access" {
   name                     = "${var.vault_cluster_name}-private-subnet-with-google-api-access"
   private_ip_google_access = true
   network                  = "${var.network_name}"
-  ip_cidr_range            = "10.3.0.0/16"
+  ip_cidr_range            = "${var.subnet_ip_cidr_range}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ resource "google_service_account_key" "web_client_sa_key" {
 }
 
 # Allow service account to use the necessary roles on the project
-resource "google_project_iam_member" "vault-project" {
+resource "google_project_iam_member" "vault_project" {
   count   = "${length(var.web_service_account_iam_roles)}"
   project = "${var.gcp_project_id}"
   role    = "${element(var.web_service_account_iam_roles, count.index)}"

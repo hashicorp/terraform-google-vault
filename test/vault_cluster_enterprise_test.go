@@ -77,6 +77,7 @@ func runVaultEnterpriseClusterTest(t *testing.T) {
 				TFVAR_NAME_AUTOUNSEAL_KEY_REGION:              AUTOUNSEAL_KEY_REGION,
 				TFVAR_NAME_AUTOUNSEAL_KEY_RING_NAME:           AUTOUNSEAL_KEY_RING_NAME,
 				TFVAR_NAME_AUTOUNSEAL_CRYPTO_KEY_NAME:         AUTOUNSEAL_CRYPTO_KEY_NAME,
+				TFVAR_NAME_SUBNET_CIDR:                        getRandomCidr(),
 			},
 		}
 		test_structure.SaveTerraformOptions(t, exampleDir, terraformOptions)

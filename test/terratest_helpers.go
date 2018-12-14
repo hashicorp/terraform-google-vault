@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"testing"
 	"time"
@@ -151,4 +152,8 @@ func runCommand(t *testing.T, bastionHost *ssh.Host, targetHost *ssh.Host, comma
 		return ssh.CheckSshCommandE(t, *targetHost, command)
 	}
 	return ssh.CheckPrivateSshConnectionE(t, *bastionHost, *targetHost, command)
+}
+
+func getRandomCidr() string {
+	return fmt.Sprintf("10.%d.%d.%d/28", rand.Intn(128), rand.Intn(256), rand.Intn(16)*16)
 }

@@ -11,6 +11,10 @@ variable "gcp_region" {
   description = "The Region in which all GCP resources will be launched."
 }
 
+variable "subnet_ip_cidr_range" {
+  description = "The cidr range for the subnetwork. Ex.: 10.1.0.0/16"
+}
+
 variable "web_client_name" {
   description = "The name of the server that authenticates to vault"
 }

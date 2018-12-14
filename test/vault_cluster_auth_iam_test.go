@@ -55,6 +55,7 @@ func runVaultIamAuthTest(t *testing.T) {
 				TFVAR_NAME_VAULT_SOURCE_IMAGE:                 imageID,
 				TFVAR_NAME_VAULT_CLUSTER_MACHINE_TYPE:         "g1-small",
 				TFVAR_NAME_CLIENT_NAME:                        fmt.Sprintf("vault-client-test-%s", uniqueID),
+				TFVAR_NAME_SUBNET_CIDR:                        getRandomCidr(),
 			},
 		}
 
