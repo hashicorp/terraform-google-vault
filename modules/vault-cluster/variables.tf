@@ -164,6 +164,11 @@ variable "root_volume_disk_type" {
   default     = "pd-standard"
 }
 
+variable "image_project_id" {
+  description = "The name of the GCP Project where the image is located. Useful when using a separate project for custom images. If empty, var.gcp_project_id will be used."
+  default     = ""
+}
+
 # Google Storage Bucket Settings
 
 variable "gcs_bucket_force_destroy" {

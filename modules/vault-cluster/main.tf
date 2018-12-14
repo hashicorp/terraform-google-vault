@@ -290,5 +290,6 @@ data "template_file" "compute_instance_template_self_link" {
 # This is a workaround for a provider bug in Terraform v0.11.8. For more information please refer to:
 # https://github.com/terraform-providers/terraform-provider-google/issues/2067.
 data "google_compute_image" "image" {
-  name = "${var.source_image}"
+  name    = "${var.source_image}"
+  project = "${var.image_project_id != "" ? var.image_project_id : var.gcp_project_id}"
 }
