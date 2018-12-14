@@ -32,7 +32,7 @@ resource "google_project_iam_member" "vault_cluster_admin_sa_view_project" {
   count   = "${var.create_service_account}"
   project = "${var.gcp_project_id}"
   role    = "roles/viewer"
-  member  = "serviceAccount:${google_service_account.vault_cluster_admin.email}"
+  member  = "serviceAccount:${local.service_account_email}"
 }
 
 # Does the same in case we're using a service account that has been previously created

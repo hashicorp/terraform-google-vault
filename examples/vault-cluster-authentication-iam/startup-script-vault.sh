@@ -1,10 +1,11 @@
 #!/bin/bash
 # This script is meant to be run as the Startup Script of each Compute Instance
 # while it's booting. The script uses the run-consul and run-vault scripts to
-# configure and start both Vault and Consul in client mode, and then, after initializing
-# and unsealing vault, it configures vault authentication and writes an example
-# that can be read by a client. This script assumes it's running in a Compute Instance
-# based on a Google Image built from the Packer template in examples/vault-consul-image/vault-consul.json.
+# configure and start Consul in client mode and Vault in server mode, and then,
+# after initializing and unsealing vault, it configures vault authentication and
+# writes an example that can be read by a client. This script assumes it's running
+# in a Compute Instance based on a Google Image built from the Packer template in
+# examples/vault-consul-image/vault-consul.json.
 #
 # For more information about GCP auth, please refer to https://www.vaultproject.io/docs/auth/gcp.html
 # ==========================================================================
@@ -84,17 +85,22 @@ SERVER_OUTPUT=$(retry \
 # ==========================================================================
 
 # Unseals the server with 3 keys from this output
-# Please note that this is not how it should be done in production as it is not secure and and we are
-# not storing any of the tokens, so in case it gets resealed, the tokens are lost and we wouldn't be able to unseal it again
-# Normally, an operator would SSH and unseal the server in each node manually or, ideally,
-# it should be auto unsealed https://www.vaultproject.io/docs/enterprise/auto-unseal/index.html
-# For this quick example specifically, we are just running one vault server and unsealing it like this
-# for simplicity as this example focuses on authentication and not on unsealing.
-# For a more detailed example on auto unsealing, check the vault enterprise example.
-echo "$SERVER_OUTPUT" | head -n 3 | awk '{ print $4; }' | xargs -l /opt/vault/bin/vault operator unseal
+# Please note that this is not how it should be done in production as it is not
+# secure and and we are not storing any of the tokens, so in case it gets resealed,
+# the tokens are lost and we wouldn't be able to unseal it again. Normally, an
+# operator would SSH and unseal the server in each node manually or, ideally, it
+# should be auto unsealed https://www.vaultproject.io/docs/enterprise/auto-unseal/index.html
+# For this quick example specifically, we are just running one vault server and
+# unsealing it like this for simplicity as this example focuses on authentication
+# and not on unsealing. For a more detailed example on auto unsealing, check the
+# vault enterprise example at /examples/vault-cluster-enterprise
+FIRST_THREE_LINES=$(echo "$SERVER_OUTPUT" | head -n 3)
+UNSEAL_KEYS=$(echo "$FIRST_THREE_LINES" | awk '{ print $4; }')
+echo "$UNSEAL_KEYS" | xargs -l /opt/vault/bin/vault operator unseal
 
 # Exports the client token environment variable necessary for running the following vault commands
-export VAULT_TOKEN=$(echo "$SERVER_OUTPUT" | head -n 7 | tail -n 1 | awk '{ print $4; }')
+SEVENTH_LINE=$(echo "$SERVER_OUTPUT" | head -n 7 | tail -n 1)
+export VAULT_TOKEN=$(echo "$SEVENTH_LINE" | awk '{ print $4; }')
 
 
 # ==========================================================================
