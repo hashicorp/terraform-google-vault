@@ -9,6 +9,41 @@ terraform {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
+# CREATES A SERVICE ACCOUNT TO OPERATE THE VAULT CLUSTER
+# The default project service account will be used if create_service_account
+# is set to false and no service_account_email is provided.
+# ---------------------------------------------------------------------------------------------------------------------
+
+resource "google_service_account" "vault_cluster_admin" {
+  count        = "${var.create_service_account}"
+  account_id   = "${var.cluster_name}-admin-sa"
+  display_name = "Vault Server Admin"
+  project      = "${var.gcp_project_id}"
+}
+
+# Create a service account key
+resource "google_service_account_key" "vault" {
+  count              = "${var.create_service_account}"
+  service_account_id = "${google_service_account.vault_cluster_admin.name}"
+}
+
+# Add viewer role to service account on project
+resource "google_project_iam_member" "vault_cluster_admin_sa_view_project" {
+  count   = "${var.create_service_account}"
+  project = "${var.gcp_project_id}"
+  role    = "roles/viewer"
+  member  = "serviceAccount:${local.service_account_email}"
+}
+
+# Does the same in case we're using a service account that has been previously created
+resource "google_project_iam_member" "other_sa_view_project" {
+  count   = "${var.use_external_service_account}"
+  project = "${var.gcp_project_id}"
+  role    = "roles/viewer"
+  member  = "serviceAccount:${var.service_account_email}"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
 # CREATE A GCE MANAGED INSTANCE GROUP TO RUN VAULT
 # Ideally, we would run a "regional" Managed Instance Group that spans many Zones, but the Terraform GCP provider has
 # not yet implemented https://github.com/terraform-providers/terraform-provider-google/issues/45, so we settle for a
@@ -81,13 +116,14 @@ resource "google_compute_instance_template" "vault_public" {
 
   # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
   service_account {
-    email = "${var.service_account_email}"
+    email = "${local.service_account_email}"
 
     scopes = ["${concat(
       list(
         "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/compute.readonly",
-        "https://www.googleapis.com/auth/devstorage.read_write"
+        "https://www.googleapis.com/auth/compute",
+        "https://www.googleapis.com/auth/devstorage.read_write",
+        "https://www.googleapis.com/auth/cloud-platform"
       ),
       var.service_account_scopes
     )}"]
@@ -139,13 +175,14 @@ resource "google_compute_instance_template" "vault_private" {
 
   # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
   service_account {
-    email = "${var.service_account_email}"
+    email = "${local.service_account_email}"
 
     scopes = ["${concat(
       list(
         "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/compute.readonly",
-        "https://www.googleapis.com/auth/devstorage.read_write"
+        "https://www.googleapis.com/auth/compute",
+        "https://www.googleapis.com/auth/devstorage.read_write",
+        "https://www.googleapis.com/auth/cloud-platform",
       ),
       var.service_account_scopes
     )}"]
@@ -256,9 +293,9 @@ resource "google_storage_bucket_acl" "vault_storage_backend" {
   predefined_acl = "${var.gcs_bucket_predefined_acl}"
 }
 
-# Allows a proviced service account to create and read objects from the storage
-resource "google_storage_bucket_iam_binding" "service_acc_binding" {
-  count  = "${var.service_account_email != "" ? 1 : 0}"
+# Allows a provided service account to create and read objects from the storage
+resource "google_storage_bucket_iam_binding" "external_service_acc_binding" {
+  count  = "${var.use_external_service_account}"
   bucket = "${var.cluster_name}"
   role   = "roles/storage.objectAdmin"
 
@@ -266,7 +303,20 @@ resource "google_storage_bucket_iam_binding" "service_acc_binding" {
     "serviceAccount:${var.service_account_email}",
   ]
 
-  depends_on = ["google_storage_bucket.vault_storage_backend"]
+  depends_on = ["google_storage_bucket.vault_storage_backend", "google_storage_bucket_acl.vault_storage_backend"]
+}
+
+# Allows a provided service account to create and read objects from the storage
+resource "google_storage_bucket_iam_binding" "vault_cluster_admin_service_acc_binding" {
+  count  = "${var.create_service_account}"
+  bucket = "${var.cluster_name}"
+  role   = "roles/storage.objectAdmin"
+
+  members = [
+    "serviceAccount:${google_service_account.vault_cluster_admin.email}",
+  ]
+
+  depends_on = ["google_storage_bucket.vault_storage_backend", "google_storage_bucket_acl.vault_storage_backend"]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -292,4 +342,10 @@ data "template_file" "compute_instance_template_self_link" {
 data "google_compute_image" "image" {
   name    = "${var.source_image}"
   project = "${var.image_project_id != "" ? var.image_project_id : var.gcp_project_id}"
+}
+
+# This is a work around so we don't have yet another combination of google_compute_instance_template
+# with counts that depend on yet another flag
+locals {
+  service_account_email = "${var.create_service_account == 1 ? element(concat(google_service_account.vault_cluster_admin.*.email, list("")), 0)  : var.service_account_email}"
 }

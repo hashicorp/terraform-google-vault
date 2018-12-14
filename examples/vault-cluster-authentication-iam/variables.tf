@@ -15,16 +15,16 @@ variable "subnet_ip_cidr_range" {
   description = "The cidr range for the subnetwork. Ex.: 10.1.0.0/16"
 }
 
-variable "bastion_server_name" {
-  description = "The name of the bastion server that can reach the private vault cluster"
+variable "web_client_name" {
+  description = "The name of the server that authenticates to vault"
 }
 
 variable "vault_cluster_name" {
-  description = "The name of the Vault Server cluster. All resources will be namespaced by this value. E.g. vault-server-prod"
+  description = "The name of the Consul Server cluster. All resources will be namespaced by this value. E.g. consul-server-prod"
 }
 
 variable "vault_source_image" {
-  description = "The Google Image used to launch each node in the Vault Server cluster."
+  description = "The Google Image used to launch each node in the Consul Server cluster."
 }
 
 variable "vault_cluster_machine_type" {
@@ -43,38 +43,24 @@ variable "consul_server_machine_type" {
   description = "The machine type of the Compute Instance to run for each node in the Consul Server cluster (e.g. n1-standard-1)."
 }
 
-# Vault Auto Unseal Variables
-
-variable "vault_auto_unseal_key_project_id" {
-  description = "The GCP Project ID to use for the Auto Unseal feature."
-}
-
-variable "vault_auto_unseal_key_region" {
-  description = "The GCP Region to use for the Auto Unseal feature."
-}
-
-variable "vault_auto_unseal_key_ring" {
-  description = "The GCP Cloud KMS Key Ring to use for the Auto Unseal feature."
-}
-
-variable "vault_auto_unseal_crypto_key_name" {
-  description = "The GCP Cloud KMS Crypto Key to use for the Auto Unseal feature. Note: if creating a new key using var.create_kms_crypto_key then use this key."
-}
-
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL PARAMETERS
 # These parameters have reasonable defaults.
 # ---------------------------------------------------------------------------------------------------------------------
 
-variable "network_name" {
-  description = "The name of the VPC Network where all resources should be created."
-  default     = "default"
+variable "example_secret" {
+  description = "An example secret written to the vault cluster, for test purposes"
+  default     = "42"
 }
 
-variable "additional_allowed_inbound_tags_api" {
+variable "web_service_account_iam_roles" {
+  description = "Roles that the web client service account can operate on project"
   type        = "list"
-  description = "A list of additional tags that GCP project resources can have to be permitted access to the Vault API."
-  default     = []
+
+  default = [
+    "roles/iam.serviceAccountTokenCreator",
+    "roles/viewer",
+  ]
 }
 
 variable "gcs_bucket_location" {
@@ -94,17 +80,12 @@ variable "gcs_bucket_force_destroy" {
 
 variable "vault_cluster_size" {
   description = "The number of nodes to have in the Vault Server cluster. We strongly recommended that you use either 3 or 5."
-  default     = 3
+  default     = 1
 }
 
 variable "consul_server_cluster_size" {
   description = "The number of nodes to have in the Consul Server cluster. We strongly recommended that you use either 3 or 5."
-  default     = 3
-}
-
-variable "web_proxy_port" {
-  description = "The port at which the HTTP proxy server will listen for incoming HTTP requests that will be forwarded to the Vault Health Check URL. We must have an HTTP proxy server to work around the limitation that GCP only permits Health Checks via HTTP, not HTTPS."
-  default     = "8000"
+  default     = 1
 }
 
 variable "root_volume_disk_size_gb" {
@@ -120,4 +101,9 @@ variable "root_volume_disk_type" {
 variable "enable_vault_ui" {
   description = "If true, enable the Vault UI"
   default     = true
+}
+
+variable "network_name" {
+  description = "The name of the VPC Network where all resources should be created."
+  default     = "default"
 }

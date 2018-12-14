@@ -6,6 +6,10 @@ output "instance_group_id" {
   value = "${google_compute_region_instance_group_manager.vault.id}"
 }
 
+output "cluster_service_account" {
+  value = "${local.service_account_email}"
+}
+
 output "instance_group_url" {
   value = "${google_compute_region_instance_group_manager.vault.self_link}"
 }

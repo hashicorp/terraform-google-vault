@@ -12,7 +12,10 @@ import (
 	"github.com/gruntwork-io/terratest/modules/test-structure"
 )
 
-const TFVAR_NAME_BASTION_SERVER_NAME = "bastion_server_name"
+const (
+	TFVAR_NAME_BASTION_SERVER_NAME = "bastion_server_name"
+	TFVAR_NAME_SUBNET_CIDR         = "subnet_ip_cidr_range"
+)
 
 func runVaultPrivateClusterTest(t *testing.T) {
 	exampleDir := test_structure.CopyTerraformFolderToTemp(t, "../", "examples/vault-cluster-private")
@@ -51,6 +54,7 @@ func runVaultPrivateClusterTest(t *testing.T) {
 				TFVAR_NAME_VAULT_SOURCE_IMAGE:                 imageID,
 				TFVAR_NAME_VAULT_CLUSTER_MACHINE_TYPE:         "g1-small",
 				TFVAR_NAME_BASTION_SERVER_NAME:                fmt.Sprintf("bastion-test-%s", uniqueID),
+				TFVAR_NAME_SUBNET_CIDR:                        getRandomCidr(),
 			},
 		}
 
@@ -68,7 +72,7 @@ func runVaultPrivateClusterTest(t *testing.T) {
 		sshUserName := "terratest"
 		keyPair := ssh.GenerateRSAKeyPair(t, 2048)
 		saveKeyPair(t, exampleDir, keyPair)
-		addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupId, keyPair, sshUserName)
+		addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupId, keyPair, sshUserName, 3)
 
 		bastionName := terraform.OutputRequired(t, terraformOptions, TFVAR_NAME_BASTION_SERVER_NAME)
 		bastionInstance := gcp.FetchInstance(t, projectId, bastionName)

@@ -18,8 +18,8 @@ terraform {
 
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATES A SUBNETWORK WITH GOOGLE API ACCESS
-# Necessary because the private cluster doesn't have internet access
-# But consul needs to make requests to the Google API
+# Necessary because the private clusters don't have internet access
+# But consul and vault need to make requests to the Google API
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "google_compute_subnetwork" "private_subnet_with_google_api_access" {
@@ -30,24 +30,55 @@ resource "google_compute_subnetwork" "private_subnet_with_google_api_access" {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# DEPLOY A BASTION HOST THAT CAN REACH THE CLUSTER
-# We can't ssh directly to the cluster because they don't have an external IP
-# address, but we can ssh to a bastion host inside the same subnet and then
-# access the cluster from there
+# DEPLOY A WEB CLIENT THAT AUTHENTICATES TO VAULT USING THE IAM METHOD AND FETCHES A SECRET
+# For more details on how the authentication works, check the startup scripts
 # ---------------------------------------------------------------------------------------------------------------------
+
+# Create the service account that operates the web client and that will  be
+# allowed to authenticate to vault.
+#
+# Warning: This is NOT the same service account that operates vault, this is a
+# separate service account
+resource "google_service_account" "web_client_auth_sa" {
+  account_id   = "vault-client-test"
+  display_name = "Web Client Service Account"
+  project      = "${var.gcp_project_id}"
+}
+
+# Create a service account key
+resource "google_service_account_key" "web_client_sa_key" {
+  service_account_id = "${google_service_account.web_client_auth_sa.name}"
+}
+
+# Allow service account to use the necessary roles on the project
+resource "google_project_iam_member" "vault_project" {
+  count   = "${length(var.web_service_account_iam_roles)}"
+  project = "${var.gcp_project_id}"
+  role    = "${element(var.web_service_account_iam_roles, count.index)}"
+  member  = "serviceAccount:${google_service_account.web_client_auth_sa.email}"
+}
 
 data "google_compute_zones" "available" {}
 
-resource "google_compute_instance" "bastion" {
-  name         = "${var.bastion_server_name}"
+# Deploy web client that authenticates to vault
+resource "google_compute_instance" "web_client" {
+  name         = "${var.web_client_name}"
   zone         = "${data.google_compute_zones.available.names[0]}"
   machine_type = "g1-small"
+  tags         = ["web-client"]
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-1810-cosmic-v20181114"
+      image = "${var.vault_source_image}"
     }
   }
+
+  service_account {
+    email  = "${google_service_account.web_client_auth_sa.email}"
+    scopes = ["cloud-platform", "userinfo-email", "compute-ro", "storage-ro"]
+  }
+
+  metadata_startup_script = "${data.template_file.startup_script_client.rendered}"
 
   network_interface {
     subnetwork = "${google_compute_subnetwork.private_subnet_with_google_api_access.self_link}"
@@ -55,6 +86,29 @@ resource "google_compute_instance" "bastion" {
     access_config {
       // Ephemeral IP - leaving this block empty will generate a new external IP and assign it to the machine
     }
+  }
+}
+
+data "template_file" "startup_script_client" {
+  template = "${file("${path.module}/startup-script-client.sh")}"
+
+  vars {
+    consul_cluster_tag_name = "${var.consul_server_cluster_name}"
+    example_role_name       = "vault-test-role"
+    project_id              = "${var.gcp_project_id}"
+    service_account_email   = "${google_service_account.web_client_auth_sa.email}"
+  }
+}
+
+# Allowing ingress of port 8080 on web client
+resource "google_compute_firewall" "default" {
+  name        = "test-firewall"
+  network     = "${var.network_name}"
+  target_tags = ["web-client"]
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8080"]
   }
 }
 
@@ -104,9 +158,13 @@ data "template_file" "startup_script_vault" {
   template = "${file("${path.module}/startup-script-vault.sh")}"
 
   vars {
-    consul_cluster_tag_name = "${var.consul_server_cluster_name}"
-    vault_cluster_tag_name  = "${var.vault_cluster_name}"
-    enable_vault_ui         = "${var.enable_vault_ui ? "--enable-ui" : ""}"
+    consul_cluster_tag_name      = "${var.consul_server_cluster_name}"
+    vault_cluster_tag_name       = "${var.vault_cluster_name}"
+    enable_vault_ui              = "${var.enable_vault_ui ? "--enable-ui" : ""}"
+    example_role_name            = "vault-test-role"
+    example_secret               = "${var.example_secret}"
+    project_id                   = "${var.gcp_project_id}"
+    client_service_account_email = "${google_service_account.web_client_auth_sa.email}"
   }
 }
 

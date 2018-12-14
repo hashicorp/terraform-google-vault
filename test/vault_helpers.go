@@ -106,7 +106,7 @@ func findVaultClusterNodes(t *testing.T, projectId string, region string, instan
 func getClusterHostnames(t *testing.T, projectId string, vaultInstanceGroup *gcp.RegionalInstanceGroup, bastionHost *ssh.Host) []string {
 	hostnames := []string{}
 	if bastionHost != nil {
-		instances := getInstancesFromGroup(t, projectId, vaultInstanceGroup)
+		instances := getInstancesFromGroup(t, projectId, vaultInstanceGroup, 3)
 		for _, instance := range instances {
 			hostnames = append(hostnames, instance.Name)
 		}
@@ -319,7 +319,7 @@ func writeVaultLogs(t *testing.T, testName string, testDir string) {
 	region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
 	instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
 	instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
-	instances := getInstancesFromGroup(t, projectId, instanceGroup)
+	instances := getInstancesFromGroup(t, projectId, instanceGroup, 3)
 
 	vaultStdOutLogFilePath := "/opt/vault/log/vault-stdout.log"
 	vaultStdErrLogFilePath := "/opt/vault/log/vault-error.log"
