@@ -80,7 +80,7 @@ data "template_file" "startup_script_client" {
 
 # Allowing ingress of port 8080 on web client
 resource "google_compute_firewall" "default" {
-  name        = "test-firewall"
+  name        = "${var.vault_cluster_name}-test-firewall"
   network     = "${var.network_name}"
   target_tags = ["web-client"]
 
