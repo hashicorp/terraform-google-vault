@@ -39,6 +39,10 @@ var testCases = []testCase{
 		"TestVaultIamAuthentication",
 		runVaultIamAuthTest,
 	},
+	{
+		"TestVaultGceAuthentication",
+		runVaultGceAuthTest,
+	},
 }
 
 // To test this on CircleCI you need two URLs set a environment variables(VAULT_PACKER_TEMPLATE_VAR_VAULT_DOWNLOAD_URL)

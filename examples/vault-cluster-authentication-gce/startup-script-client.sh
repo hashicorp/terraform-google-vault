@@ -70,7 +70,6 @@ JWT_TOKEN=$(curl \
   --data-urlencode "format=full" \
   "http://metadata/computeMetadata/v1/instance/service-accounts/$SERVICE_ACCOUNT/identity")
 
-
 # ==========================================================================
 # Login
 # ==========================================================================
@@ -80,7 +79,7 @@ JWT_TOKEN=$(curl \
 # We have used the vault cli tool in the example with the IAM auth method, which
 # you can find at /examples/vault-cluster-authentication-iam
 # For more information on GCP auth, check https://www.vaultproject.io/docs/auth/gcp.html#authentication
-LOGIN_PAYLOAD==$(cat <<EOF
+LOGIN_PAYLOAD=$(cat <<EOF
 {
   "role":"${example_role_name}",
   "jwt":"$JWT_TOKEN"
@@ -97,7 +96,7 @@ LOGIN_OUTPUT=$(retry \
 
 # The login output contains the client token, which we will need to perform further
 # operations on vault, such as reading a secret.
-CLIENT_TOKEN==$(echo $LOGIN_OUTPUT | jq -r .auth.client_token)
+CLIENT_TOKEN=$(echo $LOGIN_OUTPUT | jq -r .auth.client_token)
 
 # ==========================================================================
 # Reading a secret
