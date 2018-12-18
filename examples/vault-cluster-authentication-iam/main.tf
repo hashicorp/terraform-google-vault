@@ -40,7 +40,7 @@ resource "google_compute_subnetwork" "private_subnet_with_google_api_access" {
 # Warning: This is NOT the same service account that operates vault, this is a
 # separate service account
 resource "google_service_account" "web_client_auth_sa" {
-  account_id   = "vault-client-test"
+  account_id   = "${var.vault_cluster_name}-sa"
   display_name = "Web Client Service Account"
   project      = "${var.gcp_project_id}"
 }

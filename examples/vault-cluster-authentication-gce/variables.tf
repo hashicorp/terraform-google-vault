@@ -53,16 +53,6 @@ variable "example_secret" {
   default     = "42"
 }
 
-variable "web_service_account_iam_roles" {
-  description = "Roles that the web client service account can operate on project"
-  type        = "list"
-
-  default = [
-    "roles/iam.serviceAccountTokenCreator",
-    "roles/viewer",
-  ]
-}
-
 variable "gcs_bucket_location" {
   description = "The location of the Google Cloud Storage Bucket where Vault secrets will be stored. For details, see https://goo.gl/hk63jH."
   default     = "US"

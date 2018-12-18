@@ -80,7 +80,7 @@ func runVaultGceAuthTest(t *testing.T) {
 	defer test_structure.RunTestStage(t, "log", func() {
 		//ToDo: Modify log retrieval to go through a bastion host
 		//      Requires adding feature to terratest
-		//writeVaultLogs(t, "vaultAuthIam", exampleDir)
+		//writeVaultLogs(t, "vaultAuthGce", exampleDir)
 	})
 
 	test_structure.RunTestStage(t, "deploy", func() {
