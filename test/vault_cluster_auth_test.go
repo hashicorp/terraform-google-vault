@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gruntwork-io/terratest/modules/gcp"
 	"github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -114,23 +113,6 @@ func runVaultGceAuthTest(t *testing.T) {
 
 	test_structure.RunTestStage(t, "validate", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, exampleDir)
-
-		projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
-		region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
-		instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
-		sshUserName := "terratest"
-		keyPair := loadKeyPair(t, exampleDir)
-		addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupId, &keyPair, sshUserName, 1)
-
-		clientServerName := terraform.OutputRequired(t, terraformOptions, TFVAR_NAME_CLIENT_NAME)
-		clientInstance := gcp.FetchInstance(t, projectId, clientServerName)
-		clientInstance.AddSshKey(t, sshUserName, keyPair.PublicKey)
-		// clientHost := ssh.Host{
-		// 	Hostname:    clientInstance.GetPublicIp(t),
-		// 	SshUserName: sshUserName,
-		// 	SshKeyPair:  &keyPair,
-		// }
-
 		testRequestSecret(t, terraformOptions, EXAMPLE_SECRET)
 
 	})
