@@ -42,9 +42,10 @@ resource "google_compute_instance" "web_client" {
   zone         = "${data.google_compute_zones.available.names[0]}"
   machine_type = "g1-small"
   tags         = ["web-client"]
+
   labels = {
-        example_label = "example_value"
-    }
+    example_label = "example_value"
+  }
 
   boot_disk {
     initialize_params {
@@ -53,8 +54,7 @@ resource "google_compute_instance" "web_client" {
   }
 
   service_account {
-    #email  = "${google_service_account.web_client_auth_sa.email}"
-    scopes = ["cloud-platform", "userinfo-email", "compute-ro", "storage-ro"]
+    scopes = ["cloud-platform"]
   }
 
   metadata_startup_script = "${data.template_file.startup_script_client.rendered}"
@@ -136,13 +136,13 @@ data "template_file" "startup_script_vault" {
   template = "${file("${path.module}/startup-script-vault.sh")}"
 
   vars {
-    consul_cluster_tag_name      = "${var.consul_server_cluster_name}"
-    vault_cluster_tag_name       = "${var.vault_cluster_name}"
-    enable_vault_ui              = "${var.enable_vault_ui ? "--enable-ui" : ""}"
-    example_role_name            = "vault-test-role"
-    example_secret               = "${var.example_secret}"
-    project_id                   = "${var.gcp_project_id}"
-    vault_auth_allowed_zones    = "${data.google_compute_zones.available.names[0]}"
+    consul_cluster_tag_name   = "${var.consul_server_cluster_name}"
+    vault_cluster_tag_name    = "${var.vault_cluster_name}"
+    enable_vault_ui           = "${var.enable_vault_ui ? "--enable-ui" : ""}"
+    example_role_name         = "vault-test-role"
+    example_secret            = "${var.example_secret}"
+    project_id                = "${var.gcp_project_id}"
+    vault_auth_allowed_zones  = "${data.google_compute_zones.available.names[0]}"
     vault_auth_allowed_labels = "example_label:example_value"
   }
 }
