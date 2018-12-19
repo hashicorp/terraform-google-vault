@@ -2,7 +2,9 @@ package test
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/gruntwork-io/terratest/modules/gcp"
 	"github.com/gruntwork-io/terratest/modules/packer"
@@ -38,6 +40,10 @@ var testCases = []testCase{
 	{
 		"TestVaultIamAuthentication",
 		runVaultIamAuthTest,
+	},
+	{
+		"TestVaultGceAuthentication",
+		runVaultGceAuthTest,
 	},
 }
 
@@ -87,6 +93,7 @@ func TestMainVaultCluster(t *testing.T) {
 }
 
 func runAllTests(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
 	for _, testCase := range testCases {
 		// This re-assignment necessary, because the variable testCase is defined and set outside the forloop.
 		// As such, it gets overwritten on each iteration of the forloop. This is fine if you don't have concurrent code in the loop,
