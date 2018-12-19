@@ -71,6 +71,8 @@ JWT_TOKEN=$(curl \
   --data-urlencode "format=full" \
   "http://metadata/computeMetadata/v1/instance/service-accounts/$SERVICE_ACCOUNT/identity")
 
+log $JWT_TOKEN
+
 # ==========================================================================
 # Login
 # ==========================================================================
