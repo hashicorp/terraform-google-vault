@@ -64,6 +64,7 @@ function retry {
 # then the service account email should be used instead of "default".
 SERVICE_ACCOUNT="default"
 JWT_TOKEN=$(curl \
+  --fail \
   --header "Metadata-Flavor: Google" \
   --get \
   --data-urlencode "audience=vault/${example_role_name}" \
@@ -91,7 +92,7 @@ EOF
 # this server can locate the vault cluster through the following private
 # hostname: vault.service.consul
 LOGIN_OUTPUT=$(retry \
-  "curl --request POST --data '$LOGIN_PAYLOAD' https://vault.service.consul:8200/v1/auth/gcp/login" \
+  "curl --fail --request POST --data '$LOGIN_PAYLOAD' https://vault.service.consul:8200/v1/auth/gcp/login" \
   "Attempting to login to vault")
 
 # The login output contains the client token, which we will need to perform further
