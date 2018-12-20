@@ -9,17 +9,23 @@ Vault provides multiple ways to authenticate a human or machine to Vault, known 
 
 Among those methods you will find [GCP][gcp_auth]. The way it works is that Vault
 understands GCP as a trusted third party, and relies on GCP itself for affirming
-if an authentication source are legitimate sources or not.
+if an authentication source is a legitimate source or not.
 
 There are currently two ways a GCP resource can authenticatate to Vault: `gce` and `iam`.
 In this example, we demonstrate the [GCP GCE Auth Method][gce_auth].
 
 For more info on how the Vault cluster works, check out the [vault-cluster][vault_cluster]
 documentation. For an example on using the `iam` method, check out the
-[vault-authentication-iam example][iam_example]
+[vault-authentication-iam example][iam_example].
 
+**Note**: This example launches a private vault cluster, meaning the nodes do not
+have public IP addresses and cannot talk to the outside world. If you need to SSH
+to your Vault cluster, check the [vault-cluster-private example][private_vault]
+for instructions on how to launch a Bastion host in the same subnet and use it to
+access the cluster.
 
 ## Running this example
+
 You will need to create a [Google Image][google_image] that has Vault and Consul
 installed, which you can do using the [vault-consul-image example][image_example].
 All the GCE Instances in this example (including the GCE Instance that authenticates
@@ -57,6 +63,8 @@ in its login request, Vault verifies the JWT with GCP as a proof-of-identity,
 checks against a predefined Vault authentication role, then returns a client
 token that the client can use for making future requests to Vault.
 
+![auth diagram][auth_diagram]
+
 In this example, the JWT can be obtained from the GCE Intance's own metadata endpoint.
 
 It is important to notice that, to perform the authentication, certain scopes are
@@ -86,12 +94,14 @@ you also specify which of the GCE properties will be required by the principal
 
 In our example we create a simple Vault Policy that allows writing and reading from
 secrets in the path `secret` namespaced with the prefix `example_`, and then create
-a Vault Role that allows authentication from all instances with a specific `ami id`.
-You can read more about Role creation and check which other instance metadata you can
-use on auth [here][create_role].
+a Vault Role that allows authentication from all instances in a specific Zone and
+with certain labels. You can read more about Role creation and check which other
+instance metadata you can use on auth [here][create_role].
 
 
 ```bash
+vault auth enable gcp
+
 vault policy write "example-policy" -<<EOF
 path "secret/example_*" {
   capabilities = ["create", "read"]
@@ -113,8 +123,8 @@ See the whole example script at [startup-script-vault.sh][startup_vault].
 ### Authenticating from an instance
 
 The token used to authenticate to Vault is a [JSON Web Token (JWT)][jwt] that can
-be fetched on the GCE's instance metadata endpoint and will then be part of the
-body of data sent with the login request.
+be fetched on the GCE's instance metadata endpoint and will be part of the body of
+data sent with the login request.
 
 ```bash
 JWT_TOKEN=$(curl \
@@ -139,10 +149,14 @@ After sending the login request to Vault, Vault will verify it against GCP and
 return a JSON object with your login information. This JSON contains the `client_token`,
 that you will send with your future operations requests to Vault.
 
-To see the full script for authenticating check the [client startup script][startup_client].
+Please note, that this could also have been achieved using the Vault cli tool
+instead of using `curl`. To see the full script for authenticating check the
+[client startup script][startup_client].
 
+[auth_diagram]: https://www.vaultproject.io/img/vault-gcp-gce-auth-workflow.svg
 [gce_instance]: https://cloud.google.com/compute/docs/instances/
 [vault_cluster]: https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-cluster
+[private_vault]: https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private
 [auth_methods]: https://www.vaultproject.io/docs/auth/index.html
 [gcp_auth]: https://www.vaultproject.io/docs/auth/gcp.html
 [gce_auth]: https://www.vaultproject.io/docs/auth/gcp.html#gce-login
