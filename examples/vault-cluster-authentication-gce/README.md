@@ -153,7 +153,7 @@ Please note, that this could also have been achieved using the Vault cli tool
 instead of using `curl`. To see the full script for authenticating check the
 [client startup script][startup_client].
 
-[auth_diagram]: https://www.vaultproject.io/img/vault-gcp-gce-auth-workflow.svg
+[auth_diagram]: https://raw.githubusercontent.com/hashicorp/terraform-google-vault/master/examples/vault-cluster-authentication-gce/images/gce_auth.svg
 [gce_instance]: https://cloud.google.com/compute/docs/instances/
 [vault_cluster]: https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-cluster
 [private_vault]: https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private

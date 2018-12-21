@@ -154,7 +154,7 @@ vault read secret/example_gruntwork
 To see the full script for authenticating check the [client startup script][startup_client].
 
 
-[auth_diagram]: https://www.vaultproject.io/img/vault-gcp-iam-auth-workflow.svg
+[auth_diagram]: https://raw.githubusercontent.com/hashicorp/terraform-google-vault/master/examples/vault-cluster-authentication-iam/images/iam_auth.svg
 [generate_jwt]: https://www.vaultproject.io/docs/auth/gcp.html#generating-iam-jwt
 [vault_cluster]: https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-cluster
 [private_vault]: https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private
