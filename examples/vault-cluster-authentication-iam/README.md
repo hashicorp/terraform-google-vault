@@ -7,9 +7,10 @@ Vault provides multiple ways to authenticate a human or machine to Vault, known 
 [auth methods][auth_methods]. For example, a human can authenticate with a Username
 & Password or with GitHub.
 
-Among those methods you will find [GCP][gcp_auth]. The way it works is that Vault
-understands GCP as a trusted third party, and relies on GCP itself for affirming
-if an authentication source is a legitimate source or not.
+Among those methods you will find the [Google Cloud Auth Method.][gcp_auth].
+The way it works is that Vault understands GCP as a trusted third party, and
+relies on GCP itself for affirming if an authentication source is a legitimate
+source or not.
 
 There are currently two ways a GCP resource can authenticatate to Vault: `gce` and `iam`.
 In this example, we demonstrate the [GCP IAM Auth Method][iam_auth].
@@ -50,7 +51,8 @@ service discovery, and thereby to discover the IP addresses of the Vault nodes.
 1. Run `terraform init`.
 1. Run `terraform plan`.
 1. If the plan looks good, run `terraform apply`.
-1. Run `curl <web_client_public_ip>:8080` to check if the web server in the client
+1. Give some time for the servers to boot and initialize Vault and run
+`curl <web_client_public_ip>:8080` to check if the web server in the client
 instance is fetching the secret from Vault correctly.
 
 ## IAM Auth
@@ -67,7 +69,7 @@ communicate with the Google API to generate a signed [JSON Web Token (JWT)][jwt]
 which is a JSON-based open standard for creating access tokens. This process can
 be quite cumbersome, but the Vault cli tool can do that for you. If you wish to
 [generate the JWT yourself][generate_jwt] you can also use `curl` and `oauth2l`
-or the `gcloud` tool. Once with signed JWT, the client can send it in its login
+or the `gcloud` tool. Once the client has a signed JWT, it can send it in its login
 request along with the Vault Role it wishes to assume. Vault then verifies the JWT
 with GCP as a proof-of-identity, checks against a predefined Vault authentication
 role, then returns a client token that the client can use for making future
@@ -98,8 +100,8 @@ create the authentication role.
 
 When you create a Role in Vault, you define the Policies that are attached to that
 Role, how principals who assume that Role will authenticate and other parameters
-related to the authentication of that role such as when does the token issued by
-a successful attempt will expire. When your Role uses the IAM GCP Auth method,
+related to the authentication of that role such as when will a token issued by a
+successful attempt expire. When your Role uses the IAM GCP Auth method,
 you also specify which Service Accounts are bound this role and allowed to
 authenticate.
 
@@ -135,7 +137,7 @@ vault write \
 See the whole example script at [startup-script-vault.sh][startup_vault].
 
 
-### Authenticating from an instance
+### Authenticating
 
 The vault cli takes care of generating the JWT token, sending it with its login
 request and storing the client token that is returned with a successful authentication.

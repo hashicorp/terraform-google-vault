@@ -7,9 +7,10 @@ Vault provides multiple ways to authenticate a human or machine to Vault, known 
 [auth methods][auth_methods]. For example, a human can authenticate with a Username
 & Password or with GitHub.
 
-Among those methods you will find [GCP][gcp_auth]. The way it works is that Vault
-understands GCP as a trusted third party, and relies on GCP itself for affirming
-if an authentication source is a legitimate source or not.
+Among those methods you will find the [Google Cloud Auth Method.][gcp_auth].
+The way it works is that Vault understands GCP as a trusted third party, and
+relies on GCP itself for affirming if an authentication source is a legitimate
+source or not.
 
 There are currently two ways a GCP resource can authenticatate to Vault: `gce` and `iam`.
 In this example, we demonstrate the [GCP GCE Auth Method][gce_auth].
@@ -48,7 +49,8 @@ service discovery, and thereby to discover the IP addresses of the Vault nodes.
 1. Run `terraform init`.
 1. Run `terraform plan`.
 1. If the plan looks good, run `terraform apply`.
-1. Run `curl <web_client_public_ip>:8080` to check if the web server in the client
+1. Give some time for the servers to boot and initialize Vault and run
+`curl <web_client_public_ip>:8080` to check if the web server in the client
 instance is fetching the secret from Vault correctly.
 
 ## GCE Auth
@@ -57,11 +59,12 @@ GCE auth is a process in which Vault relies on information about a GCE instance
 trying to assume a desired authentication role. For different resources that are
 not GCE instances, please refer to the [`iam` auth method example][iam_example].
 
-The workflow is that the client trying to authenticate itself will send a
+The workflow is that the client trying to authenticate itself will obtain a
 [JSON Web Token (JWT)][jwt], a JSON-based open standard for creating access tokens,
-in its login request, Vault verifies the JWT with GCP as a proof-of-identity,
-checks against a predefined Vault authentication role, then returns a client
-token that the client can use for making future requests to Vault.
+from its instance metadata. This client then sends this token along with its
+login request, Vault verifies the JWT with GCP as a proof-of-identity, checks
+against a predefined Vault authentication role, then returns a Client Token that
+the client can use for making future requests to Vault.
 
 ![auth diagram][auth_diagram]
 
@@ -87,8 +90,8 @@ Vault. With one or more policies on hand, you can then finally create the authen
 
 When you create a Role in Vault, you define the Policies that are attached to that
 Role, how principals who assume that Role will authenticate and other parameters
-related to the authentication of that role such as when does the token issued by
-a successful attempt will expire. When your Role uses the GCE GCP Auth method,
+related to the authentication of that role such as when will a token issued by a
+successful attempt expire. When your Role uses the GCE GCP Auth method,
 you also specify which of the GCE properties will be required by the principal
 (in this case, the GCE Instance) in order to successfully authenticate.
 
