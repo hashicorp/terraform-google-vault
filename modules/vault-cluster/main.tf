@@ -275,7 +275,7 @@ resource "google_compute_firewall" "allow_inbound_health_check" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "google_storage_bucket" "vault_storage_backend" {
-  name          = "${var.cluster_name}"
+  name          = "${var.gcs_bucket_name != "" ? var.gcs_bucket_name : var.cluster_name}"
   location      = "${var.gcs_bucket_location}"
   storage_class = "${var.gcs_bucket_storage_class}"
   project       = "${var.gcp_project_id}"
@@ -296,7 +296,7 @@ resource "google_storage_bucket_acl" "vault_storage_backend" {
 # Allows a provided service account to create and read objects from the storage
 resource "google_storage_bucket_iam_binding" "external_service_acc_binding" {
   count  = "${var.use_external_service_account}"
-  bucket = "${var.cluster_name}"
+  bucket = "${google_storage_bucket.vault_storage_backend.name}"
   role   = "roles/storage.objectAdmin"
 
   members = [
@@ -309,7 +309,7 @@ resource "google_storage_bucket_iam_binding" "external_service_acc_binding" {
 # Allows a provided service account to create and read objects from the storage
 resource "google_storage_bucket_iam_binding" "vault_cluster_admin_service_acc_binding" {
   count  = "${var.create_service_account}"
-  bucket = "${var.cluster_name}"
+  bucket = "${google_storage_bucket.vault_storage_backend.name}"
   role   = "roles/storage.objectAdmin"
 
   members = [

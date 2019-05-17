@@ -20,7 +20,7 @@ variable "bastion_server_name" {
 }
 
 variable "vault_cluster_name" {
-  description = "The name of the Consul Server cluster. All resources will be namespaced by this value. E.g. consul-server-prod"
+  description = "The name of the Vault Server cluster. All resources will be namespaced by this value. E.g. vault-server-prod"
 }
 
 variable "vault_source_image" {
