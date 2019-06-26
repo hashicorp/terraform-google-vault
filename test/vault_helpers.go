@@ -25,7 +25,7 @@ const LOGS_STORAGE_PATH = "/tmp/logs/"
 const VAULT_PORT = 8200
 
 // Terraform Outputs
-const TFOUT_INSTANCE_GROUP_ID = "instance_group_id"
+const TFOUT_INSTANCE_GROUP_NAME = "instance_group_name"
 
 type VaultCluster struct {
 	Leader     ssh.Host
@@ -53,8 +53,8 @@ const (
 // self-signed TLS certificate is properly configured on each server so when you're on that server, you don't
 // get errors about the certificate being signed by an unknown party.
 // Adapted from https://github.com/hashicorp/terraform-aws-vault/blob/141f57642215820ff758200fe63b3a52d7017061/test/vault_helpers.go#L507
-func initializeAndUnsealVaultCluster(t *testing.T, projectId string, region string, instanceGroupId string, sshUserName string, sshKeyPair *ssh.KeyPair, bastionHost *ssh.Host) *VaultCluster {
-	cluster := findVaultClusterNodes(t, projectId, region, instanceGroupId, sshUserName, sshKeyPair, bastionHost)
+func initializeAndUnsealVaultCluster(t *testing.T, projectId string, region string, instanceGroupName string, sshUserName string, sshKeyPair *ssh.KeyPair, bastionHost *ssh.Host) *VaultCluster {
+	cluster := findVaultClusterNodes(t, projectId, region, instanceGroupName, sshUserName, sshKeyPair, bastionHost)
 
 	verifyCanSsh(t, cluster, bastionHost)
 	assertAllNodesBooted(t, cluster, bastionHost)
@@ -77,8 +77,8 @@ func initializeAndUnsealVaultCluster(t *testing.T, projectId string, region stri
 }
 
 // Find the nodes in the given Vault Instance Group and return them in a VaultCluster struct
-func findVaultClusterNodes(t *testing.T, projectId string, region string, instanceGroupId string, sshUserName string, sshKeyPair *ssh.KeyPair, bastionHost *ssh.Host) *VaultCluster {
-	vaultInstanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
+func findVaultClusterNodes(t *testing.T, projectId string, region string, instanceGroupName string, sshUserName string, sshKeyPair *ssh.KeyPair, bastionHost *ssh.Host) *VaultCluster {
+	vaultInstanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupName)
 	hostnames := getClusterHostnames(t, projectId, vaultInstanceGroup, bastionHost)
 
 	return &VaultCluster{
@@ -317,8 +317,8 @@ func writeVaultLogs(t *testing.T, testName string, testDir string) {
 	keyPair := loadKeyPair(t, testDir)
 	projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
 	region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
-	instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
-	instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
+	instanceGroupName := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_NAME)
+	instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupName)
 	instances := getInstancesFromGroup(t, projectId, instanceGroup, 3)
 
 	vaultStdOutLogFilePath := "/opt/vault/log/vault-stdout.log"

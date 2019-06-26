@@ -122,8 +122,8 @@ func writeLogFile(t *testing.T, buffer string, destination string) {
 	file.WriteString(buffer)
 }
 
-func addKeyPairToInstancesInGroup(t *testing.T, projectId string, region string, instanceGroupId string, keyPair *ssh.KeyPair, sshUserName string, expectedInstances int) []*gcp.Instance {
-	instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupId)
+func addKeyPairToInstancesInGroup(t *testing.T, projectId string, region string, instanceGroupName string, keyPair *ssh.KeyPair, sshUserName string, expectedInstances int) []*gcp.Instance {
+	instanceGroup := gcp.FetchRegionalInstanceGroup(t, projectId, region, instanceGroupName)
 	instances := getInstancesFromGroup(t, projectId, instanceGroup, expectedInstances)
 
 	for _, instance := range instances {

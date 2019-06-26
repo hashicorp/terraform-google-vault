@@ -69,14 +69,14 @@ func runVaultPublicClusterTest(t *testing.T) {
 		terraformOptions := test_structure.LoadTerraformOptions(t, exampleDir)
 		projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
 		region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
-		instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
+		instanceGroupName := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_NAME)
 
 		sshUserName := "terratest"
 		keyPair := ssh.GenerateRSAKeyPair(t, 2048)
 		saveKeyPair(t, exampleDir, keyPair)
-		addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupId, keyPair, sshUserName, 3)
+		addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupName, keyPair, sshUserName, 3)
 
-		cluster := initializeAndUnsealVaultCluster(t, projectId, region, instanceGroupId, sshUserName, keyPair, nil)
+		cluster := initializeAndUnsealVaultCluster(t, projectId, region, instanceGroupName, sshUserName, keyPair, nil)
 		testVault(t, cluster.Leader.Hostname)
 	})
 }
