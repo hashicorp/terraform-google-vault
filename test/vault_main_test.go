@@ -57,7 +57,8 @@ func TestMainVaultCluster(t *testing.T) {
 		vaultDownloadUrl := getUrlFromEnv(t, "VAULT_PACKER_TEMPLATE_VAR_VAULT_DOWNLOAD_URL")
 
 		projectId := gcp.GetGoogleProjectIDFromEnvVar(t)
-		region := gcp.GetRandomRegion(t, projectId, nil, nil)
+		// These three regions have a low limit quota of In-use IP addresses which fail the tests
+		region := gcp.GetRandomRegion(t, projectId, nil, []string{"asia-northeast2", "europe-west3", "europe-west6"})
 		zone := gcp.GetRandomZoneForRegion(t, projectId, region)
 
 		test_structure.SaveString(t, WORK_DIR, SAVED_GCP_PROJECT_ID, projectId)
