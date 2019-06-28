@@ -1,4 +1,5 @@
 [![Maintained by Gruntwork.io](https://img.shields.io/badge/maintained%20by-gruntwork.io-%235849a6.svg)](https://gruntwork.io/?ref=repo_gcp_vault)
+![Terraform Version](https://img.shields.io/badge/tf-%3E%3D0.12.0-blue.svg)
 # Vault for Google Cloud Platform (GCP)
 
 This repo contains a Terraform Module for how to deploy a [Vault](https://www.vaultproject.io/) cluster on
@@ -91,7 +92,7 @@ To deploy the Vault cluster:
 
 1. Deploy that Image across a Managed Instance Group using the Terraform [vault-cluster-module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-cluster).
 
-1 TODO ACCESSING THE CLUSTER THROUGH SSH 
+1 TODO ACCESSING THE CLUSTER THROUGH SSH
 
 1. Execute the [run-consul script](https://github.com/hashicorp/terraform-google-consul/tree/master/modules/run-consul)
    with the `--client` flag during boot on each Instance to have the Consul agent connect to the Consul server cluster.

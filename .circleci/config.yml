@@ -4,7 +4,7 @@ workspace_root: &workspace_root
 defaults: &defaults
   working_directory: *workspace_root
   docker:
-  - image: gruntwork/circle-ci-test-image-base:latest
+  - image: gruntwork/circle-ci-test-image-base:go1.11
 
 version: 2
 jobs:
