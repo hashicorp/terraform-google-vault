@@ -46,10 +46,15 @@ func getUrlFromEnv(t *testing.T, key string) string {
 }
 
 // Compose packer image options
-func composeImageOptions(t *testing.T, packerBuildName string, testDir string, vaultDownloadUrl string) *packer.Options {
+func composeImageOptions(t *testing.T, packerBuildName string, testDir string, useEnterpriseVault bool, vaultDownloadUrl string) *packer.Options {
 	projectId := test_structure.LoadString(t, testDir, SAVED_GCP_PROJECT_ID)
 	zone := test_structure.LoadString(t, testDir, SAVED_GCP_ZONE_NAME)
 	tlsCert := loadTLSCert(t, WORK_DIR)
+
+	environmentVariables := map[string]string{}
+	if useEnterpriseVault == true {
+		environmentVariables[PACKER_VAR_VAULT_DOWNLOAD_URL] = vaultDownloadUrl
+	}
 
 	return &packer.Options{
 		Template: PACKER_TEMPLATE_PATH,
@@ -61,9 +66,7 @@ func composeImageOptions(t *testing.T, packerBuildName string, testDir string, v
 			PACKER_VAR_TLS_PUBLIC_KEY:  tlsCert.PublicKeyPath,
 			PAKCER_VAR_TLS_PRIVATE_KEY: tlsCert.PrivateKeyPath,
 		},
-		Env: map[string]string{
-			PACKER_VAR_VAULT_DOWNLOAD_URL: vaultDownloadUrl,
-		},
+		Env: environmentVariables,
 	}
 }
 

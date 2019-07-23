@@ -21,7 +21,7 @@ const (
 	EXAMPLE_SECRET = "42"
 )
 
-func runVaultIamAuthTest(t *testing.T) {
+func runVaultIamAuthTest(t *testing.T, packerBuildSaveName string) {
 	exampleDir := test_structure.CopyTerraformFolderToTemp(t, "../", "examples/vault-cluster-authentication-iam")
 
 	defer test_structure.RunTestStage(t, "teardown", func() {
@@ -38,7 +38,7 @@ func runVaultIamAuthTest(t *testing.T) {
 	test_structure.RunTestStage(t, "deploy", func() {
 		projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
 		region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
-		imageID := test_structure.LoadString(t, WORK_DIR, SAVED_OPEN_SOURCE_VAULT_IMAGE)
+		imageID := test_structure.LoadString(t, WORK_DIR, packerBuildSaveName)
 
 		// GCP only supports lowercase names for some resources
 		uniqueID := strings.ToLower(random.UniqueId())
@@ -69,7 +69,7 @@ func runVaultIamAuthTest(t *testing.T) {
 	})
 }
 
-func runVaultGceAuthTest(t *testing.T) {
+func runVaultGceAuthTest(t *testing.T, packerBuildSaveName string) {
 	exampleDir := test_structure.CopyTerraformFolderToTemp(t, "../", "examples/vault-cluster-authentication-gce")
 
 	defer test_structure.RunTestStage(t, "teardown", func() {
@@ -86,7 +86,7 @@ func runVaultGceAuthTest(t *testing.T) {
 	test_structure.RunTestStage(t, "deploy", func() {
 		projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
 		region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
-		imageID := test_structure.LoadString(t, WORK_DIR, SAVED_OPEN_SOURCE_VAULT_IMAGE)
+		imageID := test_structure.LoadString(t, WORK_DIR, packerBuildSaveName)
 
 		// GCP only supports lowercase names for some resources
 		uniqueID := strings.ToLower(random.UniqueId())
