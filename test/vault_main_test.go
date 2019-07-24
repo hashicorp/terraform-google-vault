@@ -17,8 +17,9 @@ const (
 )
 
 type testCase struct {
-	Name string                   // Name of the test
-	Func func(*testing.T, string) // Function that runs the test
+	Name                    string                   // Name of the test
+	Func                    func(*testing.T, string) // Function that runs the test
+	testWithEnterpriseVault bool
 }
 
 type packerBuild struct {
@@ -31,22 +32,27 @@ var testCases = []testCase{
 	{
 		"TestVaultPrivateCluster",
 		runVaultPrivateClusterTest,
+		false,
 	},
 	{
 		"TestVaultPublicCluster",
 		runVaultPublicClusterTest,
+		false,
 	},
 	{
 		"TestVaultEnterpriseClusterAutoUnseal",
 		runVaultEnterpriseClusterTest,
+		true,
 	},
 	{
 		"TestVaultIamAuthentication",
 		runVaultIamAuthTest,
+		false,
 	},
 	{
 		"TestVaultGceAuthentication",
 		runVaultGceAuthTest,
+		false,
 	},
 }
 
@@ -136,10 +142,12 @@ func runAllTests(t *testing.T) {
 		testCase := testCase
 		for _, packerBuildItem := range packerBuilds {
 			packerBuildItem := packerBuildItem
-			t.Run(fmt.Sprintf("%sWith%s", testCase.Name, packerBuildItem.SaveName), func(t *testing.T) {
-				t.Parallel()
-				testCase.Func(t, packerBuildItem.SaveName)
-			})
+			if packerBuildItem.useEnterpriseVault == testCase.testWithEnterpriseVault {
+				t.Run(fmt.Sprintf("%sWith%s", testCase.Name, packerBuildItem.SaveName), func(t *testing.T) {
+					t.Parallel()
+					testCase.Func(t, packerBuildItem.SaveName)
+				})
+			}
 		}
 	}
 }
