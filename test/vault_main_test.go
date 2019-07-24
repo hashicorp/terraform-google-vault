@@ -83,8 +83,10 @@ func TestMainVaultCluster(t *testing.T) {
 		vaultDownloadUrl := getUrlFromEnv(t, "VAULT_PACKER_TEMPLATE_VAR_VAULT_DOWNLOAD_URL")
 
 		projectId := gcp.GetGoogleProjectIDFromEnvVar(t)
-		// These three regions have a low limit quota of In-use IP addresses which fail the tests
-		region := gcp.GetRandomRegion(t, projectId, nil, []string{"asia-northeast2", "europe-west3", "europe-west6"})
+		// GCP sets quotas at a low limit for In-use IP addresses and CPUs which fail the tests
+		// these have to be requested manually for each region and will break tests every time
+		// a new region is introduced. For this reason, I am limiting the tests to us-east1
+		region := gcp.GetRandomRegion(t, projectId, []string{"us-east1"}, nil)
 		zone := gcp.GetRandomZoneForRegion(t, projectId, region)
 
 		test_structure.SaveString(t, WORK_DIR, SAVED_GCP_PROJECT_ID, projectId)
