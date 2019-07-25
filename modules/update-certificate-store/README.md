@@ -1,10 +1,11 @@
 # Update Certificate Store
 
-This folder contains a script for adding a trusted, Certificate Authority (CA) certificate to an OS's certificate 
-store. This allows you to establish TLS connections to services that use TLS certs signed by that CA without getting 
+This folder contains a script for adding a trusted, Certificate Authority (CA) certificate to an OS's certificate
+store. This allows you to establish TLS connections to services that use TLS certs signed by that CA without getting
 x509 certificate errors. This script has been tested on the following operating systems:
 
 * Ubuntu 16.04
+* Ubuntu 18.04
 
 There is a good chance it will work on other flavors of Debian as well.
 
@@ -16,7 +17,7 @@ If you're unfamiliar with how TLS certificates work, check out the [Background s
 
 ## Motivation
 
-Let's say you deployed a server (e.g. a Vault server) with a self-signed TLS certificate. If you try to make a request 
+Let's say you deployed a server (e.g. a Vault server) with a self-signed TLS certificate. If you try to make a request
 to that server using some sort of TLS client (e.g. a Vault client), you will get an error:
 
 ```
@@ -45,7 +46,7 @@ to trust this certificate.
 
 ## Quick start
 
-To use the `update-certificate-script`, use `git` to clone this repository at a specific tag (see the 
+To use the `update-certificate-script`, use `git` to clone this repository at a specific tag (see the
 [releases page](../../../../releases) for all available tags) and run the `update-certificate-script` script:
 
 ```
@@ -77,8 +78,8 @@ See the [vault-consul-ami example](https://github.com/hashicorp/terraform-google
 The `run-vault` script accepts the following arguments:
 
 * `--cert-file-path` (required): The path to the CA certificate public key to add to the OS certificate store.
-* `--dest-file-name` (optional): This script will copy `--cert-file-path` to a file with this name in a shared 
-  certificate folder on the OS. The default file name is `custom.crt`, but you can use this parameter to customize 
+* `--dest-file-name` (optional): This script will copy `--cert-file-path` to a file with this name in a shared
+  certificate folder on the OS. The default file name is `custom.crt`, but you can use this parameter to customize
   it. The extension MUST be `.crt` or the OS will ignore the file.
 
 Example:
@@ -86,4 +87,3 @@ Example:
 ```
 terraform-google-vault/modules/update-certificate-script/update-certificate-script --cert-file-path /opt/vault/tls/ca.cert.pem
 ```
-
