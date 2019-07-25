@@ -17,7 +17,7 @@ const (
 	TFVAR_NAME_SUBNET_CIDR         = "subnet_ip_cidr_range"
 )
 
-func runVaultPrivateClusterTest(t *testing.T) {
+func runVaultPrivateClusterTest(t *testing.T, packerBuildSaveName string) {
 	exampleDir := test_structure.CopyTerraformFolderToTemp(t, "../", "examples/vault-cluster-private")
 
 	defer test_structure.RunTestStage(t, "teardown", func() {
@@ -34,7 +34,7 @@ func runVaultPrivateClusterTest(t *testing.T) {
 	test_structure.RunTestStage(t, "deploy", func() {
 		projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
 		region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
-		imageID := test_structure.LoadString(t, WORK_DIR, SAVED_OPEN_SOURCE_VAULT_IMAGE)
+		imageID := test_structure.LoadString(t, WORK_DIR, packerBuildSaveName)
 
 		// GCP only supports lowercase names for some resources
 		uniqueID := strings.ToLower(random.UniqueId())

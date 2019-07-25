@@ -12,38 +12,70 @@ import (
 )
 
 const (
-	IMAGE_EXAMPLE_PATH            = "../examples/vault-consul-ami/vault-consul.json"
-	WORK_DIR                      = "./"
-	PACKER_BUILD_NAME             = "ubuntu-16"
-	SAVED_OPEN_SOURCE_VAULT_IMAGE = "ImageOpenSourceVault"
-	SAVED_ENTERPRISE_VAULT_IMAGE  = "ImageEnterpriseVault"
+	IMAGE_EXAMPLE_PATH = "../examples/vault-consul-ami/vault-consul.json"
+	WORK_DIR           = "./"
 )
 
 type testCase struct {
-	Name string           // Name of the test
-	Func func(*testing.T) // Function that runs the test
+	Name                    string                   // Name of the test
+	Func                    func(*testing.T, string) // Function that runs the test
+	testWithEnterpriseVault bool
+}
+
+type packerBuild struct {
+	SaveName           string // Name of the test data save file
+	PackerBuildName    string // Name of the packer build
+	useEnterpriseVault bool   // Use Vault Enterprise or not
 }
 
 var testCases = []testCase{
 	{
 		"TestVaultPrivateCluster",
 		runVaultPrivateClusterTest,
+		false,
 	},
 	{
 		"TestVaultPublicCluster",
 		runVaultPublicClusterTest,
+		false,
 	},
 	{
 		"TestVaultEnterpriseClusterAutoUnseal",
 		runVaultEnterpriseClusterTest,
+		true,
 	},
 	{
 		"TestVaultIamAuthentication",
 		runVaultIamAuthTest,
+		false,
 	},
 	{
 		"TestVaultGceAuthentication",
 		runVaultGceAuthTest,
+		false,
+	},
+}
+
+var packerBuilds = []packerBuild{
+	{
+		"OpenSourceVaultOnUbuntu16ImageID",
+		"ubuntu16-image",
+		false,
+	},
+	{
+		"OpenSourceVaultOnUbuntu18ImageID",
+		"ubuntu18-image",
+		false,
+	},
+	{
+		"EnterpriseVaultOnUbuntu16ImageID",
+		"ubuntu16-image",
+		true,
+	},
+	{
+		"EnterpriseVaultOnUbuntu18ImageID",
+		"ubuntu18-image",
+		true,
 	},
 }
 
@@ -57,8 +89,10 @@ func TestMainVaultCluster(t *testing.T) {
 		vaultDownloadUrl := getUrlFromEnv(t, "VAULT_PACKER_TEMPLATE_VAR_VAULT_DOWNLOAD_URL")
 
 		projectId := gcp.GetGoogleProjectIDFromEnvVar(t)
-		// These three regions have a low limit quota of In-use IP addresses which fail the tests
-		region := gcp.GetRandomRegion(t, projectId, nil, []string{"asia-northeast2", "europe-west3", "europe-west6"})
+		// GCP sets quotas at a low limit for In-use IP addresses and CPUs which fail the tests
+		// these have to be requested manually for each region and will break tests every time
+		// a new region is introduced. For this reason, I am limiting the tests to us-east1
+		region := gcp.GetRandomRegion(t, projectId, []string{"us-east1"}, nil)
 		zone := gcp.GetRandomZoneForRegion(t, projectId, region)
 
 		test_structure.SaveString(t, WORK_DIR, SAVED_GCP_PROJECT_ID, projectId)
@@ -68,21 +102,23 @@ func TestMainVaultCluster(t *testing.T) {
 		tlsCert := generateSelfSignedTlsCert(t)
 		saveTLSCert(t, WORK_DIR, tlsCert)
 
-		packerImageOptions := map[string]*packer.Options{
-			SAVED_OPEN_SOURCE_VAULT_IMAGE: composeImageOptions(t, PACKER_BUILD_NAME, WORK_DIR, ""),
-			SAVED_ENTERPRISE_VAULT_IMAGE:  composeImageOptions(t, PACKER_BUILD_NAME, WORK_DIR, vaultDownloadUrl),
+		packerImageOptions := map[string]*packer.Options{}
+		for _, packerBuildItem := range packerBuilds {
+			packerImageOptions[packerBuildItem.SaveName] = composeImageOptions(t, packerBuildItem.PackerBuildName, WORK_DIR, packerBuildItem.useEnterpriseVault, vaultDownloadUrl)
 		}
 
 		imageIds := packer.BuildArtifacts(t, packerImageOptions)
-		test_structure.SaveString(t, WORK_DIR, SAVED_OPEN_SOURCE_VAULT_IMAGE, imageIds[SAVED_OPEN_SOURCE_VAULT_IMAGE])
-		test_structure.SaveString(t, WORK_DIR, SAVED_ENTERPRISE_VAULT_IMAGE, imageIds[SAVED_ENTERPRISE_VAULT_IMAGE])
+		for imageKey, imageId := range imageIds {
+			test_structure.SaveString(t, WORK_DIR, imageKey, imageId)
+		}
 	})
 
 	defer test_structure.RunTestStage(t, "delete_images", func() {
 		projectID := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
 
-		deleteVaultImage(t, WORK_DIR, projectID, SAVED_OPEN_SOURCE_VAULT_IMAGE)
-		deleteVaultImage(t, WORK_DIR, projectID, SAVED_ENTERPRISE_VAULT_IMAGE)
+		for _, packerBuildItem := range packerBuilds {
+			deleteVaultImage(t, WORK_DIR, projectID, packerBuildItem.SaveName)
+		}
 
 		tlsCert := loadTLSCert(t, WORK_DIR)
 		cleanupTLSCertFiles(tlsCert)
@@ -104,9 +140,14 @@ func runAllTests(t *testing.T) {
 		// "Be Careful with Table Driven Tests and t.Parallel()"
 		// https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721
 		testCase := testCase
-		t.Run(fmt.Sprintf("%sWithUbuntu", testCase.Name), func(t *testing.T) {
-			t.Parallel()
-			testCase.Func(t)
-		})
+		for _, packerBuildItem := range packerBuilds {
+			packerBuildItem := packerBuildItem
+			if packerBuildItem.useEnterpriseVault == testCase.testWithEnterpriseVault {
+				t.Run(fmt.Sprintf("%sWith%s", testCase.Name, packerBuildItem.SaveName), func(t *testing.T) {
+					t.Parallel()
+					testCase.Func(t, packerBuildItem.SaveName)
+				})
+			}
+		}
 	}
 }

@@ -4,6 +4,7 @@
 # with the following operating systems:
 #
 # 1. Ubuntu 16.04
+# 2. Ubuntu 18.04
 
 set -e
 

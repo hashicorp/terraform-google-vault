@@ -4,6 +4,7 @@ This folder contains a script for configuring and running Vault on an [Google Cl
 script has been tested on the following operating systems:
 
 * Ubuntu 16.04
+* Ubuntu 18.04
 
 There is a good chance it will work on other flavors of Debian as well.
 

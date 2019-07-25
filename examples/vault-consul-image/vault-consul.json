@@ -13,12 +13,21 @@
     "tls_private_key_path": null
   },
   "builders": [{
-    "name": "ubuntu-16",
+    "name": "ubuntu16-image",
     "type": "googlecompute",
     "project_id": "{{user `project_id`}}",
     "source_image_family": "ubuntu-1604-lts",
     "zone": "{{user `zone`}}",
-    "image_name": "vault-consul-{{uuid | clean_image_name}}",
+    "image_name": "vault-consul-ubuntu16-{{uuid | clean_image_name}}",
+    "image_family": "vault-consul",
+    "ssh_username": "ubuntu"
+  },{
+    "name": "ubuntu18-image",
+    "type": "googlecompute",
+    "project_id": "{{user `project_id`}}",
+    "source_image_family": "ubuntu-1604-lts",
+    "zone": "{{user `zone`}}",
+    "image_name": "vault-consul-ubuntu18-{{uuid | clean_image_name}}",
     "image_family": "vault-consul",
     "ssh_username": "ubuntu"
   }],

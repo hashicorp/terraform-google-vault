@@ -23,7 +23,7 @@ const TFVAR_NAME_CONSUL_SOURCE_IMAGE = "consul_server_source_image"
 const TFVAR_NAME_CONSUL_SERVER_CLUSTER_NAME = "consul_server_cluster_name"
 const TFVAR_NAME_CONSUL_SERVER_CLUSTER_MACHINE_TYPE = "consul_server_machine_type"
 
-func runVaultPublicClusterTest(t *testing.T) {
+func runVaultPublicClusterTest(t *testing.T, packerBuildSaveName string) {
 	exampleDir := test_structure.CopyTerraformFolderToTemp(t, "../", ".")
 
 	defer test_structure.RunTestStage(t, "teardown", func() {
@@ -38,7 +38,7 @@ func runVaultPublicClusterTest(t *testing.T) {
 	test_structure.RunTestStage(t, "deploy", func() {
 		projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
 		region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
-		imageID := test_structure.LoadString(t, WORK_DIR, SAVED_OPEN_SOURCE_VAULT_IMAGE)
+		imageID := test_structure.LoadString(t, WORK_DIR, packerBuildSaveName)
 
 		// GCP only supports lowercase names for some resources
 		uniqueID := strings.ToLower(random.UniqueId())

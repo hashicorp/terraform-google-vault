@@ -1,20 +1,21 @@
 # Vault and Consul Google Image
 
-This folder shows an example of how to use the [install-vault module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-vault) from this Module and 
+This folder shows an example of how to use the [install-vault module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-vault) from this Module and
 the [install-consul](https://github.com/hashicorp/terraform-google-consul/tree/master/modules/install-consul)
 and [install-dnsmasq](https://github.com/hashicorp/terraform-google-consul/tree/master/modules/install-dnsmasq) modules
 from the Consul GCP Module with [Packer](https://www.packer.io/) to create a [Google Image](
 https://cloud.google.com/compute/docs/images) that has Vault and Consul installed on top of:
- 
+
 1. Ubuntu 16.04
+1. Ubuntu 18.04
 
 You can use this Google Image to deploy a [Vault cluster](https://www.vaultproject.io/) by using the [vault-cluster
-module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-cluster). This Vault cluster will use Consul as its storage backend, so you can also use the 
-same Google Image to deploy a separate [Consul server cluster](https://www.consul.io/) by using the [consul-cluster 
-module](https://github.com/hashicorp/terraform-google-consul/tree/master/modules/consul-cluster). 
+module](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/vault-cluster). This Vault cluster will use Consul as its storage backend, so you can also use the
+same Google Image to deploy a separate [Consul server cluster](https://www.consul.io/) by using the [consul-cluster
+module](https://github.com/hashicorp/terraform-google-consul/tree/master/modules/consul-cluster).
 
-Check out the [vault-cluster-private](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private) and 
-[vault-cluster-public](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) examples for working sample code. For more info on Vault 
+Check out the [vault-cluster-private](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private) and
+[vault-cluster-public](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) examples for working sample code. For more info on Vault
 installation and configuration, check out the [install-vault](https://github.com/hashicorp/terraform-google-vault/tree/master/modules/install-vault) documentation.
 
 You can also use this example Packer template to build a Cloud Image that includes Enterprise versions of both Vault & Consul. See below for more
@@ -45,8 +46,8 @@ To build the Vault and Consul Google Image:
 
 1. Run `packer build vault-consul.json`.
 
-When the build finishes, it will output the ID of the new Google Image. To see how to deploy this Image, check out the 
-[vault-cluster-private](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private) and [vault-cluster-public](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public) 
+When the build finishes, it will output the ID of the new Google Image. To see how to deploy this Image, check out the
+[vault-cluster-private](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-private) and [vault-cluster-public](https://github.com/hashicorp/terraform-google-vault/tree/master/examples/vault-cluster-public)
 examples.
 
 
@@ -54,8 +55,8 @@ examples.
 
 ## Creating your own Packer template for production usage
 
-When creating your own Packer template for production usage, you can copy the example in this folder more or less 
-exactly, except for one change: we recommend replacing the `file` provisioner with a call to `git clone` in the `shell` 
+When creating your own Packer template for production usage, you can copy the example in this folder more or less
+exactly, except for one change: we recommend replacing the `file` provisioner with a call to `git clone` in the `shell`
 provisioner. Instead of:
 
 ```json
@@ -91,8 +92,8 @@ Your code should look more like this:
 
 You should replace `<MODULE_VERSION>` in the code above with the version of this Module that you want to use (see
 the [Releases Page](https://github.com/hashicorp/terraform-google-vault/releases) for all available versions). That's because for production usage, you should always
-use a fixed, known version of this Module, downloaded from the official Git repo. On the other hand, when you're 
-just experimenting with the Module, it's OK to use a local checkout of the Module, uploaded from your own 
+use a fixed, known version of this Module, downloaded from the official Git repo. On the other hand, when you're
+just experimenting with the Module, it's OK to use a local checkout of the Module, uploaded from your own
 computer.
 
 ## Building an Image with the Enterprise versions installed
