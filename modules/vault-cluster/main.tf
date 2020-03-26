@@ -276,7 +276,7 @@ resource "google_compute_firewall" "allow_inbound_health_check" {
   }
 
   # Per https://goo.gl/xULu8U, all Google Cloud Health Check requests will be sent from 35.191.0.0/16
-  source_ranges = ["35.191.0.0/16"]
+  source_ranges = ["35.191.0.0/16", "130.211.0.0/22"]
   target_tags   = [var.cluster_tag_name]
 }
 
