@@ -3,9 +3,9 @@
   "variables": {
     "project_id": null,
     "zone": null,
-    "vault_version": "0.11.5",
+    "vault_version": "1.5.4",
     "consul_module_version": "v0.3.1",
-    "consul_version": "1.3.1",
+    "consul_version": "1.5.3",
     "consul_download_url": "{{env `CONSUL_DOWNLOAD_URL`}}",
     "vault_download_url": "{{env `VAULT_DOWNLOAD_URL`}}",
     "ca_public_key_path": null,
@@ -25,12 +25,12 @@
   "provisioners": [{
     "type": "shell",
     "inline": ["mkdir -p /tmp/terraform-google-vault/modules"]
-  },{
+  }, {
     "type": "file",
     "source": "{{template_dir}}/../../modules/",
     "destination": "/tmp/terraform-google-vault/modules",
     "pause_before": "30s"
-  },{
+  }, {
     "type": "shell",
     "inline": [
       "if test -n \"{{user `vault_download_url`}}\"; then",
@@ -40,19 +40,19 @@
       "fi",
       "sudo /tmp/terraform-google-vault/modules/install-nginx/install-nginx --signing-key /tmp/terraform-google-vault/modules/install-nginx/nginx_signing.key"
     ]
-  },{
+  }, {
     "type": "file",
     "source": "{{user `ca_public_key_path`}}",
     "destination": "/tmp/ca.crt.pem"
-  },{
+  }, {
     "type": "file",
     "source": "{{user `tls_public_key_path`}}",
     "destination": "/tmp/vault.crt.pem"
-  },{
+  }, {
     "type": "file",
     "source": "{{user `tls_private_key_path`}}",
     "destination": "/tmp/vault.key.pem"
-  },{
+  }, {
     "type": "shell",
     "inline": [
       "sudo mv /tmp/ca.crt.pem /opt/vault/tls/",
@@ -62,14 +62,14 @@
       "sudo chmod 600 /opt/vault/tls/*",
       "sudo /tmp/terraform-google-vault/modules/update-certificate-store/update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"
     ]
-  },{
+  }, {
     "type": "shell",
     "inline": [
       "sudo mkdir -p /opt/gruntwork",
       "git clone --branch v0.0.3 https://github.com/gruntwork-io/bash-commons.git /tmp/bash-commons",
       "sudo cp -r /tmp/bash-commons/modules/bash-commons/src /opt/gruntwork/bash-commons"
     ]
-  },{
+  }, {
     "type": "shell",
     "inline": [
       "git clone --branch {{user `consul_module_version`}} https://@github.com/hashicorp/terraform-google-consul.git /tmp/terraform-google-consul",
