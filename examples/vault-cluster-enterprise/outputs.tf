@@ -26,6 +26,10 @@ output "instance_group_url" {
   value = "${module.vault_cluster.instance_group_url}"
 }
 
+output "instance_group_name" {
+  value = "${module.vault_cluster.instance_group_name}"
+}
+
 output "instance_template_url" {
   value = "${module.vault_cluster.instance_template_url}"
 }

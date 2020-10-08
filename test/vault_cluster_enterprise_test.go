@@ -89,12 +89,12 @@ func runVaultEnterpriseClusterTest(t *testing.T) {
 		terraformOptions := test_structure.LoadTerraformOptions(t, exampleDir)
 		projectId := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_PROJECT_ID)
 		region := test_structure.LoadString(t, WORK_DIR, SAVED_GCP_REGION_NAME)
-		instanceGroupId := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_ID)
+		instanceGroupName := terraform.OutputRequired(t, terraformOptions, TFOUT_INSTANCE_GROUP_NAME)
 
 		sshUserName := "terratest"
 		keyPair := ssh.GenerateRSAKeyPair(t, 2048)
 		saveKeyPair(t, exampleDir, keyPair)
-		addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupId, keyPair, sshUserName, 3)
+		addKeyPairToInstancesInGroup(t, projectId, region, instanceGroupName, keyPair, sshUserName, 3)
 
 		bastionName := terraform.OutputRequired(t, terraformOptions, TFVAR_NAME_BASTION_SERVER_NAME)
 		bastionInstance := gcp.FetchInstance(t, projectId, bastionName)
@@ -105,13 +105,13 @@ func runVaultEnterpriseClusterTest(t *testing.T) {
 			SshKeyPair:  keyPair,
 		}
 
-		cluster := testVaultInitializeAutoUnseal(t, projectId, region, instanceGroupId, sshUserName, keyPair, &bastionHost)
+		cluster := testVaultInitializeAutoUnseal(t, projectId, region, instanceGroupName, sshUserName, keyPair, &bastionHost)
 		testVaultUsesConsulForDns(t, cluster, &bastionHost)
 	})
 }
 
-func testVaultInitializeAutoUnseal(t *testing.T, projectId string, region string, instanceGroupId string, sshUserName string, sshKeyPair *ssh.KeyPair, bastionHost *ssh.Host) *VaultCluster {
-	cluster := findVaultClusterNodes(t, projectId, region, instanceGroupId, sshUserName, sshKeyPair, bastionHost)
+func testVaultInitializeAutoUnseal(t *testing.T, projectId string, region string, instanceGroupName string, sshUserName string, sshKeyPair *ssh.KeyPair, bastionHost *ssh.Host) *VaultCluster {
+	cluster := findVaultClusterNodes(t, projectId, region, instanceGroupName, sshUserName, sshKeyPair, bastionHost)
 
 	verifyCanSsh(t, cluster, bastionHost)
 	testVaultIsEnterprise(t, cluster.Leader, bastionHost)
