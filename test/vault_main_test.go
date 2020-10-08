@@ -17,6 +17,7 @@ const (
 	PACKER_BUILD_NAME             = "ubuntu-16"
 	SAVED_OPEN_SOURCE_VAULT_IMAGE = "ImageOpenSourceVault"
 	SAVED_ENTERPRISE_VAULT_IMAGE  = "ImageEnterpriseVault"
+	VAULT_ENTERPRISE_URL          = "https://releases.hashicorp.com/vault/1.5.4+ent/vault_1.5.4+ent_linux_amd64.zip"
 )
 
 type testCase struct {
@@ -47,15 +48,10 @@ var testCases = []testCase{
 	},
 }
 
-// To test this on CircleCI you need two URLs set a environment variables(VAULT_PACKER_TEMPLATE_VAR_VAULT_DOWNLOAD_URL)
-// so the Vault Enterprise versions can be downloaded. You would also need to set these two variables locally to run the
-// tests. The reason behind this is to prevent the actual url from being visible in the code and logs.
 func TestMainVaultCluster(t *testing.T) {
 	t.Parallel()
 
 	test_structure.RunTestStage(t, "build_images", func() {
-		vaultDownloadUrl := getUrlFromEnv(t, "VAULT_PACKER_TEMPLATE_VAR_VAULT_DOWNLOAD_URL")
-
 		projectId := gcp.GetGoogleProjectIDFromEnvVar(t)
 		region := gcp.GetRandomRegion(t, projectId, nil, nil)
 		zone := gcp.GetRandomZoneForRegion(t, projectId, region)
@@ -69,7 +65,7 @@ func TestMainVaultCluster(t *testing.T) {
 
 		packerImageOptions := map[string]*packer.Options{
 			SAVED_OPEN_SOURCE_VAULT_IMAGE: composeImageOptions(t, PACKER_BUILD_NAME, WORK_DIR, ""),
-			SAVED_ENTERPRISE_VAULT_IMAGE:  composeImageOptions(t, PACKER_BUILD_NAME, WORK_DIR, vaultDownloadUrl),
+			SAVED_ENTERPRISE_VAULT_IMAGE:  composeImageOptions(t, PACKER_BUILD_NAME, WORK_DIR, VAULT_ENTERPRISE_URL),
 		}
 
 		imageIds := packer.BuildArtifacts(t, packerImageOptions)
