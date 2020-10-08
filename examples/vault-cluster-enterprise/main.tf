@@ -62,7 +62,7 @@ resource "google_compute_instance" "bastion" {
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-1810-cosmic-v20181114"
+      image = "ubuntu-1804-bionic-v20200923"
     }
   }
 
