@@ -1,5 +1,5 @@
 {
-  "min_packer_version": "1.0.4",
+  "min_packer_version": "1.6.2",
   "variables": {
     "project_id": null,
     "zone": null,
@@ -18,7 +18,7 @@
     "project_id": "{{user `project_id`}}",
     "source_image_family": "ubuntu-1604-lts",
     "zone": "{{user `zone`}}",
-    "image_name": "vault-consul-{{uuid | clean_image_name}}",
+    "image_name": "vault-consul-{{uuid | clean_resource_name}}",
     "image_family": "vault-consul",
     "ssh_username": "ubuntu"
   }],
