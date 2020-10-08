@@ -17,7 +17,7 @@ jobs:
     - restore_cache:
         keys:
         - dep-{{ checksum "test/Gopkg.lock" }}
-    - run: configure-environment-for-gruntwork-module --go-src-path test --use-go-dep --circle-ci-2
+    - run: configure-environment-for-gruntwork-module --go-src-path test --use-go-dep --circle-ci-2 --packer-version 1.6.2
     - save_cache:
         key: dep-{{ checksum "test/Gopkg.lock" }}
         paths:
