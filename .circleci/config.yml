@@ -14,7 +14,7 @@ jobs:
       - attach_workspace:
           at: *workspace_root
       # Install gruntwork utilities
-      - run: configure-environment-for-gruntwork-module --go-src-path test --use-go-dep --circle-ci-2 --packer-version 1.6.2
+      - run: configure-environment-for-gruntwork-module --go-src-path test --use-go-dep --circle-ci-2 --terraform-version 0.11.14 --packer-version 1.6.2
       - run: echo 'export PATH=$HOME/terraform:$HOME/packer:$PATH' >> $BASH_ENV
       # Write service account creds to disk where the API expects them
       - run: mkdir -p /tmp/logs
