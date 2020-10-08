@@ -34,6 +34,7 @@ workflows:
   version: 2
   build-and-test:
     jobs:
-      - filters:
+      - test:
+        filters:
           tags:
             only: /^v.*/
