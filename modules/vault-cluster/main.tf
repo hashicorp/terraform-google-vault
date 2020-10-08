@@ -57,8 +57,11 @@ resource "google_compute_region_instance_group_manager" "vault" {
   project = "${var.gcp_project_id}"
 
   base_instance_name = "${var.cluster_name}"
-  instance_template  = "${data.template_file.compute_instance_template_self_link.rendered}"
   region             = "${var.gcp_region}"
+
+  version {
+    instance_template = "${data.template_file.compute_instance_template_self_link.rendered}"
+  }
 
   # Restarting a Vault server has an important consequence: The Vault server has to be manually unsealed again. Therefore,
   # the update strategy used to roll out a new GCE Instance Template must be a rolling update. But since Terraform does
@@ -347,5 +350,5 @@ data "google_compute_image" "image" {
 # This is a work around so we don't have yet another combination of google_compute_instance_template
 # with counts that depend on yet another flag
 locals {
-  service_account_email = "${var.create_service_account == 1 ? element(concat(google_service_account.vault_cluster_admin.*.email, list("")), 0)  : var.service_account_email}"
+  service_account_email = "${var.create_service_account == 1 ? element(concat(google_service_account.vault_cluster_admin.*.email, list("")), 0) : var.service_account_email}"
 }
