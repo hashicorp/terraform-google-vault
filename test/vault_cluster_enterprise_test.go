@@ -105,11 +105,11 @@ func runVaultEnterpriseClusterTest(t *testing.T) {
 			SshKeyPair:  keyPair,
 		}
 
-		cluster := testVaultInitializeAutoUnseal(t, projectId, region, instanceGroupName, sshUserName, keyPair, &bastionHost)
-
+		testVaultInitializeAutoUnseal(t, projectId, region, instanceGroupName, sshUserName, keyPair, &bastionHost)
 		// TODO: temporarily disable DNS check until https://github.com/hashicorp/terraform-google-vault/issues/56 is
 		// fixed. See https://github.com/hashicorp/terraform-google-vault/pull/55 for details.
 		//
+		//cluster := testVaultInitializeAutoUnseal(t, projectId, region, instanceGroupName, sshUserName, keyPair, &bastionHost)
 		//testVaultUsesConsulForDns(t, cluster, &bastionHost)
 	})
 }
