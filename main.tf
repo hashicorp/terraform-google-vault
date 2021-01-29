@@ -77,7 +77,7 @@ data "template_file" "startup_script_vault" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "consul_cluster" {
-  source = "git::git@github.com:hashicorp/terraform-google-consul.git//modules/consul-cluster?ref=v0.4.0"
+  source = "github.com/teradici/terraform-google-consul//modules/consul-cluster?ref=v0.5.0"
 
   gcp_project_id = var.gcp_project_id
   gcp_region     = var.gcp_region
