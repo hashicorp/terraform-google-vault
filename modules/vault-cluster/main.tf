@@ -57,14 +57,16 @@ resource "google_compute_region_instance_group_manager" "vault" {
   project = var.gcp_project_id
 
   base_instance_name = var.cluster_name
-  instance_template  = data.template_file.compute_instance_template_self_link.rendered
   region             = var.gcp_region
 
   # Restarting a Vault server has an important consequence: The Vault server has to be manually unsealed again. Therefore,
   # the update strategy used to roll out a new GCE Instance Template must be a rolling update. But since Terraform does
   # not yet support ROLLING_UPDATE, such updates must be manually rolled out for now.
-  update_strategy = var.instance_group_update_strategy
-
+	version {	
+  name              = "vault-canary"	
+  instance_template = data.template_file.compute_instance_template_self_link.rendered	
+  }
+  
   target_pools = var.instance_group_target_pools
   target_size  = var.cluster_size
 
@@ -184,6 +186,10 @@ resource "google_compute_instance_template" "vault_private" {
     subnetwork_project = var.network_project_id != null ? var.network_project_id : var.gcp_project_id
   }
 
+  shielded_instance_config {	
+    enable_secure_boot = true	
+  }
+  
   # For a full list of oAuth 2.0 Scopes, see https://developers.google.com/identity/protocols/googlescopes
   service_account {
     email = local.service_account_email
